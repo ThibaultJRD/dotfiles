@@ -1,4 +1,4 @@
 # Config
 
 ## Terminal
-Download I
+Download [Iterm2](https://iterm2.com/)
