@@ -22,7 +22,7 @@
 > `eval "$(/opt/homebrew/bin/brew shellenv)"`
 
 - Install some Home brew packages with the following command:
-> `brew install n neovim starship git bat lazygit`
+> `brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf`
 
 ### N
 - Configure N, add following lines to your `.zshrc`
@@ -40,3 +40,7 @@ export PATH=$N_PREFIX/bin:$PATH
 - Add this line at **the end** of `.zshrc` file
 > `eval "$(starship init zsh)"`
 - Add `starship.toml` file to your `~/.config/`
+
+### Fonts
+- Go to Iterms settings and `Text` then choose JetBrain nerd font, 14, ligature and check "use built in powerline glyphs"
+- Choose symbols only nerd font for no Ascii font
