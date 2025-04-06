@@ -23,3 +23,11 @@
 
 - Install some Home brew packages with the following command:
 > `brew install n neovim starship git bat lazygit`
+
+
+### N
+- Configure N, add following lines to your `.zshrc`
+```bash
+export N_PREFIX=$HOME/.n
+export PATH=$N_PREFIX/bin:$PATH
+```
