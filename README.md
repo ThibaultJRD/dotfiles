@@ -24,10 +24,19 @@
 - Install some Home brew packages with the following command:
 > `brew install n neovim starship git bat lazygit`
 
-
 ### N
 - Configure N, add following lines to your `.zshrc`
 ```bash
 export N_PREFIX=$HOME/.n
 export PATH=$N_PREFIX/bin:$PATH
 ```
+- Install desire node version
+
+### Yarn
+- Install yarn with:
+> `npm -g install yarn`
+
+### Starship
+- Add this line at **the end** of `.zshrc` file
+> `eval "$(starship init zsh)"`
+- Add `starship.toml` file to your `~/.config/`
