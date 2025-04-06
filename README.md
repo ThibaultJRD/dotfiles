@@ -4,7 +4,7 @@
 
 ### Iterm 2
 - Download [Iterm2](https://iterm2.com/)
-- Go to ITerm settings and 
+- Go to ITerm settings and import 
 
 ### OMyZsh
 - Install OMyZsh with this command :
