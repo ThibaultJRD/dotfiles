@@ -24,6 +24,28 @@
 - Install some Home brew packages with the following command:
 > `brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf`
 
+### Starship
+- Add this line at **the end** of `.zshrc` file
+> `eval "$(starship init zsh)"`
+- Add `starship.toml` file to your `~/.config/`
+
+### Fonts
+- Go to Iterms settings and `Text` then choose JetBrain nerd font, 14, ligature and check "use built in powerline glyphs"
+- Choose symbols only nerd font for no Ascii font
+
+### ZSH plugins
+- Install [Zsh syntax highlighting](https://github.com/zsh-users/zsh-syntax-highlighting/tree/master) with:
+> `git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting`
+- Install [Zsh autosuggestion](https://github.com/zsh-users/zsh-autosuggestions/tree/master) with:
+> `git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions`
+
+- Add the following plugins to your `plugins=(git zsh-syntax-highlighting zsh-autosuggestions z)`
+
+### Color ls
+`sudo gem install colorls`
+- Add this following line to `.zshrc`
+> `alias ls='colorls'`
+
 ### N
 - Configure N, add following lines to your `.zshrc`
 ```bash
@@ -36,11 +58,3 @@ export PATH=$N_PREFIX/bin:$PATH
 - Install yarn with:
 > `npm -g install yarn`
 
-### Starship
-- Add this line at **the end** of `.zshrc` file
-> `eval "$(starship init zsh)"`
-- Add `starship.toml` file to your `~/.config/`
-
-### Fonts
-- Go to Iterms settings and `Text` then choose JetBrain nerd font, 14, ligature and check "use built in powerline glyphs"
-- Choose symbols only nerd font for no Ascii font
