@@ -46,6 +46,14 @@
 - Add this following line to `.zshrc`
 > `alias ls='colorls'`
 
+### FZF
+- Install [fzf](https://github.com/junegunn/fzf)
+- Add this to your `.zshrc`
+```bash
+source <(fzf --zsh)
+alias f='nvim $(fzf -m --preview="bat --color=always {}")'
+```
+
 ### N
 - Configure N, add following lines to your `.zshrc`
 ```bash
