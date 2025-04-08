@@ -2,9 +2,9 @@
 
 ## Terminal
 
-### Iterm 2
-- Download [Iterm2](https://iterm2.com/)
-- Go to ITerm settings and import `catppuccin-mocha.itermcolors` in color presets
+### Kitty
+- Download [Kitty](https://sw.kovidgoyal.net/kitty/binary/)
+- Copy kitty folder into your `~/.config`
 
 ### OMyZsh
 - Install OMyZsh with this command :
