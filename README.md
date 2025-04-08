@@ -56,6 +56,11 @@ source <(fzf --zsh)
 alias f='nvim $(fzf -m --preview="bat --color=always {}")'
 ```
 
+### TMUX
+- Add the `.tmux.conf`file to your HOME and launch `tmux` command
+- Install [Tmux plugins manager](https://github.com/tmux-plugins/tpm) (TPM) with the followind command :
+> `git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`
+
 ### N
 - Configure N, add following lines to your `.zshrc`
 ```bash
