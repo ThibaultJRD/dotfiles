@@ -49,7 +49,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 ```bash
 source $(dirname $(gem which colorls))/tab_complete.sh
 alias ls='colorls'
-alias la='color -lA --sd'
+alias la='colorls -lA --sd'
 ```
 
 ### FZF
