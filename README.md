@@ -17,12 +17,14 @@
 - Install Homebrew with the following command:
 > `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 - Run these commands in your terminal to add Homebrew to your PATH: (Take care about the username)
-> `echo >> /Users/thibault/.zprofile`
-> `echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/thibault/.zprofile`
-> `eval "$(/opt/homebrew/bin/brew shellenv)"`
+```bash
+echo >> /Users/thibault/.zprofile
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/thibault/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
 
 - Install some Home brew packages with the following command:
-> `brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf luarocks`
+> `brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf luarocks tmux`
 
 ### Starship
 - Add this line at **the end** of `.zshrc` file
