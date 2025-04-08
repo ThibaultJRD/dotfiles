@@ -60,6 +60,7 @@ alias f='nvim $(fzf -m --preview="bat --color=always {}")'
 - Add the `.tmux.conf`file to your HOME and launch `tmux` command
 - Install [Tmux plugins manager](https://github.com/tmux-plugins/tpm) (TPM) with the followind command :
 > `git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`
+- Hit <Leader>I (C-s + I) to install all of plugins
 
 ### N
 - Configure N, add following lines to your `.zshrc`
