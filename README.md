@@ -24,7 +24,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
 - Install some Home brew packages with the following command:
-> `brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf luarocks tmux`
+> `brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf luarocks tmux yq`
 
 ### Starship
 - Add this line at **the end** of `.zshrc` file
@@ -46,7 +46,11 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 ### Color ls
 `sudo gem install colorls`
 - Add this following line to `.zshrc`
-> `alias ls='colorls'`
+```bash
+source $(dirname $(gem which colorls))/tab_complete.sh
+alias ls='colorls'
+alias la='color -lA --sd'
+```
 
 ### FZF
 - Install [fzf](https://github.com/junegunn/fzf)
@@ -58,9 +62,6 @@ alias f='nvim $(fzf -m --preview="bat --color=always {}")'
 
 ### TMUX
 - Add the `.tmux.conf`file to your HOME and launch `tmux` command
-- Install [Tmux plugins manager](https://github.com/tmux-plugins/tpm) (TPM) with the followind command :
-> `git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`
-- Hit <Leader>I (C-s + I) to install all of plugins
 
 ### N
 - Configure N, add following lines to your `.zshrc`
