@@ -24,7 +24,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
 - Install some Home brew packages with the following command:
-> `brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf luarocks tmux yq`
+> `brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf ripgrep fd luarocks tmux yq`
 
 ### Starship
 - Add this line at **the end** of `.zshrc` file
