@@ -70,7 +70,7 @@ alias f='nvim $(fzf -m --preview="bat --color=always {}")'
 ```
 
 ### TMUX
-- Add the `tmux.conf`file to your `.config/tmux` and launch `tmux` command
+- Add the `tmux.conf` file and all folder content to your `.config/tmux` and launch `tmux` command
 
 ### N
 - Configure N, add following lines to your `.zshrc`
