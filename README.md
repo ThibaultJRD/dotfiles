@@ -86,3 +86,8 @@ export PATH=$N_PREFIX/bin:$PATH
 npm -g install yarn
 ```
 
+### Bun
+- Install bun with:
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
