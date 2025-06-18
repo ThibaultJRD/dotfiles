@@ -25,17 +25,13 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 
 - Install some Home brew packages with the following command:
 ```bash
-brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf ripgrep fd luarocks tmux yq gh
+brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf ripgrep fd luarocks tmux yq gh eza
 ```
 
 ### Starship
 - Add this line at **the end** of `.zshrc` file
 > `eval "$(starship init zsh)"`
 - Add `starship.toml` file to your `~/.config/`
-
-### Fonts
-- Go to Iterms settings and `Text` then choose JetBrain nerd font, 14, ligature and check "use built in powerline glyphs"
-- Choose symbols only nerd font for no Ascii font
 
 ### ZSH plugins
 - Install [Zsh syntax highlighting](https://github.com/zsh-users/zsh-syntax-highlighting/tree/master) with:
@@ -45,13 +41,12 @@ brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font fon
 
 - Add the following plugins to your `plugins=(git zsh-syntax-highlighting zsh-autosuggestions z)`
 
-### Color ls
-`sudo gem install colorls`
+### Eza
 - Add this following line to `.zshrc`
 ```bash
-source $(dirname $(gem which colorls))/tab_complete.sh
-alias ls='colorls'
-alias la='colorls -lA --sd'
+alias ls='eza --icons --git'
+alias la='eza -l --icons --git -a --group-directories-first'
+alias lt='eza --tree --level=2 --long --icons --git'
 ```
 
 ### FZF
