@@ -1,4 +1,4 @@
-# Config
+# Dotfiles
 
 ## Terminal
 
