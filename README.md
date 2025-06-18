@@ -8,14 +8,20 @@
 
 ### OMyZsh
 - Install OMyZsh with this command :
-> `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
 
 - Add this following line to your `.zshrc`
-> `export PATH="/opt/homebrew/bin:${PATH}"`
+```bash
+export PATH="/opt/homebrew/bin:${PATH}"
+```
 
 ### HomeBrew
 - Install Homebrew with the following command:
-> `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
 - Run these commands in your terminal to add Homebrew to your PATH: (Take care about the username)
 ```bash
 echo >> /Users/thibault/.zprofile
@@ -30,14 +36,20 @@ brew install n neovim starship git bat lazygit font-jetbrains-mono-nerd-font fon
 
 ### Starship
 - Add this line at **the end** of `.zshrc` file
-> `eval "$(starship init zsh)"`
+```bash
+eval "$(starship init zsh)"
+```
 - Add `starship.toml` file to your `~/.config/`
 
 ### ZSH plugins
 - Install [Zsh syntax highlighting](https://github.com/zsh-users/zsh-syntax-highlighting/tree/master) with:
-> `git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting`
+```bash
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```
 - Install [Zsh autosuggestion](https://github.com/zsh-users/zsh-autosuggestions/tree/master) with:
-> `git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions`
+```bash
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
 
 - Add the following plugins to your `plugins=(git zsh-syntax-highlighting zsh-autosuggestions z)`
 
@@ -70,5 +82,7 @@ export PATH=$N_PREFIX/bin:$PATH
 
 ### Yarn
 - Install yarn with:
-> `npm -g install yarn`
+```bash
+npm -g install yarn
+```
 
