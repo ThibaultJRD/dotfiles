@@ -78,7 +78,12 @@ else
   echo_success "Oh My Zsh is already installed."
 fi
 
-# 3. Install dependencies from Brewfile
+# 3. Tap necessary Homebrew repositories
+echo_info "Tapping Homebrew repositories..."
+brew tap oven-sh/bun
+echo_success "Required taps are in place."
+
+# 4. Install dependencies from Brewfile
 echo_info "Installing all dependencies from Brewfile..."
 # Temporarily disable 'exit on error' for brew bundle, as it can fail on
 # a single package but we want the script to continue.
@@ -94,7 +99,7 @@ else
 fi
 
 
-# 4. Link Configuration Files
+# 5. Link Configuration Files
 echo_info "Linking configuration files..."
 backup_and_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 backup_and_link "$DOTFILES_DIR/kitty/.config/kitty" "$CONFIG_TARGET_DIR/kitty"
@@ -103,7 +108,7 @@ backup_and_link "$DOTFILES_DIR/starship/.config/starship.toml" "$CONFIG_TARGET_D
 backup_and_link "$DOTFILES_DIR/nvim/.config/nvim" "$CONFIG_TARGET_DIR/nvim"
 echo_success "All config files linked."
 
-# 5. Install or Update Zsh Plugins
+# 6. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 SYNTAX_HIGHLIGHTING_DIR="${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting"
@@ -124,7 +129,7 @@ else
 fi
 echo_success "Zsh plugins are up to date."
 
-# 6. Install Node.js LTS version
+# 7. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
 # CORRECTED: Set the necessary PATH for 'n' directly in the script
 export N_PREFIX="$HOME/.n"
