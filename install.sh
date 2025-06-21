@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# Dotfiles Installation Script
+# Dotfiles Installation Script (Robust Version)
 # ==============================================================================
 # This script automates the setup of the development environment by symlinking
 # configuration files and installing dependencies via a Brewfile.
@@ -22,8 +22,7 @@ echo_success() {
 }
 
 # --- Variables ---
-DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-CONFIG_SOURCE_DIR="$DOTFILES_DIR/.config"
+DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
 
@@ -31,37 +30,38 @@ BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
 backup_and_link() {
   local source_path=$1
   local target_path=$2
-
+  
   if [ -e "$target_path" ] && [ ! -L "$target_path" ]; then
     echo "Backing up existing '$target_path' to '$target_path.bak.$BACKUP_DATE'"
     mv "$target_path" "$target_path.bak.$BACKUP_DATE"
   fi
-
+  
   if [ -L "$target_path" ]; then
     rm "$target_path"
   fi
-
+  
   mkdir -p "$(dirname "$target_path")"
   ln -s "$source_path" "$target_path"
   echo_success "Linked '$source_path' to '$target_path'"
 }
+
 
 # --- Installation Start ---
 echo_info "Starting dotfiles setup..."
 echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
 
 # 1. Install Homebrew
-if ! command -v brew &>/dev/null; then
+if ! command -v brew &> /dev/null; then
   echo_info "Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
+  
   echo_info "Adding Homebrew to PATH..."
   if [[ "$(uname -m)" == "arm64" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>"$HOME/.zprofile"
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
   else
     eval "$(/usr/local/bin/brew shellenv)"
-    echo 'eval "$(/usr/local/bin/brew shellenv)"' >>"$HOME/.zprofile"
+    echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.zprofile"
   fi
   echo_success "Homebrew installed and configured."
 else
@@ -85,21 +85,22 @@ echo_info "Installing all dependencies from Brewfile..."
 set +e
 brew bundle --file="$DOTFILES_DIR/Brewfile"
 BREW_BUNDLE_STATUS=$? # Capture the exit code
-set -e                # Re-enable 'exit on error'
+set -e # Re-enable 'exit on error'
 
 if [ $BREW_BUNDLE_STATUS -ne 0 ]; then
-  echo_info "Warning: 'brew bundle' finished with errors. This can happen if packages like 'n' or fonts were already installed. Please review the log above. Continuing with setup..."
+    echo_info "Warning: 'brew bundle' finished with errors. This can happen if packages like 'n' or fonts were already installed. Please review the log above. Continuing with setup..."
 else
-  echo_success "All Homebrew dependencies are installed."
+    echo_success "All Homebrew dependencies are installed."
 fi
+
 
 # 4. Link Configuration Files
 echo_info "Linking configuration files..."
 backup_and_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-backup_and_link "$CONFIG_SOURCE_DIR/kitty" "$CONFIG_TARGET_DIR/kitty"
-backup_and_link "$CONFIG_SOURCE_DIR/tmux" "$CONFIG_TARGET_DIR/tmux"
-backup_and_link "$CONFIG_SOURCE_DIR/starship.toml" "$CONFIG_TARGET_DIR/starship.toml"
-backup_and_link "$CONFIG_SOURCE_DIR/nvim" "$CONFIG_TARGET_DIR/nvim"
+backup_and_link "$DOTFILES_DIR/kitty/.config/kitty" "$CONFIG_TARGET_DIR/kitty"
+backup_and_link "$DOTFILES_DIR/tmux/.config/tmux" "$CONFIG_TARGET_DIR/tmux"
+backup_and_link "$DOTFILES_DIR/starship/.config/starship.toml" "$CONFIG_TARGET_DIR/starship.toml"
+backup_and_link "$DOTFILES_DIR/nvim/.config/nvim" "$CONFIG_TARGET_DIR/nvim"
 echo_success "All config files linked."
 
 # 5. Install or Update Zsh Plugins
@@ -135,3 +136,4 @@ echo_success "Node.js LTS is installed."
 echo_info "-------------------------------------------------"
 echo_success "Setup complete!"
 echo_info "Please restart your terminal or run 'source ~/.zshrc' to apply all changes."
+
