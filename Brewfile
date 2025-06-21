@@ -24,6 +24,7 @@ brew "starship"
 brew "tmux"
 brew "yazi"
 brew "yq"
+brew "yarn"
 
 # Fonts (as Casks)
 # Note: Fonts are now in the default cask tap, no extra tap needed.
