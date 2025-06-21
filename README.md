@@ -32,13 +32,20 @@ This setup is designed to be installed with a single command.
    cd dotfiles
    ```
 
-2. **Run the installation script:**
+2. **Make the script executable:**
+   Before running the script, you need to give it execution permissions.
+
+   ```bash
+   chmod +x install.sh
+   ```
+
+3. **Run the installation script:**
 
    ```bash
    ./install.sh
    ```
 
-3. **Restart your terminal:**
+4. **Restart your terminal:**
    Close and reopen your terminal windows to load the new configuration. You may also need to set the Nerd Font in your terminal's settings to see all the icons correctly.
 
 ## 🛠️ Included Software & Configuration

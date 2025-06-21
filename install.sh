@@ -4,7 +4,7 @@
 # Dotfiles Installation Script
 # ==============================================================================
 # This script automates the setup of the development environment by symlinking
-# configuration files from this repository to their proper locations.
+# configuration files and installing dependencies via a Brewfile.
 # ==============================================================================
 
 # Exit immediately if a command exits with a non-zero status.
@@ -78,12 +78,20 @@ else
   echo_success "Oh My Zsh is already installed."
 fi
 
-# 3. Install Homebrew Packages & Fonts
-echo_info "Installing Homebrew packages and fonts..."
-brew install n neovim starship git bat lazygit fzf ripgrep fd luarocks tmux yq gh eza yazi
-brew tap homebrew/cask-fonts
-brew install --cask font-caskaydia-cove-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font
-echo_success "Homebrew packages installed."
+# 3. Install dependencies from Brewfile
+echo_info "Installing all dependencies from Brewfile..."
+# Temporarily disable 'exit on error' for brew bundle, as it can fail on
+# a single package but we want the script to continue.
+set +e
+brew bundle --file="$DOTFILES_DIR/Brewfile"
+BREW_BUNDLE_STATUS=$? # Capture the exit code
+set -e                # Re-enable 'exit on error'
+
+if [ $BREW_BUNDLE_STATUS -ne 0 ]; then
+  echo_info "Warning: 'brew bundle' finished with errors. Some packages may have failed to install or link. Please review the log above. Continuing with setup..."
+else
+  echo_success "All Homebrew dependencies are installed."
+fi
 
 # 4. Link Configuration Files
 echo_info "Linking configuration files..."
@@ -91,10 +99,7 @@ backup_and_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 backup_and_link "$CONFIG_SOURCE_DIR/kitty" "$CONFIG_TARGET_DIR/kitty"
 backup_and_link "$CONFIG_SOURCE_DIR/tmux" "$CONFIG_TARGET_DIR/tmux"
 backup_and_link "$CONFIG_SOURCE_DIR/starship.toml" "$CONFIG_TARGET_DIR/starship.toml"
-
-# Path for nvim is now correct
 backup_and_link "$CONFIG_SOURCE_DIR/nvim" "$CONFIG_TARGET_DIR/nvim"
-
 echo_success "All config files linked."
 
 # 5. Install Zsh Plugins
@@ -104,13 +109,12 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM
 git clone https://github.com/zsh-users/zsh-autosuggestions.git "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" || true
 echo_success "Zsh plugins cloned."
 
-# 6. Install Node.js tools
-echo_info "Installing Yarn and Bun..."
+# 6. Install Node.js LTS version
+echo_info "Installing latest Node.js LTS via 'n'..."
+# Source zshrc to make sure n is available
 source "$HOME/.zshrc"
 n lts
-npm install -g yarn
-curl -fsSL https://bun.sh/install | bash
-echo_success "Yarn and Bun installed."
+echo_success "Node.js LTS is installed."
 
 # --- Installation End ---
 echo_info "-------------------------------------------------"
