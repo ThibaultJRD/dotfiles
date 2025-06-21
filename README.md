@@ -27,19 +27,19 @@ This setup is designed to be installed with a single command.
 
 1. **Clone the repository:**
 
-    ```bash
-    git clone [https://github.com/YOUR_USERNAME/YOUR_REPO.git](https://github.com/YOUR_USERNAME/YOUR_REPO.git)
-    cd YOUR_REPO
-    ```
+   ```bash
+   git clone [https://github.com/ThibaultJRD/dotfiles.git](https://github.com/ThibaultJRD/dotfiles.git)
+   cd dotfiles
+   ```
 
 2. **Run the installation script:**
 
-    ```bash
-    ./install.sh
-    ```
+   ```bash
+   ./install.sh
+   ```
 
 3. **Restart your terminal:**
-    Close and reopen your terminal windows to load the new configuration. You may also need to set the Nerd Font in your terminal's settings to see all the icons correctly.
+   Close and reopen your terminal windows to load the new configuration. You may also need to set the Nerd Font in your terminal's settings to see all the icons correctly.
 
 ## 🛠️ Included Software & Configuration
 
