@@ -13,10 +13,12 @@ export PATH="$PATH:$(brew --prefix go)/libexec/bin:$HOME/go/bin"
 # -------------------------------------------------------------------
 # Oh My Zsh Configuration
 # -------------------------------------------------------------------
+# ZSH_THEME is set to "" because we use Starship to handle the prompt.
+ZSH_THEME=""
+
 # List of plugins for Oh My Zsh.
 plugins=(
   git
-  z
   fzf
   sudo
   zsh-completions
@@ -27,6 +29,18 @@ plugins=(
 
 # Load Oh My Zsh
 source $ZSH/oh-my-zsh.sh
+
+# -------------------------------------------------------------------
+# Load Custom Configurations
+# -------------------------------------------------------------------
+# Source all .zsh files from our custom config directory
+ZSH_CUSTOM_CONF_DIR="$HOME/.config/zsh/conf.d"
+if [ -d "$ZSH_CUSTOM_CONF_DIR" ]; then
+  for config_file in $ZSH_CUSTOM_CONF_DIR/*.zsh; do
+    [ -r "$config_file" ] && source "$config_file"
+  done
+  unset config_file
+fi
 
 # -------------------------------------------------------------------
 # Environment & Aliases
@@ -45,26 +59,20 @@ export BUN_INSTALL="$HOME/.bun"
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
+# Zoxide (smarter cd)
+eval "$(zoxide init zsh --cmd cd)"
+
 # General aliases
 alias cat='bat'
 alias lg='lazygit'
 alias v='nvim'
-alias f='nvim $(fzf -m --preview="bat --color=always {}")'
 alias ls="eza --color=always --long --git --no-filesize --icons=always --no-time --no-user --no-permissions"
 alias la='eza -l --icons --git -a --group-directories-first'
 alias lt='eza --tree --level=2 --long --icons --git'
-
-# Yazi: Function to change directory on exit
-function y() {
-	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-	yazi "$@" --cwd-file="$tmp"
-	IFS= read -r -d '' cwd < "$tmp"
-	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
-	rm -f -- "$tmp"
-}
 
 # -------------------------------------------------------------------
 # Starship Prompt
 # Must be at the end of the file to take control of the prompt.
 # -------------------------------------------------------------------
 eval "$(starship init zsh)"
+

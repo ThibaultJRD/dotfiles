@@ -101,9 +101,9 @@ echo_info "Linking configuration files..."
 # Handle .zshrc specifically, as it's in the root
 backup_and_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 
-# Automatically link all modular config directories
+# Automatically link all modular tool config directories (kitty, nvim, etc.)
 for tool_dir in "$DOTFILES_DIR"/*/; do
-  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]]; then
+  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"zsh_configs/"* ]]; then
     continue
   fi
   source_item=$(find "$tool_dir.config/" -mindepth 1 -maxdepth 1 2>/dev/null)
@@ -112,6 +112,20 @@ for tool_dir in "$DOTFILES_DIR"/*/; do
     backup_and_link "$source_item" "$CONFIG_TARGET_DIR/$target_name"
   fi
 done
+
+# Link custom zsh configuration files
+ZSH_CONF_SOURCE_DIR="$DOTFILES_DIR/zsh_configs"
+ZSH_CONF_TARGET_DIR="$HOME/.config/zsh/conf.d"
+if [ -d "$ZSH_CONF_SOURCE_DIR" ]; then
+  echo_info "Linking custom Zsh configurations..."
+  mkdir -p "$ZSH_CONF_TARGET_DIR"
+  for conf_file in "$ZSH_CONF_SOURCE_DIR"/*.zsh; do
+    if [ -f "$conf_file" ]; then
+      backup_and_link "$conf_file" "$ZSH_CONF_TARGET_DIR/$(basename "$conf_file")"
+    fi
+  done
+fi
+
 echo_success "All config files are linked."
 
 # 6. Build Caches
