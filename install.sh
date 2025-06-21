@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# Dotfiles Installation Script (Robust Version)
+# Dotfiles Installation Script
 # ==============================================================================
 # This script automates the setup of the development environment by symlinking
 # configuration files and installing dependencies via a Brewfile.
@@ -22,7 +22,7 @@ echo_success() {
 }
 
 # --- Variables ---
-DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
 
@@ -30,38 +30,37 @@ BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
 backup_and_link() {
   local source_path=$1
   local target_path=$2
-  
+
   if [ -e "$target_path" ] && [ ! -L "$target_path" ]; then
     echo "Backing up existing '$target_path' to '$target_path.bak.$BACKUP_DATE'"
     mv "$target_path" "$target_path.bak.$BACKUP_DATE"
   fi
-  
+
   if [ -L "$target_path" ]; then
     rm "$target_path"
   fi
-  
+
   mkdir -p "$(dirname "$target_path")"
   ln -s "$source_path" "$target_path"
   echo_success "Linked '$source_path' to '$target_path'"
 }
-
 
 # --- Installation Start ---
 echo_info "Starting dotfiles setup..."
 echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
 
 # 1. Install Homebrew
-if ! command -v brew &> /dev/null; then
+if ! command -v brew &>/dev/null; then
   echo_info "Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  
+
   echo_info "Adding Homebrew to PATH..."
   if [[ "$(uname -m)" == "arm64" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>"$HOME/.zprofile"
   else
     eval "$(/usr/local/bin/brew shellenv)"
-    echo 'eval "$(/usr/local/bin/brew shellenv)"' >> "$HOME/.zprofile"
+    echo 'eval "$(/usr/local/bin/brew shellenv)"' >>"$HOME/.zprofile"
   fi
   echo_success "Homebrew installed and configured."
 else
@@ -85,19 +84,16 @@ echo_success "Required taps are in place."
 
 # 4. Install dependencies from Brewfile
 echo_info "Installing all dependencies from Brewfile..."
-# Temporarily disable 'exit on error' for brew bundle, as it can fail on
-# a single package but we want the script to continue.
 set +e
 brew bundle --file="$DOTFILES_DIR/Brewfile"
-BREW_BUNDLE_STATUS=$? # Capture the exit code
-set -e # Re-enable 'exit on error'
+BREW_BUNDLE_STATUS=$?
+set -e
 
 if [ $BREW_BUNDLE_STATUS -ne 0 ]; then
-    echo_info "Warning: 'brew bundle' finished with errors. This can happen if packages like 'n' or fonts were already installed. Please review the log above. Continuing with setup..."
+  echo_info "Warning: 'brew bundle' finished with errors. Continuing with setup..."
 else
-    echo_success "All Homebrew dependencies are installed."
+  echo_success "All Homebrew dependencies are installed."
 fi
-
 
 # 5. Link Configuration Files
 echo_info "Linking configuration files..."
@@ -111,27 +107,25 @@ echo_success "All config files linked."
 # 6. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-SYNTAX_HIGHLIGHTING_DIR="${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting"
-AUTOSUGGESTIONS_DIR="${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
-
-# zsh-syntax-highlighting
-if [ -d "$SYNTAX_HIGHLIGHTING_DIR" ]; then
-  (cd "$SYNTAX_HIGHLIGHTING_DIR" && git pull)
-else
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$SYNTAX_HIGHLIGHTING_DIR"
-fi
-
-# zsh-autosuggestions
-if [ -d "$AUTOSUGGESTIONS_DIR" ]; then
-  (cd "$AUTOSUGGESTIONS_DIR" && git pull)
-else
-  git clone https://github.com/zsh-users/zsh-autosuggestions.git "$AUTOSUGGESTIONS_DIR"
-fi
+# Function to simplify plugin install/update
+install_or_update_plugin() {
+  local repo_url=$1
+  local plugin_dir_name=$(basename "$repo_url" .git)
+  local target_dir="${ZSH_CUSTOM}/plugins/${plugin_dir_name}"
+  if [ -d "$target_dir" ]; then
+    (cd "$target_dir" && git pull)
+  else
+    git clone "$repo_url" "$target_dir"
+  fi
+}
+install_or_update_plugin https://github.com/zsh-users/zsh-syntax-highlighting.git
+install_or_update_plugin https://github.com/zsh-users/zsh-autosuggestions.git
+install_or_update_plugin https://github.com/zsh-users/zsh-completions.git
+install_or_update_plugin https://github.com/zsh-users/zsh-history-substring-search.git
 echo_success "Zsh plugins are up to date."
 
 # 7. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
-# CORRECTED: Set the necessary PATH for 'n' directly in the script
 export N_PREFIX="$HOME/.n"
 export PATH="$N_PREFIX/bin:$PATH"
 n lts
@@ -141,4 +135,3 @@ echo_success "Node.js LTS is installed."
 echo_info "-------------------------------------------------"
 echo_success "Setup complete!"
 echo_info "Please restart your terminal or run 'source ~/.zshrc' to apply all changes."
-

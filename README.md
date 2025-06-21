@@ -1,5 +1,8 @@
 # My Personal Dotfiles
 
+![Starship Prompt Image](https://starship.rs/presets/pastel-powerline.png)
+_(Feel free to replace this image with a screenshot of your own terminal once it's set up!)_
+
 This repository contains my personal configuration files (dotfiles) for creating a modern and productive terminal environment on macOS. The setup is automated via a simple installation script.
 
 ## ✨ Features
@@ -10,7 +13,7 @@ This repository contains my personal configuration files (dotfiles) for creating
 - **File Management:**
   - [Eza](https://github.com/eza-community/eza) as a modern replacement for `ls`.
   - [Yazi](https://github.com/sxyazi/yazi) as a terminal file manager with previews.
-  - [fzf](https://github.com/junegunn/fzf) for lightning-fast fuzzy finding.
+  - [fzf](https://github.com/junegunn/fzf) for lightning-fast fuzzy finding and history search.
 - **Git Integration:**
   - [Lazygit](https://github.com/jesseduffield/lazygit) for a simple terminal UI for git commands.
   - Git aliases and status integrated into the prompt.
@@ -18,7 +21,7 @@ This repository contains my personal configuration files (dotfiles) for creating
 
 ## 🚀 Installation
 
-This setup is designed to be installed with a single command.
+This setup is designed to be installed with a few simple commands.
 
 > **⚠️ Warning:** The script will create backups of your existing configuration files (`.zshrc`, `.config/kitty`, etc.) before creating symbolic links to the files in this repository.
 
@@ -51,32 +54,44 @@ This script will install and configure the following components:
 
 ### Terminal Setup
 
-| Tool            | Description                                                                               |
-| :-------------- | :---------------------------------------------------------------------------------------- |
-| **Kitty**       | My primary terminal emulator. The configuration is located in `.config/kitty/`.           |
-| **Zsh**         | The default shell, enhanced with Oh My Zsh.                                               |
-| **Oh My Zsh**   | Framework for managing Zsh configuration.                                                 |
-| **zsh-plugins** | `zsh-syntax-highlighting` and `zsh-autosuggestions` for a better command-line experience. |
-| **Starship**    | Provides the cross-shell prompt. Configured in `.config/starship.toml`.                   |
-| **Homebrew**    | The package manager for macOS used to install all the tools.                              |
+| Tool          | Description                                                                     |
+| :------------ | :------------------------------------------------------------------------------ |
+| **Kitty**     | My primary terminal emulator. The configuration is located in `.config/kitty/`. |
+| **Zsh**       | The default shell, enhanced with Oh My Zsh.                                     |
+| **Oh My Zsh** | Framework for managing Zsh configuration and plugins.                           |
+| **Starship**  | Provides the cross-shell prompt. Configured in `.config/starship.toml`.         |
+| **Homebrew**  | The package manager for macOS used to install all the tools.                    |
+
+### Zsh Plugins
+
+| Plugin                       | Description                                                           |
+| :--------------------------- | :-------------------------------------------------------------------- |
+| **git**                      | Adds many Git aliases and convenience functions.                      |
+| **z**                        | Tracks your most used directories for quick navigation.               |
+| **fzf**                      | Supercharges history search (`Ctrl+R`) and other bindings.            |
+| **sudo**                     | Easily prepend `sudo` to the current command by pressing `Esc` twice. |
+| **zsh-completions**          | Adds a vast number of `Tab` completions for common tools.             |
+| **zsh-syntax-highlighting**  | Provides real-time syntax highlighting in the command line.           |
+| **zsh-autosuggestions**      | Suggests commands as you type based on your history.                  |
+| **history-substring-search** | Allows searching history with partial matches (up/down arrows).       |
 
 ### Core Utilities
 
-| Tool        | Alias / Command  | Description                                                                |
-| :---------- | :--------------- | :------------------------------------------------------------------------- |
-| **Neovim**  | `nvim` or `v`    | My main text editor, with configs in `.config/nvim/`.                      |
-| **Eza**     | `ls`, `la`, `lt` | A modern `ls` with colors, icons, and git integration.                     |
-| **bat**     | `cat`            | A `cat` clone with syntax highlighting and Git integration.                |
-| **fzf**     | `f` (custom)     | A command-line fuzzy finder. The alias `f` opens selected files in Neovim. |
-| **lazygit** | `lg`             | A simple terminal UI for git commands.                                     |
-| **yazi**    | `y`              | A fast terminal file manager with previews.                                |
-| **tmux**    | `tmux`           | A terminal multiplexer. Configuration is in `.config/tmux/`.               |
+| Tool        | Alias / Command  | Description                                                  |
+| :---------- | :--------------- | :----------------------------------------------------------- |
+| **Neovim**  | `nvim` or `v`    | My main text editor, with configs in `.config/nvim/`.        |
+| **Eza**     | `ls`, `la`, `lt` | A modern `ls` with colors, icons, and git integration.       |
+| **bat**     | `cat`            | A `cat` clone with syntax highlighting and Git integration.  |
+| **lazygit** | `lg`             | A simple terminal UI for git commands.                       |
+| **yazi**    | `y`              | A fast terminal file manager with previews.                  |
+| **tmux**    | `tmux`           | A terminal multiplexer. Configuration is in `.config/tmux/`. |
 
 ### Development Environment
 
 | Tool             | Description                                              |
 | :--------------- | :------------------------------------------------------- |
 | **n**            | A simple and effective Node.js version manager.          |
+| **Go**           | The Go programming language toolchain.                   |
 | **npm/yarn/bun** | Essential package managers for the JavaScript ecosystem. |
 
 ## Fonts
@@ -86,5 +101,6 @@ For a correct display of icons and symbols, this script installs the following "
 - Caskaydia Cove Nerd Font
 - Victor Mono Nerd Font
 - Symbols Only Nerd Font
+- JetBrains Mono NL Nerd Font
 
-After installation, make sure to configure your terminal's font (e.g., in `kitty.conf` or your emulator's preferences) to use `CaskaydiaCove Nerd Font` or another "Nerd Font" of your choice.
+After installation, make sure to configure your terminal's font (e.g., in `kitty.conf` or your emulator's preferences) to use a "Nerd Font" of your choice.
