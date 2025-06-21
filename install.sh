@@ -97,12 +97,29 @@ fi
 
 # 5. Link Configuration Files
 echo_info "Linking configuration files..."
+
+# Handle .zshrc specifically, as it's in the root
 backup_and_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-backup_and_link "$DOTFILES_DIR/kitty/.config/kitty" "$CONFIG_TARGET_DIR/kitty"
-backup_and_link "$DOTFILES_DIR/tmux/.config/tmux" "$CONFIG_TARGET_DIR/tmux"
-backup_and_link "$DOTFILES_DIR/starship/.config/starship.toml" "$CONFIG_TARGET_DIR/starship.toml"
-backup_and_link "$DOTFILES_DIR/nvim/.config/nvim" "$CONFIG_TARGET_DIR/nvim"
-echo_success "All config files linked."
+
+# Automatically link all modular config directories
+# This loop finds each tool's directory (like kitty/, nvim/, etc.) at the root,
+# finds the actual config inside its .config/ subfolder, and links it.
+for tool_dir in "$DOTFILES_DIR"/*/; do
+  # Continue if the item is not a directory or is the .git directory
+  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]]; then
+    continue
+  fi
+
+  # Find the actual config file or directory inside the tool's .config folder
+  source_item=$(find "$tool_dir.config/" -mindepth 1 -maxdepth 1 2>/dev/null)
+
+  # If a config item was found, link it
+  if [ -n "$source_item" ]; then
+    target_name=$(basename "$source_item")
+    backup_and_link "$source_item" "$CONFIG_TARGET_DIR/$target_name"
+  fi
+done
+echo_success "All config files are linked."
 
 # 6. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
