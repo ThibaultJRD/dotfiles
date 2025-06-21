@@ -49,11 +49,19 @@ export BUN_INSTALL="$HOME/.bun"
 alias cat='bat'
 alias lg='lazygit'
 alias v='nvim'
-alias y='yazi'
 alias f='nvim $(fzf -m --preview="bat --color=always {}")'
 alias ls='eza --icons --git'
 alias la='eza -l --icons --git -a --group-directories-first'
 alias lt='eza --tree --level=2 --long --icons --git'
+
+# Yazi: Function to change directory on exit
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
 
 # -------------------------------------------------------------------
 # Starship Prompt
