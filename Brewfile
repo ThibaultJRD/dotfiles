@@ -30,4 +30,4 @@ brew "yq"
 cask "font-caskaydia-cove-nerd-font"
 cask "font-victor-mono-nerd-font"
 cask "font-symbols-only-nerd-font"
-
+cask "font-jetbrains-mono-nerd-font"
