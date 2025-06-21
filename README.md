@@ -1,8 +1,5 @@
 # My Personal Dotfiles
 
-![Starship Prompt Image](https://starship.rs/presets/pastel-powerline.png)
-_(Feel free to replace this image with a screenshot of your own terminal once it's set up!)_
-
 This repository contains my personal configuration files (dotfiles) for creating a modern and productive terminal environment on macOS. The setup is automated via a simple installation script.
 
 ## ✨ Features
