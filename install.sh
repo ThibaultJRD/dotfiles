@@ -88,7 +88,7 @@ BREW_BUNDLE_STATUS=$? # Capture the exit code
 set -e                # Re-enable 'exit on error'
 
 if [ $BREW_BUNDLE_STATUS -ne 0 ]; then
-  echo_info "Warning: 'brew bundle' finished with errors. Some packages may have failed to install or link. Please review the log above. Continuing with setup..."
+  echo_info "Warning: 'brew bundle' finished with errors. This can happen if packages like 'n' or fonts were already installed. Please review the log above. Continuing with setup..."
 else
   echo_success "All Homebrew dependencies are installed."
 fi
@@ -102,17 +102,32 @@ backup_and_link "$CONFIG_SOURCE_DIR/starship.toml" "$CONFIG_TARGET_DIR/starship.
 backup_and_link "$CONFIG_SOURCE_DIR/nvim" "$CONFIG_TARGET_DIR/nvim"
 echo_success "All config files linked."
 
-# 5. Install Zsh Plugins
-echo_info "Cloning Zsh plugins..."
+# 5. Install or Update Zsh Plugins
+echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting" || true
-git clone https://github.com/zsh-users/zsh-autosuggestions.git "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" || true
-echo_success "Zsh plugins cloned."
+SYNTAX_HIGHLIGHTING_DIR="${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting"
+AUTOSUGGESTIONS_DIR="${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
+
+# zsh-syntax-highlighting
+if [ -d "$SYNTAX_HIGHLIGHTING_DIR" ]; then
+  (cd "$SYNTAX_HIGHLIGHTING_DIR" && git pull)
+else
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$SYNTAX_HIGHLIGHTING_DIR"
+fi
+
+# zsh-autosuggestions
+if [ -d "$AUTOSUGGESTIONS_DIR" ]; then
+  (cd "$AUTOSUGGESTIONS_DIR" && git pull)
+else
+  git clone https://github.com/zsh-users/zsh-autosuggestions.git "$AUTOSUGGESTIONS_DIR"
+fi
+echo_success "Zsh plugins are up to date."
 
 # 6. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
-# Source zshrc to make sure n is available
-source "$HOME/.zshrc"
+# CORRECTED: Set the necessary PATH for 'n' directly in the script
+export N_PREFIX="$HOME/.n"
+export PATH="$N_PREFIX/bin:$PATH"
 n lts
 echo_success "Node.js LTS is installed."
 
