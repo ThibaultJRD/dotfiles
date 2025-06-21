@@ -28,7 +28,7 @@ This setup is designed to be installed with a single command.
 1. **Clone the repository:**
 
    ```bash
-   git clone [https://github.com/ThibaultJRD/dotfiles.git](https://github.com/ThibaultJRD/dotfiles.git)
+   git clone https://github.com/ThibaultJRD/dotfiles.git
    cd dotfiles
    ```
 
