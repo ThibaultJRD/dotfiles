@@ -1,93 +1,86 @@
-# Dotfiles
+# My Personal Dotfiles
 
-## Terminal
+![Starship Prompt Image](https://starship.rs/presets/pastel-powerline.png)
+_(Feel free to replace this image with a screenshot of your own terminal once it's set up!)_
 
-### Kitty
-- Download [Kitty](https://sw.kovidgoyal.net/kitty/binary/)
-- Copy kitty folder into your `~/.config`
+This repository contains my personal configuration files (dotfiles) for creating a modern and productive terminal environment on macOS. The setup is automated via a simple installation script.
 
-### OMyZsh
-- Install OMyZsh with this command :
-```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
+## ✨ Features
 
-- Add this following line to your `.zshrc`
-```bash
-export PATH="/opt/homebrew/bin:${PATH}"
-```
+- **Shell & Prompt:** Zsh + Oh My Zsh for a powerful shell, with [Starship](https://starship.rs/) for a minimal, fast, and highly customizable prompt.
+- **Terminal:** [Kitty](https://sw.kovidgoyal.net/kitty/), a fast, feature-rich, GPU-based terminal emulator.
+- **Editor:** A pre-configured [Neovim](https://neovim.io/) setup for a lightweight and efficient coding experience.
+- **File Management:**
+  - [Eza](https://github.com/eza-community/eza) as a modern replacement for `ls`.
+  - [Yazi](https://github.com/sxyazi/yazi) as a terminal file manager with previews.
+  - [fzf](https://github.com/junegunn/fzf) for lightning-fast fuzzy finding.
+- **Git Integration:**
+  - [Lazygit](https://github.com/jesseduffield/lazygit) for a simple terminal UI for git commands.
+  - Git aliases and status integrated into the prompt.
+- **Tools & Utilities:** [Homebrew](https://brew.sh/) for package management, [bat](https://github.com/sharkdp/bat) as a `cat` clone with syntax highlighting, and much more.
 
-### HomeBrew
-- Install Homebrew with the following command:
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-- Run these commands in your terminal to add Homebrew to your PATH: (Take care about the username)
-```bash
-echo >> /Users/thibault/.zprofile
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/thibault/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
-```
+## 🚀 Installation
 
-- Install some Home brew packages with the following command:
-```bash
-brew install n neovim starship git bat lazygit font-caskaydia-cove-nerd-font font-victor-mono-nerd-font font-symbols-only-nerd-font fzf ripgrep fd luarocks tmux yq gh eza
-```
+This setup is designed to be installed with a single command.
 
-### Starship
-- Add this line at **the end** of `.zshrc` file
-```bash
-eval "$(starship init zsh)"
-```
-- Add `starship.toml` file to your `~/.config/`
+> **⚠️ Warning:** The script will create backups of your existing configuration files (`.zshrc`, `.config/kitty`, etc.) before creating symbolic links to the files in this repository.
 
-### ZSH plugins
-- Install [Zsh syntax highlighting](https://github.com/zsh-users/zsh-syntax-highlighting/tree/master) with:
-```bash
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-```
-- Install [Zsh autosuggestion](https://github.com/zsh-users/zsh-autosuggestions/tree/master) with:
-```bash
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-```
+1. **Clone the repository:**
 
-- Add the following plugins to your `plugins=(git zsh-syntax-highlighting zsh-autosuggestions z)`
+    ```bash
+    git clone [https://github.com/YOUR_USERNAME/YOUR_REPO.git](https://github.com/YOUR_USERNAME/YOUR_REPO.git)
+    cd YOUR_REPO
+    ```
 
-### Eza
-- Add this following line to `.zshrc`
-```bash
-alias ls='eza --icons --git'
-alias la='eza -l --icons --git -a --group-directories-first'
-alias lt='eza --tree --level=2 --long --icons --git'
-```
+2. **Run the installation script:**
 
-### FZF
-- Install [fzf](https://github.com/junegunn/fzf)
-- Add this to your `.zshrc`
-```bash
-source <(fzf --zsh)
-alias f='nvim $(fzf -m --preview="bat --color=always {}")'
-```
+    ```bash
+    ./install.sh
+    ```
 
-### TMUX
-- Add the `tmux.conf` file and all folder content to your `.config/tmux` and launch `tmux` command
+3. **Restart your terminal:**
+    Close and reopen your terminal windows to load the new configuration. You may also need to set the Nerd Font in your terminal's settings to see all the icons correctly.
 
-### N
-- Configure N, add following lines to your `.zshrc`
-```bash
-export N_PREFIX=$HOME/.n
-export PATH=$N_PREFIX/bin:$PATH
-```
-- Install desire node version
+## 🛠️ Included Software & Configuration
 
-### Yarn
-- Install yarn with:
-```bash
-npm -g install yarn
-```
+This script will install and configure the following components:
 
-### Bun
-- Install bun with:
-```bash
-curl -fsSL https://bun.sh/install | bash
-```
+### Terminal Setup
+
+| Tool            | Description                                                                               |
+| :-------------- | :---------------------------------------------------------------------------------------- |
+| **Kitty**       | My primary terminal emulator. The configuration is located in `.config/kitty/`.           |
+| **Zsh**         | The default shell, enhanced with Oh My Zsh.                                               |
+| **Oh My Zsh**   | Framework for managing Zsh configuration.                                                 |
+| **zsh-plugins** | `zsh-syntax-highlighting` and `zsh-autosuggestions` for a better command-line experience. |
+| **Starship**    | Provides the cross-shell prompt. Configured in `.config/starship.toml`.                   |
+| **Homebrew**    | The package manager for macOS used to install all the tools.                              |
+
+### Core Utilities
+
+| Tool        | Alias / Command  | Description                                                                |
+| :---------- | :--------------- | :------------------------------------------------------------------------- |
+| **Neovim**  | `nvim` or `v`    | My main text editor, with configs in `.config/nvim/`.                      |
+| **Eza**     | `ls`, `la`, `lt` | A modern `ls` with colors, icons, and git integration.                     |
+| **bat**     | `cat`            | A `cat` clone with syntax highlighting and Git integration.                |
+| **fzf**     | `f` (custom)     | A command-line fuzzy finder. The alias `f` opens selected files in Neovim. |
+| **lazygit** | `lg`             | A simple terminal UI for git commands.                                     |
+| **yazi**    | `y`              | A fast terminal file manager with previews.                                |
+| **tmux**    | `tmux`           | A terminal multiplexer. Configuration is in `.config/tmux/`.               |
+
+### Development Environment
+
+| Tool             | Description                                              |
+| :--------------- | :------------------------------------------------------- |
+| **n**            | A simple and effective Node.js version manager.          |
+| **npm/yarn/bun** | Essential package managers for the JavaScript ecosystem. |
+
+## Fonts
+
+For a correct display of icons and symbols, this script installs the following "Nerd Fonts" via Homebrew:
+
+- Caskaydia Cove Nerd Font
+- Victor Mono Nerd Font
+- Symbols Only Nerd Font
+
+After installation, make sure to configure your terminal's font (e.g., in `kitty.conf` or your emulator's preferences) to use `CaskaydiaCove Nerd Font` or another "Nerd Font" of your choice.

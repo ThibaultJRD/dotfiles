@@ -30,7 +30,7 @@ alias v='nvim'
 alias y='yazi'
 
 # bun completions
-[ -s "/Users/thibault/.bun/_bun" ] && source "/Users/thibault/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
