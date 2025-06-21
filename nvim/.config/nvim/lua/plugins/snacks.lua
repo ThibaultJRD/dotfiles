@@ -4,8 +4,8 @@ return {
     opts = {
       picker = {
         files = {
-          hidden = false,
-          ignored = false,
+          hidden = true,
+          ignored = true,
         },
         win = {
           list = {

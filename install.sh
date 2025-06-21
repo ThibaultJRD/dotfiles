@@ -102,18 +102,11 @@ echo_info "Linking configuration files..."
 backup_and_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 
 # Automatically link all modular config directories
-# This loop finds each tool's directory (like kitty/, nvim/, etc.) at the root,
-# finds the actual config inside its .config/ subfolder, and links it.
 for tool_dir in "$DOTFILES_DIR"/*/; do
-  # Continue if the item is not a directory or is the .git directory
   if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]]; then
     continue
   fi
-
-  # Find the actual config file or directory inside the tool's .config folder
   source_item=$(find "$tool_dir.config/" -mindepth 1 -maxdepth 1 2>/dev/null)
-
-  # If a config item was found, link it
   if [ -n "$source_item" ]; then
     target_name=$(basename "$source_item")
     backup_and_link "$source_item" "$CONFIG_TARGET_DIR/$target_name"
@@ -121,7 +114,12 @@ for tool_dir in "$DOTFILES_DIR"/*/; do
 done
 echo_success "All config files are linked."
 
-# 6. Install or Update Zsh Plugins
+# 6. Build Caches
+echo_info "Building caches for tools..."
+bat cache --build
+echo_success "Bat cache rebuilt."
+
+# 7. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 # Function to simplify plugin install/update
@@ -141,7 +139,7 @@ install_or_update_plugin https://github.com/zsh-users/zsh-completions.git
 install_or_update_plugin https://github.com/zsh-users/zsh-history-substring-search.git
 echo_success "Zsh plugins are up to date."
 
-# 7. Install Node.js LTS version
+# 8. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
 export N_PREFIX="$HOME/.n"
 export PATH="$N_PREFIX/bin:$PATH"

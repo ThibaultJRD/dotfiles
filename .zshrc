@@ -50,7 +50,7 @@ alias cat='bat'
 alias lg='lazygit'
 alias v='nvim'
 alias f='nvim $(fzf -m --preview="bat --color=always {}")'
-alias ls='eza --icons --git'
+alias ls="eza --color=always --long --git --no-filesize --icons=always --no-time --no-user --no-permissions"
 alias la='eza -l --icons --git -a --group-directories-first'
 alias lt='eza --tree --level=2 --long --icons --git'
 
