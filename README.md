@@ -49,7 +49,7 @@ This setup is designed to be installed with a few simple commands.
 5.  **Restart your terminal:**
     Close and reopen your terminal windows to load the new configuration. You may also need to set the Nerd Font in your terminal's settings to see all the icons correctly.
 
-6. **Launch Tmux**
+6. **Launch Tmux:**
    ```bash
    tmux
    ```
