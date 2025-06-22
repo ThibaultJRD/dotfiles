@@ -6,8 +6,8 @@ This repository contains my personal configuration files (dotfiles) for creating
 
 ## ✨ Features
 
-- **Shell & Prompt:** Zsh + Oh My Zsh, with [Starship](https://starship.rs/) for a minimal, fast, and highly customizable prompt.
 - **Terminal:** [Kitty](https://sw.kovidgoyal.net/kitty/), a fast, feature-rich, GPU-based terminal emulator.
+- **Shell & Prompt:** Zsh + Oh My Zsh, with [Starship](https://starship.rs/) for a minimal, fast, and highly customizable prompt.
 - **Theming:** A consistent [Catppuccin Mocha](https://github.com/catppuccin) theme across `kitty`, `bat`, and `yazi`.
 - **Editor:** A pre-configured [Neovim (LazyVim)](https://neovim.io/) setup for a lightweight and efficient coding experience.
 - **File Management:**
@@ -22,24 +22,31 @@ This setup is designed to be installed with a few simple commands.
 
 > **⚠️ Warning:** The script will create backups of your existing configuration files (`.zshrc`, `.config/kitty`, etc.) before creating symbolic links to the files in this repository.
 
-1.  **Clone the repository:**
+1. **Install a real terminal emulator:**
+   Install and open [Kitty](https://sw.kovidgoyal.net/kitty/binary)
+   ```bash
+   curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+   open /Applications/kitty.app
+   ```
+
+2.  **Clone the repository:**
     ```bash
     git clone https://github.com/ThibaultJRD/dotfiles.git
     cd dotfiles
     ```
 
-2.  **Make the script executable:**
+3.  **Make the script executable:**
     Before running the script, you need to give it execution permissions.
     ```bash
     chmod +x install.sh
     ```
 
-3.  **Run the installation script:**
+4.  **Run the installation script:**
     ```bash
     ./install.sh
     ```
 
-4.  **Restart your terminal:**
+5.  **Restart your terminal:**
     Close and reopen your terminal windows to load the new configuration. You may also need to set the Nerd Font in your terminal's settings to see all the icons correctly.
 
 ## 🛠️ Included Software & Configuration
