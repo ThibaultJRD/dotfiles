@@ -95,7 +95,16 @@ else
   echo_success "All Homebrew dependencies are installed."
 fi
 
-# 5. Link Configuration Files
+# 5. Clean up old plugin directories
+echo_info "Cleaning up old plugin directories to ensure fresh install..."
+TMUX_MODULES_DIR="$HOME/.config/tmux/modules"
+if [ -d "$TMUX_MODULES_DIR" ]; then
+  echo "Removing old tmux plugin directory..."
+  rm -rf "$TMUX_MODULES_DIR"
+  echo_success "Removed tmux plugins directory."
+fi
+
+# 6. Link Configuration Files
 echo_info "Linking configuration files..."
 
 # Handle .zshrc specifically, as it's in the root
@@ -128,12 +137,12 @@ fi
 
 echo_success "All config files are linked."
 
-# 6. Build Caches
+# 7. Build Caches
 echo_info "Building caches for tools..."
 bat cache --build
 echo_success "Bat cache rebuilt."
 
-# 7. Install or Update Zsh Plugins
+# 8. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 # Function to simplify plugin install/update
@@ -153,7 +162,7 @@ install_or_update_plugin https://github.com/zsh-users/zsh-completions.git
 install_or_update_plugin https://github.com/zsh-users/zsh-history-substring-search.git
 echo_success "Zsh plugins are up to date."
 
-# 8. Install Node.js LTS version
+# 9. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
 export N_PREFIX="$HOME/.n"
 export PATH="$N_PREFIX/bin:$PATH"
