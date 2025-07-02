@@ -21,6 +21,17 @@ echo_success() {
   printf "\033[1;32m✓ %s\033[0m\n" "$1"
 }
 
+# For printing warning messages
+echo_warning() {
+  printf "\033[1;33m! %s\033[0m\n" "$1"
+}
+
+# For printing error messages and exiting
+echo_error() {
+  printf "\033[1;31m✗ %s\033[0m\n" "$1" >&2
+  exit 1
+}
+
 # --- Variables ---
 DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 CONFIG_TARGET_DIR="$HOME/.config"
@@ -38,12 +49,21 @@ backup_and_link() {
   local source_path=$1
   local target_path=$2
 
+  # Check if the target is already a symlink to the source
+  if [ -L "$target_path" ] && [ "$(readlink "$target_path")" = "$source_path" ]; then
+    echo_success "Already linked '$source_path' to '$target_path'. Skipping."
+    return 0
+  fi
+
+  # If target exists and is not a symlink, back it up
   if [ -e "$target_path" ] && [ ! -L "$target_path" ]; then
-    echo "Backing up existing '$target_path' to '$target_path.bak.$BACKUP_DATE'"
+    echo_info "Backing up existing '$target_path' to '$target_path.bak.$BACKUP_DATE'"
     mv "$target_path" "$target_path.bak.$BACKUP_DATE"
   fi
 
+  # If target is a symlink (but not to the correct source, handled above), remove it
   if [ -L "$target_path" ]; then
+    echo "Removing old symlink '$target_path'"
     rm "$target_path"
   fi
 
@@ -55,6 +75,16 @@ backup_and_link() {
 # --- Installation Start ---
 echo_info "Starting dotfiles setup..."
 echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
+
+# Pre-requisite checks
+echo_info "Checking prerequisites..."
+if ! command -v git &>/dev/null; then
+  echo_error "Git is not installed. Please install Git to proceed."
+fi
+if ! command -v curl &>/dev/null; then
+  echo_error "Curl is not installed. Please install Curl to proceed."
+fi
+echo_success "All prerequisites are met."
 
 # 1. Install Homebrew
 if ! command -v brew &>/dev/null; then
