@@ -26,6 +26,13 @@ DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
 
+# --- Secrets Management ---
+# Add any secret environment variables you want the script to manage here.
+SECRETS_TO_MANAGE=(
+  "GEMINI_API_KEY"
+  # "ANOTHER_API_KEY" # Example: Add more keys here in the future
+)
+
 # --- Pre-run Check and Backup Function ---
 backup_and_link() {
   local source_path=$1
@@ -95,9 +102,24 @@ else
   echo_success "All Homebrew dependencies are installed."
 fi
 
-# 5. Setup Zsh Configuration
-echo_info "Setting up Zsh configuration..."
-# Copy .zshrc instead of symlinking to allow for local modifications (e.g., API keys)
+# 5. Setup Zsh Configuration and API Keys
+echo_info "Setting up Zsh configuration and local secrets..."
+
+# Preserve existing secrets using standard arrays for macOS compatibility
+declare -a preserved_keys=()
+declare -a preserved_values=()
+if [ -f "$HOME/.zshrc" ]; then
+  for key_name in "${SECRETS_TO_MANAGE[@]}"; do
+    if grep -q "$key_name" "$HOME/.zshrc"; then
+      value=$(grep "$key_name" "$HOME/.zshrc" | cut -d'=' -f2 | tr -d '"')
+      preserved_keys+=("$key_name")
+      preserved_values+=("$value")
+      echo "Found existing $key_name. Preserving it."
+    fi
+  done
+fi
+
+# Always update the base .zshrc from the repository.
 if [ -f "$HOME/.zshrc" ]; then
   echo "Backing up existing ~/.zshrc to ~/.zshrc.bak.$BACKUP_DATE"
   mv "$HOME/.zshrc" "$HOME/.zshrc.bak.$BACKUP_DATE"
@@ -105,25 +127,40 @@ fi
 cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 echo_success "Copied .zshrc template to home directory."
 
-# 6. Add Gemini API Key
-# Check if the key is already set to avoid adding it multiple times
-if ! grep -q "GEMINI_API_KEY" "$HOME/.zshrc"; then
-  echo_info "Setting up Gemini API Key..."
-  read -s -p "Enter your Gemini API Key (will not be displayed): " gemini_key
-  echo # Newline for cleaner output
-  if [ -n "$gemini_key" ]; then
-    # Append the key to the local .zshrc
-    echo -e "\n# Gemini API Key (local only)" >>"$HOME/.zshrc"
-    echo "export GEMINI_API_KEY=\"$gemini_key\"" >>"$HOME/.zshrc"
-    echo_success "Gemini API Key saved to ~/.zshrc"
-  else
-    echo "No API key entered. Skipping."
-  fi
-else
-  echo_success "Gemini API Key is already set in ~/.zshrc."
+# Handle API keys: re-apply preserved keys or prompt for new ones.
+LOCAL_ONLY_MARKER="# Local-only secrets (not in Git)"
+
+# Re-apply all preserved keys first
+if ((${#preserved_keys[@]} > 0)); then
+  echo -e "\n$LOCAL_ONLY_MARKER" >>"$HOME/.zshrc"
+  for i in "${!preserved_keys[@]}"; do
+    key_name="${preserved_keys[$i]}"
+    key_value="${preserved_values[$i]}"
+    echo "export $key_name=\"$key_value\"" >>"$HOME/.zshrc"
+    echo_success "Restored existing $key_name."
+  done
 fi
 
-# 7. Link Other Configuration Files
+# Now, prompt for any keys that are in the list but were not preserved
+for key_name in "${SECRETS_TO_MANAGE[@]}"; do
+  if ! grep -q "$key_name" "$HOME/.zshrc"; then
+    echo_info "Setting up $key_name..."
+    read -s -p "Enter your $key_name (will not be displayed): " new_key_value
+    echo # Newline for cleaner output
+    if [ -n "$new_key_value" ]; then
+      # Add the marker only if it's not there yet
+      if ! grep -q "$LOCAL_ONLY_MARKER" "$HOME/.zshrc"; then
+        echo -e "\n$LOCAL_ONLY_MARKER" >>"$HOME/.zshrc"
+      fi
+      echo "export $key_name=\"$new_key_value\"" >>"$HOME/.zshrc"
+      echo_success "$key_name saved to ~/.zshrc"
+    else
+      echo "No value entered for $key_name. Skipping."
+    fi
+  fi
+done
+
+# 6. Link Other Configuration Files
 echo_info "Linking other configuration files..."
 
 # Automatically link all modular tool config directories (kitty, nvim, etc.)
@@ -153,12 +190,12 @@ fi
 
 echo_success "All config files are linked."
 
-# 8. Build Caches
+# 7. Build Caches
 echo_info "Building caches for tools..."
 bat cache --build
 echo_success "Bat cache rebuilt."
 
-# 9. Install or Update Zsh Plugins
+# 8. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 # Function to simplify plugin install/update
@@ -178,12 +215,17 @@ install_or_update_plugin https://github.com/zsh-users/zsh-completions.git
 install_or_update_plugin https://github.com/zsh-users/zsh-history-substring-search.git
 echo_success "Zsh plugins are up to date."
 
-# 10. Install Node.js LTS version
+# 9. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
 export N_PREFIX="$HOME/.n"
 export PATH="$N_PREFIX/bin:$PATH"
 n lts
 echo_success "Node.js LTS is installed."
+
+# 10. Install Global NPM Packages
+echo_info "Installing global NPM packages..."
+npm install -g @google/gemini-cli
+echo_success "Global NPM packages installed."
 
 # --- Installation End ---
 echo_info "-------------------------------------------------"
