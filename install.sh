@@ -95,20 +95,36 @@ else
   echo_success "All Homebrew dependencies are installed."
 fi
 
-# 5. Clean up old plugin directories
-echo_info "Cleaning up old plugin directories to ensure fresh install..."
-TMUX_MODULES_DIR="$HOME/.config/tmux/modules"
-if [ -d "$TMUX_MODULES_DIR" ]; then
-  echo "Removing old tmux plugin directory..."
-  rm -rf "$TMUX_MODULES_DIR"
-  echo_success "Removed tmux plugins directory."
+# 5. Setup Zsh Configuration
+echo_info "Setting up Zsh configuration..."
+# Copy .zshrc instead of symlinking to allow for local modifications (e.g., API keys)
+if [ -f "$HOME/.zshrc" ]; then
+  echo "Backing up existing ~/.zshrc to ~/.zshrc.bak.$BACKUP_DATE"
+  mv "$HOME/.zshrc" "$HOME/.zshrc.bak.$BACKUP_DATE"
+fi
+cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+echo_success "Copied .zshrc template to home directory."
+
+# 6. Add Gemini API Key
+# Check if the key is already set to avoid adding it multiple times
+if ! grep -q "GEMINI_API_KEY" "$HOME/.zshrc"; then
+  echo_info "Setting up Gemini API Key..."
+  read -s -p "Enter your Gemini API Key (will not be displayed): " gemini_key
+  echo # Newline for cleaner output
+  if [ -n "$gemini_key" ]; then
+    # Append the key to the local .zshrc
+    echo -e "\n# Gemini API Key (local only)" >>"$HOME/.zshrc"
+    echo "export GEMINI_API_KEY=\"$gemini_key\"" >>"$HOME/.zshrc"
+    echo_success "Gemini API Key saved to ~/.zshrc"
+  else
+    echo "No API key entered. Skipping."
+  fi
+else
+  echo_success "Gemini API Key is already set in ~/.zshrc."
 fi
 
-# 6. Link Configuration Files
-echo_info "Linking configuration files..."
-
-# Handle .zshrc specifically, as it's in the root
-backup_and_link "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+# 7. Link Other Configuration Files
+echo_info "Linking other configuration files..."
 
 # Automatically link all modular tool config directories (kitty, nvim, etc.)
 for tool_dir in "$DOTFILES_DIR"/*/; do
@@ -137,12 +153,12 @@ fi
 
 echo_success "All config files are linked."
 
-# 7. Build Caches
+# 8. Build Caches
 echo_info "Building caches for tools..."
 bat cache --build
 echo_success "Bat cache rebuilt."
 
-# 8. Install or Update Zsh Plugins
+# 9. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 # Function to simplify plugin install/update
@@ -162,7 +178,7 @@ install_or_update_plugin https://github.com/zsh-users/zsh-completions.git
 install_or_update_plugin https://github.com/zsh-users/zsh-history-substring-search.git
 echo_success "Zsh plugins are up to date."
 
-# 9. Install Node.js LTS version
+# 10. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
 export N_PREFIX="$HOME/.n"
 export PATH="$N_PREFIX/bin:$PATH"
