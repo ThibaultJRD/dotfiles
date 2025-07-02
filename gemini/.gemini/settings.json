@@ -4,9 +4,8 @@
   "preferredEditor": "neovim",
   "autoAccept": true,
   "usageStatisticsEnabled": false,
-  "sandbox": true,
+  "sandbox": "docker",
   "checkpointing": {
     "enabled": true
   }
 }
-
