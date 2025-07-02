@@ -193,15 +193,30 @@ done
 # 6. Link Other Configuration Files
 echo_info "Linking other configuration files..."
 
-# Automatically link all modular tool config directories (kitty, nvim, etc.)
+  # Automatically link modular tool config directories
 for tool_dir in "$DOTFILES_DIR"/*/; do
+  # Skip .git and zsh_configs directories
   if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"zsh_configs/"* ]]; then
     continue
   fi
-  source_item=$(find "$tool_dir.config/" -mindepth 1 -maxdepth 1 2>/dev/null)
-  if [ -n "$source_item" ]; then
-    target_name=$(basename "$source_item")
-    backup_and_link "$source_item" "$CONFIG_TARGET_DIR/$target_name"
+
+  tool_name=$(basename "$tool_dir")
+
+  # Case 1: Configuration in .config/TOOL_NAME or .config/TOOL_NAME.ext
+  # This covers kitty, nvim, bat, yazi, starship, tmux
+  if [ -d "${tool_dir}.config/" ]; then
+    source_item_config=$(find "${tool_dir}.config/" -mindepth 1 -maxdepth 1 2>/dev/null)
+    if [ -n "$source_item_config" ]; then
+      target_name=$(basename "$source_item_config")
+      backup_and_link "$source_item_config" "${HOME}/.config/${target_name}"
+    fi
+  fi
+
+  # Case 2: Configuration in .TOOL_NAME (e.g., .gemini)
+  # This covers gemini
+  source_item_dot="${tool_dir}.${tool_name}"
+  if [ -d "$source_item_dot" ] || [ -f "$source_item_dot" ]; then
+    backup_and_link "$source_item_dot" "${HOME}/.${tool_name}"
   fi
 done
 

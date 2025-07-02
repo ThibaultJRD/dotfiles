@@ -1,0 +1,7 @@
+history/
+tmp/
+cache/
+*.log
+google-account_id
+installation_id
+oauth_creds.json

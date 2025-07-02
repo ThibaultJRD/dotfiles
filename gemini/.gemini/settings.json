@@ -1,0 +1,12 @@
+{
+  "theme": "GitHub",
+  "selectedAuthType": "gemini-api-key",
+  "preferredEditor": "neovim",
+  "autoAccept": true,
+  "usageStatisticsEnabled": false,
+  "sandbox": true,
+  "checkpointing": {
+    "enabled": true
+  }
+}
+
