@@ -10,6 +10,13 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+# --- Secrets Management ---
+# Add any secret environment variables you want the script to manage here.
+SECRETS_TO_MANAGE=(
+  "GEMINI_API_KEY"
+  # "ANOTHER_API_KEY" # Example: Add more keys here in the future
+)
+
 # --- Utility Functions ---
 # For printing informational headers
 echo_info() {
@@ -36,13 +43,6 @@ echo_error() {
 DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
-
-# --- Secrets Management ---
-# Add any secret environment variables you want the script to manage here.
-SECRETS_TO_MANAGE=(
-  "GEMINI_API_KEY"
-  # "ANOTHER_API_KEY" # Example: Add more keys here in the future
-)
 
 # --- Pre-run Check and Backup Function ---
 backup_and_link() {
@@ -193,7 +193,7 @@ done
 # 6. Link Other Configuration Files
 echo_info "Linking other configuration files..."
 
-  # Automatically link modular tool config directories
+# Automatically link modular tool config directories
 for tool_dir in "$DOTFILES_DIR"/*/; do
   # Skip .git and zsh_configs directories
   if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"zsh_configs/"* ]]; then
@@ -270,6 +270,7 @@ echo_success "Node.js LTS is installed."
 # 10. Install Global NPM Packages
 echo_info "Installing global NPM packages..."
 npm install -g @google/gemini-cli
+npm install -g @anthropic-ai/claude-code
 echo_success "Global NPM packages installed."
 
 # --- Installation End ---
