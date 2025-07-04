@@ -54,6 +54,75 @@ This setup is designed to be installed with a few simple commands.
    tmux
    ```
 
+## 🔧 Customization
+
+### Changing the Theme
+The setup uses the Catppuccin Mocha theme by default. To customize:
+
+**Starship prompt:**
+```bash
+# Edit starship/.config/starship.toml
+palette = 'your_preferred_palette'  # Change from 'catppuccin_mocha'
+```
+
+**Kitty terminal:**
+```bash
+# Edit kitty/.config/kitty/kitty.conf
+# Replace the theme include line
+include your-theme.conf
+```
+
+**Tmux:**
+```bash
+# Edit tmux/.config/tmux/tmux.conf
+set -g @catppuccin_flavor 'your_flavor'  # Change from 'mocha'
+```
+
+### Adding Custom Aliases
+Create custom configurations without modifying the main dotfiles:
+
+```bash
+# Create custom Zsh config
+mkdir -p ~/.config/zsh/conf.d
+echo 'alias myalias="my command"' > ~/.config/zsh/conf.d/custom.zsh
+```
+
+### Adding Custom Tools
+To add tools to the installation:
+
+1. **Add to Brewfile:**
+```bash
+# Add your tool to the Brewfile
+echo 'brew "your-tool"' >> Brewfile
+```
+
+2. **Add configuration:**
+```bash
+# Create config directory
+mkdir -p your-tool/.config/your-tool
+# Add your config files
+```
+
+### Environment Variables
+Add persistent environment variables to your `.zshrc`:
+
+```bash
+# The install script preserves custom environment variables
+export YOUR_VAR="your_value"
+```
+
+### Testing Your Setup
+Run the test suite to validate your installation:
+
+```bash
+./test.sh
+```
+
+For a dry-run before making changes:
+```bash
+DRY_RUN=true ./install.sh
+```
+
 ## 🛠️ Included Software & Configuration
 
 This script will install and configure the following components:

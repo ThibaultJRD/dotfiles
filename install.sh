@@ -10,6 +10,10 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+# --- Configuration ---
+DRY_RUN="${DRY_RUN:-false}"
+VERBOSE="${VERBOSE:-false}"
+
 # --- Secrets Management ---
 # Add any secret environment variables you want the script to manage here.
 SECRETS_TO_MANAGE=(
@@ -21,6 +25,11 @@ SECRETS_TO_MANAGE=(
 # For printing informational headers
 echo_info() {
   printf "\n\033[1;34m%s\033[0m\n" "$1"
+}
+
+# For printing debug messages
+echo_debug() {
+  [ "$VERBOSE" = "true" ] && printf "\033[0;36m[DEBUG] %s\033[0m\n" "$1"
 }
 
 # For printing success messages
@@ -39,15 +48,54 @@ echo_error() {
   exit 1
 }
 
+# Rollback function
+rollback_changes() {
+  if [ -f "$ROLLBACK_LOG" ]; then
+    echo_warning "Rolling back changes..."
+    while IFS= read -r line; do
+      if [[ "$line" == BACKUP:* ]]; then
+        source_backup="${line#BACKUP:}"
+        target_file="${source_backup%.bak.$BACKUP_DATE}"
+        if [ -f "$source_backup" ]; then
+          echo_debug "Restoring $target_file from $source_backup"
+          mv "$source_backup" "$target_file"
+        fi
+      elif [[ "$line" == LINK:* ]]; then
+        link_file="${line#LINK:}"
+        if [ -L "$link_file" ]; then
+          echo_debug "Removing symlink $link_file"
+          rm "$link_file"
+        fi
+      fi
+    done < "$ROLLBACK_LOG"
+    echo_success "Rollback completed"
+  fi
+  exit 1
+}
+
+# Set up error handling
+trap rollback_changes ERR
+
 # --- Variables ---
 DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
+BACKUP_DIR="$HOME/.dotfiles_backup_$BACKUP_DATE"
+ROLLBACK_LOG="$BACKUP_DIR/rollback.log"
 
 # --- Pre-run Check and Backup Function ---
 backup_and_link() {
   local source_path=$1
   local target_path=$2
+
+  # Dry run mode
+  if [ "$DRY_RUN" = "true" ]; then
+    echo_info "[DRY RUN] Would link '$source_path' to '$target_path'"
+    return 0
+  fi
+
+  # Ensure backup directory exists
+  mkdir -p "$BACKUP_DIR"
 
   # Check if the target is already a symlink to the source
   if [ -L "$target_path" ] && [ "$(readlink "$target_path")" = "$source_path" ]; then
@@ -57,8 +105,10 @@ backup_and_link() {
 
   # If target exists and is not a symlink, back it up
   if [ -e "$target_path" ] && [ ! -L "$target_path" ]; then
-    echo_info "Backing up existing '$target_path' to '$target_path.bak.$BACKUP_DATE'"
-    mv "$target_path" "$target_path.bak.$BACKUP_DATE"
+    backup_file="$target_path.bak.$BACKUP_DATE"
+    echo_info "Backing up existing '$target_path' to '$backup_file'"
+    mv "$target_path" "$backup_file"
+    echo "BACKUP:$backup_file" >> "$ROLLBACK_LOG"
   fi
 
   # If target is a symlink (but not to the correct source, handled above), remove it
@@ -69,12 +119,17 @@ backup_and_link() {
 
   mkdir -p "$(dirname "$target_path")"
   ln -s "$source_path" "$target_path"
+  echo "LINK:$target_path" >> "$ROLLBACK_LOG"
   echo_success "Linked '$source_path' to '$target_path'"
 }
 
 # --- Installation Start ---
-echo_info "Starting dotfiles setup..."
-echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
+if [ "$DRY_RUN" = "true" ]; then
+  echo_info "DRY RUN MODE: No changes will be made to your system"
+else
+  echo_info "Starting dotfiles setup..."
+  echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
+fi
 
 # Pre-requisite checks
 echo_info "Checking prerequisites..."
@@ -277,3 +332,7 @@ echo_success "Global NPM packages installed."
 echo_info "-------------------------------------------------"
 echo_success "Setup complete!"
 echo_info "Please restart your terminal or run 'source ~/.zshrc' to apply all changes."
+echo_info "To test your installation, run: ./test.sh"
+
+# Clear the trap on successful completion
+trap - ERR
