@@ -155,7 +155,7 @@ This script will install and configure the following components:
 | **Eza** | `ls`, `la`, `lt` | Modern `ls` with custom `ls` alias for a clean output. |
 | **bat** | `cat` | A `cat` clone with syntax highlighting. Themed in `bat/`. |
 | **lazygit**| `lg` | A simple terminal UI for git commands. |
-| **yazi** | `y` (function) | Fast terminal file manager. Themed and configured in `yazi/`. |
+| **yazi** | `y` | Fast terminal file manager. Themed and configured in `yazi/`. |
 | **tmux** | `tmux` | Terminal multiplexer. Configured in `tmux/`. |
 | **zoxide** | `z <dir>` | A smarter `cd` command that learns your habits. Activated in `.zshrc`. |
 
