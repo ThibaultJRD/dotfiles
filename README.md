@@ -1,186 +1,394 @@
-# My Personal Dotfiles
+# 🏠 Personal Dotfiles
 
-<img width="476" alt="Capture d’écran 2025-06-21 à 23 54 31" src="https://github.com/user-attachments/assets/c149ee55-8844-40d3-a833-a63e136217a2" />
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![macOS](https://img.shields.io/badge/macOS-Sonoma+-blue.svg)](https://www.apple.com/macos/)
+[![Shell](https://img.shields.io/badge/Shell-Zsh-green.svg)](https://zsh.sourceforge.io/)
+[![Theme](https://img.shields.io/badge/Theme-Catppuccin-pink.svg)](https://github.com/catppuccin)
 
-This repository contains my personal configuration files (dotfiles) for creating a modern and productive terminal environment on macOS. The setup is automated via a simple installation script.
+<img width="476" alt="Modern terminal setup with Catppuccin theme" src="https://github.com/user-attachments/assets/c149ee55-8844-40d3-a833-a63e136217a2" />
+
+A modern, automated dotfiles setup for macOS that creates a beautiful and productive terminal environment. Features a consistent Catppuccin theme, powerful CLI tools, and seamless integration between all components.
+
+## 📋 Table of Contents
+
+- [Quick Start](#-quick-start)
+- [Features](#-features)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [Customization](#-customization)
+- [Included Software](#-included-software)
+- [Fonts](#-fonts)
+- [Troubleshooting](#-troubleshooting)
+- [Uninstallation](#-uninstallation)
+- [License](#-license)
+
+## ⚡ Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/ThibaultJRD/dotfiles.git
+cd dotfiles
+./install.sh
+```
+
+> **Note:** The script will backup your existing configs before making changes.
 
 ## ✨ Features
 
-- **Terminal:** [Kitty](https://sw.kovidgoyal.net/kitty/), a fast, feature-rich, GPU-based terminal emulator.
-- **Shell & Prompt:** Zsh + Oh My Zsh, with [Starship](https://starship.rs/) for a minimal, fast, and highly customizable prompt.
-- **Theming:** A consistent [Catppuccin Mocha](https://github.com/catppuccin) theme across `kitty`, `bat`, and `yazi`.
-- **Editor:** A pre-configured [Neovim (LazyVim)](https://neovim.io/) setup for a lightweight and efficient coding experience.
-- **File Management:**
-  - [Eza](https://github.com/eza-community/eza) as a modern replacement for `ls`.
-  - [Yazi](https://github.com/sxyazi/yazi) as a terminal file manager with rich media previews.
-  - [fzf](https://github.com/junegunn/fzf) for lightning-fast fuzzy finding and history search.
-- **Tools & Utilities:** [Homebrew](https://brew.sh/) for package management, [bat](https://github.com/sharkdp/bat) for syntax highlighting, `zoxide` for intelligent directory jumping, and much more.
+### 🖥️ Terminal Environment
+
+- **[Kitty](https://sw.kovidgoyal.net/kitty/)** - GPU-accelerated terminal emulator
+- **[Zsh](https://zsh.sourceforge.io/) + [Oh My Zsh](https://ohmyz.sh/)** - Enhanced shell with plugins
+- **[Starship](https://starship.rs/)** - Lightning-fast, customizable prompt
+- **[Tmux](https://github.com/tmux/tmux)** - Terminal multiplexer for session management
+
+### 🎨 Consistent Theming
+
+- **[Catppuccin Mocha](https://github.com/catppuccin)** theme across all tools
+- Seamless visual integration between terminal, editor, and file manager
+- Carefully selected color palette for reduced eye strain
+
+### 🛠️ Development Tools
+
+- **[Neovim (LazyVim)](https://neovim.io/)** - Modern, extensible text editor
+- **[Lazygit](https://github.com/jesseduffield/lazygit)** - Terminal UI for Git operations
+- **Node.js, Go, npm/yarn/bun** - Complete development environment
+
+### 📁 File Management
+
+- **[Yazi](https://github.com/sxyazi/yazi)** - Fast terminal file manager with previews
+- **[Eza](https://github.com/eza-community/eza)** - Modern `ls` replacement with icons
+- **[fzf](https://github.com/junegunn/fzf)** - Fuzzy finder for files and history
+- **[Zoxide](https://github.com/ajeetdsouza/zoxide)** - Smart directory navigation
+
+### 🔧 Enhanced CLI Experience
+
+- **[Bat](https://github.com/sharkdp/bat)** - Syntax-highlighted `cat` replacement
+- Intelligent autosuggestions and syntax highlighting
+- Rich media previews for images, videos, and documents
+- Extensive shell completions and aliases
+
+## 📋 Requirements
+
+- macOS Sonoma (14.0) or later
+- Git (for cloning the repository)
+- Internet connection (for downloading dependencies)
 
 ## 🚀 Installation
 
-This setup is designed to be installed with a few simple commands.
+> **⚠️ Backup Notice:** The script automatically creates timestamped backups of existing configuration files before making changes.
 
-> **⚠️ Warning:** The script will create backups of your existing configuration files (`.zshrc`, `.config/kitty`, etc.) before creating symbolic links to the files in this repository.
+### Option 1: Full Installation (Recommended)
 
-1. **Install a real terminal emulator:**
-   Install and open [Kitty](https://sw.kovidgoyal.net/kitty/binary)
-   ```bash
-   curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-   open /Applications/kitty.app
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/ThibaultJRD/dotfiles.git
+cd dotfiles
 
-2.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/ThibaultJRD/dotfiles.git
-    cd dotfiles
-    ```
+# Run the installation script
+./install.sh
 
-3.  **Make the script executable:**
-    Before running the script, you need to give it execution permissions.
-    ```bash
-    chmod +x install.sh
-    ```
+# Restart your terminal
+# Set a Nerd Font in your terminal settings for proper icon display
+```
 
-4.  **Run the installation script:**
-    ```bash
-    ./install.sh
-    ```
+### Option 2: Preview Changes (Dry Run)
 
-5.  **Restart your terminal:**
-    Close and reopen your terminal windows to load the new configuration. You may also need to set the Nerd Font in your terminal's settings to see all the icons correctly.
+```bash
+# See what changes would be made without applying them
+DRY_RUN=true ./install.sh
+```
 
-6. **Launch Tmux:**
-   ```bash
-   tmux
-   ```
+### Option 3: Install Dependencies Only
+
+```bash
+# Install Homebrew packages without configuration
+brew bundle --file=Brewfile
+```
+
+### Post-Installation
+
+1. **Configure Terminal Font**: Set a Nerd Font in your terminal preferences
+2. **Test Installation**: Run `./test.sh` to verify everything works
+3. **Start Tmux**: Launch `tmux` for session management
+4. **Explore**: Try `y` (yazi), `lg` (lazygit), `v` (neovim)
 
 ## 🔧 Customization
 
-### Changing the Theme
-The setup uses the Catppuccin Mocha theme by default. To customize:
+<details>
+<summary><strong>🎨 Changing Themes</strong></summary>
 
-**Starship prompt:**
+### Starship Prompt
+
 ```bash
 # Edit starship/.config/starship.toml
 palette = 'your_preferred_palette'  # Change from 'catppuccin_mocha'
 ```
 
-**Kitty terminal:**
+### Kitty Terminal
+
 ```bash
 # Edit kitty/.config/kitty/kitty.conf
-# Replace the theme include line
-include your-theme.conf
+include your-theme.conf  # Replace the theme include line
 ```
 
-**Tmux:**
+### Tmux
+
 ```bash
 # Edit tmux/.config/tmux/tmux.conf
 set -g @catppuccin_flavor 'your_flavor'  # Change from 'mocha'
 ```
 
-### Adding Custom Aliases
-Create custom configurations without modifying the main dotfiles:
+</details>
+
+<details>
+<summary><strong>⚙️ Adding Custom Configuration</strong></summary>
+
+### Custom Aliases and Functions
 
 ```bash
-# Create custom Zsh config
+# Create custom Zsh config (preserved during updates)
 mkdir -p ~/.config/zsh/conf.d
 echo 'alias myalias="my command"' > ~/.config/zsh/conf.d/custom.zsh
 ```
 
-### Adding Custom Tools
-To add tools to the installation:
+### Environment Variables
+
+```bash
+# Add to ~/.zshrc (automatically preserved by install script)
+export YOUR_VAR="your_value"
+export API_KEY="your_secret_key"
+```
+
+### Adding New Tools
 
 1. **Add to Brewfile:**
-```bash
-# Add your tool to the Brewfile
-echo 'brew "your-tool"' >> Brewfile
-```
 
-2. **Add configuration:**
-```bash
-# Create config directory
-mkdir -p your-tool/.config/your-tool
-# Add your config files
-```
+   ```bash
+   echo 'brew "your-tool"' >> Brewfile
+   ```
 
-### Environment Variables
-Add persistent environment variables to your `.zshrc`:
+2. **Create configuration:**
 
-```bash
-# The install script preserves custom environment variables
-export YOUR_VAR="your_value"
-```
+   ```bash
+   mkdir -p your-tool/.config/your-tool
+   # Add your config files here
+   ```
 
-### Testing Your Setup
-Run the test suite to validate your installation:
+3. **Update install script** if needed for symlinks
+
+</details>
+
+<details>
+<summary><strong>🧪 Testing and Validation</strong></summary>
+
+### Test Installation
 
 ```bash
-./test.sh
+./test.sh  # Validate all tools and configurations
 ```
 
-For a dry-run before making changes:
+### Preview Changes
+
 ```bash
-DRY_RUN=true ./install.sh
+DRY_RUN=true ./install.sh  # See what would change without applying
 ```
 
-## 🛠️ Included Software & Configuration
+### Reinstall After Changes
 
-This script will install and configure the following components:
+```bash
+./install.sh  # Safely reinstall with automatic backups
+```
 
-### Terminal Setup
-| Tool | Description |
-| :--- | :--- |
-| **Kitty** | My primary terminal emulator. The configuration is located in the `kitty/` directory. |
-| **Zsh** | The default shell, enhanced with Oh My Zsh. |
-| **Oh My Zsh** | Framework for managing Zsh configuration and plugins. |
-| **Starship** | Provides the cross-shell prompt. Configured in `starship/`. |
-| **Homebrew** | The package manager for macOS used to install all the tools. |
+</details>
+
+## 🛠️ Included Software
+
+<details>
+<summary><strong>🖥️ Terminal & Shell</strong></summary>
+
+| Tool         | Command | Description                                 |
+| ------------ | ------- | ------------------------------------------- |
+| **Kitty**    | `kitty` | GPU-accelerated terminal emulator           |
+| **Zsh**      | `zsh`   | Enhanced shell with Oh My Zsh framework     |
+| **Starship** | -       | Cross-shell prompt with Git integration     |
+| **Tmux**     | `tmux`  | Terminal multiplexer for session management |
+| **Homebrew** | `brew`  | macOS package manager                       |
 
 ### Zsh Plugins
-| Plugin | Description |
-| :--- | :--- |
-| **git** | Adds many Git aliases and convenience functions. |
-| **fzf** | Supercharges history search (`Ctrl+R`) and other bindings. |
-| **sudo** | Easily prepend `sudo` to the current command by pressing `Esc` twice. |
-| **zsh-completions** | Adds a vast number of `Tab` completions for common tools. |
-| **zsh-syntax-highlighting** | Provides real-time syntax highlighting in the command line. |
-| **zsh-autosuggestions** | Suggests commands as you type based on your history. |
-| **history-substring-search**| Allows searching history with partial matches (up/down arrows). |
 
+- **git** - Git aliases and functions
+- **fzf** - Fuzzy finder integration (`Ctrl+R`)
+- **sudo** - Add sudo with `Esc` twice
+- **zsh-completions** - Extended tab completions
+- **zsh-syntax-highlighting** - Real-time syntax highlighting
+- **zsh-autosuggestions** - History-based suggestions
+- **history-substring-search** - Enhanced history search
 
-### Core Utilities
-| Tool | Alias / Command | Description |
-| :--- | :--- | :--- |
-| **Neovim** | `nvim` or `v` | Main text editor. Configured in `nvim/`. |
-| **Eza** | `ls`, `la`, `lt` | Modern `ls` with custom `ls` alias for a clean output. |
-| **bat** | `cat` | A `cat` clone with syntax highlighting. Themed in `bat/`. |
-| **lazygit**| `lg` | A simple terminal UI for git commands. |
-| **yazi** | `y` | Fast terminal file manager. Themed and configured in `yazi/`. |
-| **tmux** | `tmux` | Terminal multiplexer. Configured in `tmux/`. |
-| **zoxide** | `z <dir>` | A smarter `cd` command that learns your habits. Activated in `.zshrc`. |
+</details>
 
-### Yazi Preview Dependencies
-The `Brewfile` includes the following optional dependencies to enable rich media previews in `yazi`:
-- `ffmpeg` for video thumbnails.
-- `imagemagick` for image previews.
-- `poppler` for PDF previews.
-- `resvg` for SVG previews.
-- `sevenzip` for archive previews.
-- `jq` for JSON previews.
+<details>
+<summary><strong>📝 Development Tools</strong></summary>
 
-### Development Environment
-| Tool | Description |
-| :--- | :--- |
-| **n** | A simple and effective Node.js version manager. |
-| **Go** | The Go programming language toolchain. |
-| **npm/yarn/bun** | Essential package managers for the JavaScript ecosystem. |
+| Tool             | Alias       | Description                                  |
+| ---------------- | ----------- | -------------------------------------------- |
+| **Neovim**       | `nvim`, `v` | Modern text editor with LazyVim              |
+| **Lazygit**      | `lg`        | Terminal UI for Git operations               |
+| **Node.js**      | `node`      | JavaScript runtime (via `n` version manager) |
+| **Go**           | `go`        | Go programming language                      |
+| **npm/yarn/bun** | -           | JavaScript package managers                  |
 
-## Fonts
+</details>
 
-For a correct display of icons and symbols, this script installs the following "Nerd Fonts" via Homebrew:
-- Caskaydia Cove Nerd Font
-- Victor Mono Nerd Font
-- Symbols Only Nerd Font
-- JetBrains Mono NL Nerd Font
+<details>
+<summary><strong>📁 File Management</strong></summary>
 
-After installation, make sure to configure your terminal's font (e.g., in `kitty.conf` or your emulator's preferences) to use a "Nerd Font" of your choice.
+| Tool       | Alias            | Description                         |
+| ---------- | ---------------- | ----------------------------------- |
+| **Yazi**   | `y`              | Terminal file manager with previews |
+| **Eza**    | `ls`, `la`, `lt` | Modern `ls` with icons and colors   |
+| **Zoxide** | `z <dir>`        | Smart directory navigation          |
+| **fzf**    | `fzf`            | Fuzzy finder for files and commands |
+
+### Yazi Preview Support
+
+- **ffmpeg** - Video thumbnails
+- **imagemagick** - Image previews
+- **poppler** - PDF previews
+- **resvg** - SVG previews
+- **sevenzip** - Archive previews
+- **jq** - JSON formatting
+
+</details>
+
+<details>
+<summary><strong>🔧 CLI Utilities</strong></summary>
+
+| Tool        | Alias  | Description                    |
+| ----------- | ------ | ------------------------------ |
+| **Bat**     | `cat`  | Syntax-highlighted file viewer |
+| **Ripgrep** | `rg`   | Fast text search tool          |
+| **fd**      | `find` | Fast file finder               |
+| **htop**    | `htop` | Interactive process viewer     |
+| **tree**    | `tree` | Directory structure display    |
+
+</details>
+
+## 🔤 Fonts
+
+**Nerd Fonts** are automatically installed for proper icon display:
+
+- **Caskaydia Cove Nerd Font** - Cascadia Code with icons
+- **Victor Mono Nerd Font** - Cursive italic programming font
+- **JetBrains Mono NL Nerd Font** - Clean, readable monospace
+- **Symbols Only Nerd Font** - Icon fallback font
+
+**Configuration**: The default font is set in `kitty.conf`, but you can change it in your terminal preferences.
+
+## 🩺 Troubleshooting
+
+<details>
+<summary><strong>Common Issues</strong></summary>
+
+### Icons Not Displaying
+
+- Ensure you're using a Nerd Font in your terminal settings
+- Restart your terminal after font installation
+- Check if the font is properly installed: `fc-list | grep -i nerd`
+
+### Zsh Plugins Not Loading
+
+- Verify Oh My Zsh installation: `ls ~/.oh-my-zsh`
+- Check plugin directory: `ls ~/.oh-my-zsh/custom/plugins`
+- Reload shell: `source ~/.zshrc`
+
+### Tool Not Found After Installation
+
+- Check if tool is in PATH: `which <tool-name>`
+- Restart terminal or run: `source ~/.zshrc`
+- Verify Homebrew installation: `brew doctor`
+
+### Configuration Not Applied
+
+- Check if symlinks were created: `ls -la ~/.config/`
+- Verify backup files exist: `ls -la ~/*.backup.*`
+- Re-run installation: `./install.sh`
+
+</details>
+
+<details>
+<summary><strong>Reset and Debug</strong></summary>
+
+### Test Installation
+
+```bash
+./test.sh  # Run diagnostic tests
+```
+
+### Check Dependencies
+
+```bash
+brew doctor  # Check Homebrew health
+brew list    # List installed packages
+```
+
+### View Installation Logs
+
+```bash
+# Check for error messages during installation
+./install.sh 2>&1 | tee install.log
+```
+
+</details>
+
+## 🗑️ Uninstallation
+
+<details>
+<summary><strong>Remove Dotfiles Configuration</strong></summary>
+
+### Restore Backups
+
+```bash
+# Restore backed up configurations
+for backup in ~/.*.backup.*; do
+  original="${backup%.backup.*}"
+  mv "$backup" "$original"
+done
+```
+
+### Remove Symlinks
+
+```bash
+# Remove symlinks (be careful!)
+find ~/.config -type l -ls | grep dotfiles
+# Remove specific symlinks:
+# rm ~/.config/kitty ~/.config/nvim ~/.config/yazi # etc.
+```
+
+### Uninstall Homebrew Packages
+
+```bash
+# Remove packages (optional)
+brew uninstall --ignore-dependencies $(brew list)
+```
+
+### Clean Oh My Zsh
+
+```bash
+# Remove Oh My Zsh installation
+rm -rf ~/.oh-my-zsh
+```
+
+</details>
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  <strong>Happy coding! 🚀</strong>
+  <p>Built with ❤️ by <a href="https://github.com/ThibaultJRD">ThibaultJRD</a></p>
+</div>
+
