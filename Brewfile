@@ -36,6 +36,11 @@ brew "yq"
 brew "yarn"
 brew "zoxide"
 
+# GUI Applications
+cask "arc"
+cask "visual-studio-code"
+cask "docker"
+
 # Fonts (as Casks)
 # Note: Fonts are now in the default cask tap, no extra tap needed.
 cask "font-caskaydia-cove-nerd-font"
