@@ -123,6 +123,40 @@ backup_and_link() {
   echo_success "Linked '$source_path' to '$target_path'"
 }
 
+# Function to extract template content from .zshrc (without API keys)
+extract_template_content() {
+  local zshrc_file=$1
+  if [ ! -f "$zshrc_file" ]; then
+    echo ""
+    return
+  fi
+  
+  # Extract everything before the local secrets marker
+  awk '/^# Local-only secrets \(not in Git\)/{exit} {print}' "$zshrc_file" | sed '/^[[:space:]]*$/d'
+}
+
+# Function to check if zshrc template has changed
+zshrc_template_changed() {
+  local existing_zshrc="$HOME/.zshrc"
+  local template_zshrc="$DOTFILES_DIR/.zshrc"
+  
+  if [ ! -f "$existing_zshrc" ]; then
+    echo_debug "No existing .zshrc found, template change detected"
+    return 0  # Consider as changed if no existing file
+  fi
+  
+  local existing_template_content=$(extract_template_content "$existing_zshrc")
+  local new_template_content=$(extract_template_content "$template_zshrc")
+  
+  if [ "$existing_template_content" = "$new_template_content" ]; then
+    echo_debug ".zshrc template content is identical, no backup needed"
+    return 1  # No change
+  else
+    echo_debug ".zshrc template content differs, backup needed"
+    return 0  # Changed
+  fi
+}
+
 # --- Installation Start ---
 if [ "$DRY_RUN" = "true" ]; then
   echo_info "DRY RUN MODE: No changes will be made to your system"
@@ -157,7 +191,18 @@ if ! command -v brew &>/dev/null; then
   echo_success "Homebrew installed and configured."
 else
   echo_success "Homebrew is already installed. Updating..."
+  trap - ERR
+  set +e
   brew update
+  BREW_UPDATE_STATUS=$?
+  set -e
+  trap rollback_changes ERR
+  
+  if [ $BREW_UPDATE_STATUS -ne 0 ]; then
+    echo_warning "Warning: 'brew update' failed. Continuing with setup..."
+  else
+    echo_success "Homebrew updated successfully."
+  fi
 fi
 
 # 2. Install Oh My Zsh
@@ -171,18 +216,31 @@ fi
 
 # 3. Tap necessary Homebrew repositories
 echo_info "Tapping Homebrew repositories..."
+trap - ERR
+set +e
 brew tap oven-sh/bun
-echo_success "Required taps are in place."
+BREW_TAP_STATUS=$?
+set -e
+trap rollback_changes ERR
+
+if [ $BREW_TAP_STATUS -ne 0 ]; then
+  echo_warning "Warning: 'brew tap oven-sh/bun' failed. Some packages may not be available."
+else
+  echo_success "Required taps are in place."
+fi
 
 # 4. Install dependencies from Brewfile
 echo_info "Installing all dependencies from Brewfile..."
+trap - ERR
 set +e
 brew bundle --file="$DOTFILES_DIR/Brewfile"
 BREW_BUNDLE_STATUS=$?
 set -e
+trap rollback_changes ERR
 
 if [ $BREW_BUNDLE_STATUS -ne 0 ]; then
-  echo_info "Warning: 'brew bundle' finished with errors. Continuing with setup..."
+  echo_warning "Warning: 'brew bundle' finished with errors. Some packages may not be installed."
+  echo_info "Continuing with setup - you can manually install missing packages later."
 else
   echo_success "All Homebrew dependencies are installed."
 fi
@@ -204,13 +262,24 @@ if [ -f "$HOME/.zshrc" ]; then
   done
 fi
 
-# Always update the base .zshrc from the repository.
-if [ -f "$HOME/.zshrc" ]; then
-  echo "Backing up existing ~/.zshrc to ~/.zshrc.bak.$BACKUP_DATE"
-  mv "$HOME/.zshrc" "$HOME/.zshrc.bak.$BACKUP_DATE"
+# Check if template has changed before backing up
+if zshrc_template_changed; then
+  # Template has changed, backup and replace
+  if [ -f "$HOME/.zshrc" ]; then
+    echo "Backing up existing ~/.zshrc to ~/.zshrc.bak.$BACKUP_DATE (template changed)"
+    mv "$HOME/.zshrc" "$HOME/.zshrc.bak.$BACKUP_DATE"
+  fi
+  cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+  echo_success "Updated .zshrc template from repository."
+else
+  # Template hasn't changed, only update if no existing file
+  if [ ! -f "$HOME/.zshrc" ]; then
+    cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+    echo_success "Copied .zshrc template to home directory."
+  else
+    echo_success ".zshrc template is up to date, preserving existing file."
+  fi
 fi
-cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-echo_success "Copied .zshrc template to home directory."
 
 # Handle API keys: re-apply preserved keys or prompt for new ones.
 LOCAL_ONLY_MARKER="# Local-only secrets (not in Git)"
@@ -292,8 +361,22 @@ echo_success "All config files are linked."
 
 # 7. Build Caches
 echo_info "Building caches for tools..."
-bat cache --build
-echo_success "Bat cache rebuilt."
+if command -v bat &>/dev/null; then
+  trap - ERR
+  set +e
+  bat cache --build
+  BAT_CACHE_STATUS=$?
+  set -e
+  trap rollback_changes ERR
+  
+  if [ $BAT_CACHE_STATUS -ne 0 ]; then
+    echo_warning "Warning: 'bat cache --build' failed. Syntax highlighting may not work optimally."
+  else
+    echo_success "Bat cache rebuilt."
+  fi
+else
+  echo_warning "Warning: 'bat' command not found. Skipping cache build."
+fi
 
 # 8. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
