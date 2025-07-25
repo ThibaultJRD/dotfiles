@@ -17,7 +17,7 @@ VERBOSE="${VERBOSE:-false}"
 # --- Secrets Management ---
 # Add any secret environment variables you want the script to manage here.
 SECRETS_TO_MANAGE=(
-  "GEMINI_API_KEY"
+  # "GEMINI_API_KEY"
   # "ANOTHER_API_KEY" # Example: Add more keys here in the future
 )
 
@@ -67,7 +67,7 @@ rollback_changes() {
           rm "$link_file"
         fi
       fi
-    done < "$ROLLBACK_LOG"
+    done <"$ROLLBACK_LOG"
     echo_success "Rollback completed"
   fi
   exit 1
@@ -78,7 +78,6 @@ trap rollback_changes ERR
 
 # --- Variables ---
 DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-CONFIG_TARGET_DIR="$HOME/.config"
 BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
 BACKUP_DIR="$HOME/.dotfiles_backup_$BACKUP_DATE"
 ROLLBACK_LOG="$BACKUP_DIR/rollback.log"
@@ -108,7 +107,7 @@ backup_and_link() {
     backup_file="$target_path.bak.$BACKUP_DATE"
     echo_info "Backing up existing '$target_path' to '$backup_file'"
     mv "$target_path" "$backup_file"
-    echo "BACKUP:$backup_file" >> "$ROLLBACK_LOG"
+    echo "BACKUP:$backup_file" >>"$ROLLBACK_LOG"
   fi
 
   # If target is a symlink (but not to the correct source, handled above), remove it
@@ -119,7 +118,7 @@ backup_and_link() {
 
   mkdir -p "$(dirname "$target_path")"
   ln -s "$source_path" "$target_path"
-  echo "LINK:$target_path" >> "$ROLLBACK_LOG"
+  echo "LINK:$target_path" >>"$ROLLBACK_LOG"
   echo_success "Linked '$source_path' to '$target_path'"
 }
 
@@ -130,7 +129,7 @@ extract_template_content() {
     echo ""
     return
   fi
-  
+
   # Extract everything before the local secrets marker
   awk '/^# Local-only secrets \(not in Git\)/{exit} {print}' "$zshrc_file" | sed '/^[[:space:]]*$/d'
 }
@@ -143,7 +142,7 @@ extract_secret_value() {
     echo ""
     return
   fi
-  
+
   # Look for the export line and extract the value between quotes
   grep "^export $key_name=" "$zshrc_file" | head -1 | sed 's/^export [^=]*="\(.*\)"$/\1/'
 }
@@ -152,7 +151,7 @@ extract_secret_value() {
 remove_secret_from_zshrc() {
   local zshrc_file=$1
   local key_name=$2
-  
+
   # Create a temporary file without the secret entries and the marker if it becomes empty
   awk -v key="$key_name" '
     BEGIN { in_secrets = 0; skip_line = 0 }
@@ -174,28 +173,28 @@ remove_secret_from_zshrc() {
       in_secrets = 0
     }
     !skip_line { print }
-  ' "$zshrc_file" > "$zshrc_file.tmp" && mv "$zshrc_file.tmp" "$zshrc_file"
+  ' "$zshrc_file" >"$zshrc_file.tmp" && mv "$zshrc_file.tmp" "$zshrc_file"
 }
 
 # Function to check if zshrc template has changed
 zshrc_template_changed() {
   local existing_zshrc="$HOME/.zshrc"
   local template_zshrc="$DOTFILES_DIR/.zshrc"
-  
+
   if [ ! -f "$existing_zshrc" ]; then
     echo_debug "No existing .zshrc found, template change detected"
-    return 0  # Consider as changed if no existing file
+    return 0 # Consider as changed if no existing file
   fi
-  
+
   local existing_template_content=$(extract_template_content "$existing_zshrc")
   local new_template_content=$(extract_template_content "$template_zshrc")
-  
+
   if [ "$existing_template_content" = "$new_template_content" ]; then
     echo_debug ".zshrc template content is identical, no backup needed"
-    return 1  # No change
+    return 1 # No change
   else
     echo_debug ".zshrc template content differs, backup needed"
-    return 0  # Changed
+    return 0 # Changed
   fi
 }
 
@@ -239,7 +238,7 @@ else
   BREW_UPDATE_STATUS=$?
   set -e
   trap rollback_changes ERR
-  
+
   if [ $BREW_UPDATE_STATUS -ne 0 ]; then
     echo_warning "Warning: 'brew update' failed. Continuing with setup..."
   else
@@ -415,7 +414,7 @@ if command -v bat &>/dev/null; then
   BAT_CACHE_STATUS=$?
   set -e
   trap rollback_changes ERR
-  
+
   if [ $BAT_CACHE_STATUS -ne 0 ]; then
     echo_warning "Warning: 'bat cache --build' failed. Syntax highlighting may not work optimally."
   else
