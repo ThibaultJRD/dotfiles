@@ -10,6 +10,7 @@ tap "oven-sh/bun"
 # CLI Tools & Utilities
 brew "bat"
 brew "bun"
+brew "docker"
 brew "eza"
 brew "fd"
 brew "ffmpeg"
@@ -40,7 +41,6 @@ brew "zoxide"
 # GUI Applications
 cask "arc"
 cask "visual-studio-code"
-cask "docker"
 
 # Fonts (as Casks)
 # Note: Fonts are now in the default cask tap, no extra tap needed.
