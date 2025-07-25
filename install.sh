@@ -135,6 +135,48 @@ extract_template_content() {
   awk '/^# Local-only secrets \(not in Git\)/{exit} {print}' "$zshrc_file" | sed '/^[[:space:]]*$/d'
 }
 
+# Function to extract secret value from .zshrc
+extract_secret_value() {
+  local zshrc_file=$1
+  local key_name=$2
+  if [ ! -f "$zshrc_file" ]; then
+    echo ""
+    return
+  fi
+  
+  # Look for the export line and extract the value between quotes
+  grep "^export $key_name=" "$zshrc_file" | head -1 | sed 's/^export [^=]*="\(.*\)"$/\1/'
+}
+
+# Function to remove all instances of a secret from .zshrc
+remove_secret_from_zshrc() {
+  local zshrc_file=$1
+  local key_name=$2
+  
+  # Create a temporary file without the secret entries and the marker if it becomes empty
+  awk -v key="$key_name" '
+    BEGIN { in_secrets = 0; skip_line = 0 }
+    /^# Local-only secrets \(not in Git\)/ { 
+      secrets_marker_line = NR
+      in_secrets = 1
+      print
+      next
+    }
+    in_secrets && /^export / && $0 ~ "^export " key "=" {
+      skip_line = 1
+      next
+    }
+    in_secrets && /^[[:space:]]*$/ && skip_line {
+      skip_line = 0
+      next
+    }
+    in_secrets && /^[^#]/ && !/^export/ && !/^[[:space:]]*$/ {
+      in_secrets = 0
+    }
+    !skip_line { print }
+  ' "$zshrc_file" > "$zshrc_file.tmp" && mv "$zshrc_file.tmp" "$zshrc_file"
+}
+
 # Function to check if zshrc template has changed
 zshrc_template_changed() {
   local existing_zshrc="$HOME/.zshrc"
@@ -253,11 +295,13 @@ declare -a preserved_keys=()
 declare -a preserved_values=()
 if [ -f "$HOME/.zshrc" ]; then
   for key_name in "${SECRETS_TO_MANAGE[@]}"; do
-    if grep -q "$key_name" "$HOME/.zshrc"; then
-      value=$(grep "$key_name" "$HOME/.zshrc" | cut -d'=' -f2 | tr -d '"')
+    value=$(extract_secret_value "$HOME/.zshrc" "$key_name")
+    if [ -n "$value" ]; then
       preserved_keys+=("$key_name")
       preserved_values+=("$value")
       echo "Found existing $key_name. Preserving it."
+      # Remove all instances of this key from the file to avoid duplicates
+      remove_secret_from_zshrc "$HOME/.zshrc" "$key_name"
     fi
   done
 fi
@@ -286,7 +330,10 @@ LOCAL_ONLY_MARKER="# Local-only secrets (not in Git)"
 
 # Re-apply all preserved keys first
 if ((${#preserved_keys[@]} > 0)); then
-  echo -e "\n$LOCAL_ONLY_MARKER" >>"$HOME/.zshrc"
+  # Add the marker only if it's not there yet
+  if ! grep -q "$LOCAL_ONLY_MARKER" "$HOME/.zshrc"; then
+    echo -e "\n$LOCAL_ONLY_MARKER" >>"$HOME/.zshrc"
+  fi
   for i in "${!preserved_keys[@]}"; do
     key_name="${preserved_keys[$i]}"
     key_value="${preserved_values[$i]}"
