@@ -8,6 +8,7 @@
 tap "oven-sh/bun"
 
 # CLI Tools & Utilities
+brew "bash"
 brew "bat"
 brew "bun"
 brew "docker"
