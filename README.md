@@ -40,7 +40,39 @@ cd dotfiles
 - **[Kitty](https://sw.kovidgoyal.net/kitty/)** - GPU-accelerated terminal emulator
 - **[Zsh](https://zsh.sourceforge.io/) + [Oh My Zsh](https://ohmyz.sh/)** - Enhanced shell with plugins
 - **[Starship](https://starship.rs/)** - Lightning-fast, customizable prompt
-- **[Tmux](https://github.com/tmux/tmux)** - Terminal multiplexer for session management
+- **[Tmux](https://github.com/tmux/tmux)** - Advanced terminal multiplexer with rich plugin ecosystem
+
+#### 🔧 Tmux Configuration
+
+A powerful tmux setup featuring 12+ plugins for enhanced productivity, session management, and system monitoring:
+
+**Essential Plugins:**
+- **[tmux-sensible](https://github.com/tmux-plugins/tmux-sensible)** - Sensible default configurations
+- **[tmux-yank](https://github.com/tmux-plugins/tmux-yank)** - Enhanced system clipboard integration
+- **[vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)** - Seamless navigation between tmux panes and vim splits
+- **[tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect)** - Persist tmux sessions across system restarts
+- **[tmux-continuum](https://github.com/tmux-plugins/tmux-continuum)** - Automatic session saving every 15 minutes
+
+**Theme & UI Enhancement:**
+- **[catppuccin/tmux](https://github.com/catppuccin/tmux)** - Beautiful Catppuccin theme integration
+- **[tmux-nerd-font-window-name](https://github.com/joshmedeski/tmux-nerd-font-window-name)** - Nerd Font icons for window names
+- **[tmux-which-key](https://github.com/alexwforsythe/tmux-which-key)** - Interactive key binding help (`Prefix + Space`)
+
+**System Monitoring:**
+- **[tmux-cpu](https://github.com/tmux-plugins/tmux-cpu)** - Real-time CPU usage display
+- **[tmux-battery](https://github.com/tmux-plugins/tmux-battery)** - Battery status (when available)
+- **[tmux-primary-ip](https://github.com/dreknix/tmux-primary-ip)** - Network interface IP address display
+
+**Advanced Tools:**
+- **[tmux-sessionx](https://github.com/omerxx/tmux-sessionx)** - Fuzzy session manager with zoxide integration (`Prefix + o`)
+
+**Key Features:**
+- **Custom Prefix:** `Ctrl+s` for ergonomic access
+- **Smart Window Splitting:** `|` (horizontal) and `-` (vertical) with current path preservation
+- **Vim-style Navigation:** `Ctrl+h/j/k/l` seamlessly between tmux panes and Neovim
+- **Session Persistence:** Automatic save/restore with Neovim session support
+- **Status Bar:** Top-positioned with CPU, memory, IP, and battery monitoring
+- **Mouse Support:** Enabled for pane selection and resizing
 
 ### 🎨 Consistent Theming
 
@@ -110,7 +142,7 @@ brew bundle --file=Brewfile
 
 1. **Configure Terminal Font**: Set a Nerd Font in your terminal preferences
 2. **Test Installation**: Run `./test.sh` to verify everything works
-3. **Start Tmux**: Launch `tmux` for session management
+3. **Start Tmux**: Launch `tmux` for session management with automatic plugin installation
 4. **Explore**: Try `y` (yazi), `lg` (lazygit), `v` (neovim)
 
 ## 🔧 Customization
@@ -136,7 +168,13 @@ include your-theme.conf  # Replace the theme include line
 
 ```bash
 # Edit tmux/.config/tmux/tmux.conf
-set -g @catppuccin_flavor 'your_flavor'  # Change from 'mocha'
+set -g @catppuccin_flavor 'your_flavor'  # Change from 'macchiato'
+
+# Customize key bindings
+set -g prefix C-a  # Change prefix from C-s to C-a
+
+# Disable specific plugins
+# set -g @plugin 'tmux-plugins/tmux-cpu'  # Comment out unwanted plugins
 ```
 
 </details>
@@ -185,8 +223,19 @@ export API_KEY="your_secret_key"
 ### Test Installation
 
 ```bash
-./test.sh  # Validate all tools and configurations
+./test.sh  # Comprehensive validation suite
 ```
+
+The test script validates:
+- **Homebrew**: Installation and PATH configuration
+- **Shell Configuration**: Zsh, .zshrc, Oh My Zsh, Starship
+- **Core Tools**: All 25+ CLI tools and applications
+- **Configuration Files**: Symlinks and config file existence
+- **Environment**: Variables, PATH, and shell integration
+- **Aliases**: All custom aliases and functions
+- **Node.js**: n version manager and npm setup
+- **Fonts**: Nerd Font installation verification
+- **Zsh Plugins**: All custom plugins properly installed
 
 ### Preview Changes
 
@@ -212,7 +261,7 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 | **Kitty**    | `kitty` | GPU-accelerated terminal emulator           |
 | **Zsh**      | `zsh`   | Enhanced shell with Oh My Zsh framework     |
 | **Starship** | -       | Cross-shell prompt with Git integration     |
-| **Tmux**     | `tmux`  | Terminal multiplexer for session management |
+| **Tmux**     | `tmux`  | Advanced terminal multiplexer with 12+ plugins |
 | **Homebrew** | `brew`  | macOS package manager                       |
 
 ### Zsh Plugins
@@ -225,6 +274,22 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 - **zsh-autosuggestions** - History-based suggestions
 - **history-substring-search** - Enhanced history search
 
+### Shell Aliases & Functions
+
+**File Operations:**
+- `cat` → `bat` - Syntax-highlighted file viewing
+- `ls` → `eza --color=always --long --git --icons` - Enhanced file listing
+- `la` → `eza -l --icons --git -a --group-directories-first` - All files with details
+- `lt` → `eza --tree --level=2 --long --icons --git` - Tree view (2 levels)
+
+**Development Tools:**
+- `v` → `nvim` - Quick Neovim access
+- `lg` → `lazygit` - Git TUI launcher
+
+**Smart Functions:**
+- `y()` - Yazi with directory navigation (changes shell directory on exit)
+- `z <directory>` - Smart directory jumping with zoxide
+
 </details>
 
 <details>
@@ -234,9 +299,12 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 | ---------------- | ----------- | -------------------------------------------- |
 | **Neovim**       | `nvim`, `v` | Modern text editor with LazyVim              |
 | **Lazygit**      | `lg`        | Terminal UI for Git operations               |
+| **Lazydocker**   | -           | Terminal UI for Docker management            |
 | **Node.js**      | `node`      | JavaScript runtime (via `n` version manager) |
 | **Go**           | `go`        | Go programming language                      |
 | **npm/yarn/bun** | -           | JavaScript package managers                  |
+| **Glow**         | `glow`      | Terminal markdown renderer                   |
+| **Visual Studio Code** | `code` | GUI code editor                             |
 
 </details>
 
@@ -245,10 +313,42 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 
 | Tool       | Alias            | Description                         |
 | ---------- | ---------------- | ----------------------------------- |
-| **Yazi**   | `y`              | Terminal file manager with previews |
+| **Yazi**   | `y`              | Terminal file manager with previews and smart directory navigation |
 | **Eza**    | `ls`, `la`, `lt` | Modern `ls` with icons and colors   |
 | **Zoxide** | `z <dir>`        | Smart directory navigation          |
-| **fzf**    | `fzf`            | Fuzzy finder for files and commands |
+| **fzf**    | `fzf`            | Fuzzy finder with Catppuccin theme and advanced previews |
+
+#### 🎯 Advanced fzf Configuration
+
+The fzf setup includes sophisticated features for enhanced productivity:
+
+**Theme & Appearance:**
+- **Catppuccin Macchiato** theme integration for consistent styling
+- Custom color scheme matching the overall dotfiles theme
+- Border and highlight colors optimized for readability
+
+**Enhanced Previews:**
+- **File previews** with `bat` syntax highlighting (first 500 lines)
+- **Directory previews** with `eza` tree structure (2 levels deep)
+- **Tab completion previews** for different commands (`cd`, `ssh`, environment variables)
+
+**Smart File Discovery:**
+- Uses `fd` instead of `find` for better performance
+- Includes hidden files and directories (configurable)
+- Excludes `.git` directories automatically
+- Strips current working directory prefix for cleaner output
+
+**Key Bindings:**
+- `Ctrl+T` - Find files with preview
+- `Alt+C` - Find directories with tree preview  
+- `Ctrl+R` - Enhanced history search with Oh My Zsh integration
+
+#### 🗂️ Smart Yazi Integration
+
+The `y` function provides seamless directory navigation:
+- **Auto-navigation**: Changes shell directory to last browsed location on exit
+- **Temporary file handling**: Uses secure temporary files for directory tracking
+- **Path preservation**: Maintains current working directory context
 
 ### Yazi Preview Support
 
@@ -269,8 +369,9 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 | **Bat**     | `cat`  | Syntax-highlighted file viewer |
 | **Ripgrep** | `rg`   | Fast text search tool          |
 | **fd**      | `find` | Fast file finder               |
-| **htop**    | `htop` | Interactive process viewer     |
-| **tree**    | `tree` | Directory structure display    |
+| **jq**      | `jq`   | JSON processor and formatter   |
+| **yq**      | `yq`   | YAML processor and formatter   |
+| **Docker**  | `docker` | Containerization platform    |
 
 </details>
 
