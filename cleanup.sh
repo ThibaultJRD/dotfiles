@@ -219,8 +219,10 @@ stop_spinner() {
         sleep 0.1  # Give spinner time to see the flag
         
         if [[ $SPINNER_PID -ne 0 ]]; then
-            kill $SPINNER_PID 2>/dev/null
-            wait $SPINNER_PID 2>/dev/null
+            # Kill the spinner process. Adding '|| true' prevents the script from
+            # exiting if the process is already dead when kill is called.
+            kill $SPINNER_PID 2>/dev/null || true
+            wait $SPINNER_PID 2>/dev/null || true
             SPINNER_PID=0
         fi
     fi
@@ -349,8 +351,6 @@ safe_remove() {
 
 cleanup_node_modules() {
     echo_debug "Starting cleanup_node_modules function"
-    echo_debug "Temporarily disabling set -e for find command"
-    set +e  # Disable exit on error temporarily
     echo_header "🗂️  Cleaning node_modules directories"
     
     local total_freed=0
@@ -375,16 +375,8 @@ cleanup_node_modules() {
         -not -path "*/var/*" \
         -not -path "*/tmp/*" \
         -not -path "*/node_modules/*/node_modules" \
-        2>/dev/null) 
-    local find_exit_code=$?
-    echo_debug "Find command completed with exit code: $find_exit_code"
-    
-    if [[ $find_exit_code -ne 0 ]]; then
-        echo_debug "Find returned non-zero exit code (likely permission errors), but continuing with results found"
-    fi
+        2>/dev/null || true)
     echo_debug "Find command executed, checking results..."
-    set -e  # Re-enable exit on error
-    echo_debug "Re-enabled set -e"
     
     echo_debug "Find command completed successfully"
     local result_count=$(echo "$search_results" | wc -l | tr -d ' ')
@@ -473,6 +465,7 @@ cleanup_node_modules() {
     
     echo_debug "cleanup_node_modules function completed"
 }
+
 
 cleanup_yarn_cache() {
     echo_header "🧶 Cleaning Yarn cache"
@@ -587,7 +580,7 @@ cleanup_pods() {
             -not -path "*/.*" \
             -not -path "*/Library" \
             -not -path "*/Applications" \
-            -print0 2>/dev/null)
+            -print0 2>/dev/null || true)
         
         # Process each path and update display
         for search_dir in "${search_paths[@]}"; do
@@ -601,7 +594,7 @@ cleanup_pods() {
             
             # Look for Pods in this directory and subdirectories
             find "$search_dir" -maxdepth 4 -name "Pods" -type d \
-                -print0 2>/dev/null
+                -print0 2>/dev/null || true
             
             # Small delay to make the path updates visible
             sleep 0.1
@@ -670,7 +663,7 @@ cleanup_system_caches() {
     
     if [[ "$ds_store_count" -gt 0 ]]; then
         if confirm "Remove $ds_store_count .DS_Store files?"; then
-            find "$HOME" -name ".DS_Store" -type f -delete 2>/dev/null
+            find "$HOME" -name ".DS_Store" -type f -delete 2>/dev/null || true
             echo_success "Removed $ds_store_count .DS_Store files"
         fi
     else
