@@ -4,12 +4,12 @@
 # This file provides utilities for managing processes using network ports.
 
 # Colors for output
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly CYAN='\033[0;36m'
-readonly NC='\033[0m' # No Color
+readonly _KILLPORTS_RED='\033[0;31m'
+readonly _KILLPORTS_GREEN='\033[0;32m'
+readonly _KILLPORTS_YELLOW='\033[1;33m'
+readonly _KILLPORTS_BLUE='\033[0;34m'
+readonly _KILLPORTS_CYAN='\033[0;36m'
+readonly _KILLPORTS_NC='\033[0m' # No Color
 
 # Helper function to check if a port is valid
 _is_valid_port() {
@@ -59,7 +59,7 @@ listports() {
       -p|--port)
         specific_port="$2"
         if ! _is_valid_port "$specific_port"; then
-          echo -e "${RED}Error: Invalid port number '$specific_port'${NC}" >&2
+          echo -e "${_KILLPORTS_RED}Error: Invalid port number '$specific_port'${_KILLPORTS_NC}" >&2
           return 1
         fi
         shift 2
@@ -73,7 +73,7 @@ listports() {
         shift
         ;;
       *)
-        echo -e "${RED}Error: Unknown option '$1'${NC}" >&2
+        echo -e "${_KILLPORTS_RED}Error: Unknown option '$1'${_KILLPORTS_NC}" >&2
         echo "Use 'listports --help' for usage information."
         return 1
         ;;
@@ -120,21 +120,24 @@ EOF
     lsof_args="-iUDP"
   fi
  
-  echo -e "${CYAN}Active network connections:${NC}"
-  echo -e "${BLUE}COMMAND    PID    USER   FD   TYPE   DEVICE   SIZE/OFF   NODE   NAME${NC}"
+  echo -e "${_KILLPORTS_CYAN}Active network connections:${_KILLPORTS_NC}"
+  echo -e "${_KILLPORTS_BLUE}COMMAND    PID    USER   FD   TYPE   DEVICE   SIZE/OFF   NODE   NAME${_KILLPORTS_NC}"
  
   lsof $lsof_args 2>/dev/null | tail -n +2 | while IFS= read -r line; do
     if [[ "$line" =~ LISTEN ]]; then
-      echo -e "${GREEN}$line${NC}"
+      echo -e "${_KILLPORTS_GREEN}$line${_KILLPORTS_NC}"
     else
       echo "$line"
     fi
   done
  
   if [ $? -ne 0 ] && [ -n "$specific_port" ]; then
-    echo -e "${YELLOW}No processes found using port $specific_port${NC}"
+    echo -e "${_KILLPORTS_YELLOW}No processes found using port $specific_port${_KILLPORTS_NC}"
   fi
 }
+
+# Remove any existing killports alias to avoid conflicts
+unalias killports 2>/dev/null
 
 # Kill processes using specified ports
 killports() {
@@ -145,7 +148,7 @@ killports() {
   local ports_to_kill=()
  
   if [ $# -eq 0 ]; then
-    echo -e "${RED}Error: No ports specified${NC}" >&2
+    echo -e "${_KILLPORTS_RED}Error: No ports specified${_KILLPORTS_NC}" >&2
     echo "Use 'killports --help' for usage information."
     return 1
   fi
@@ -170,7 +173,7 @@ killports() {
         shift
         ;;
       -*)
-        echo -e "${RED}Error: Unknown option '$1'${NC}" >&2
+        echo -e "${_KILLPORTS_RED}Error: Unknown option '$1'${_KILLPORTS_NC}" >&2
         echo "Use 'killports --help' for usage information."
         return 1
         ;;
@@ -218,7 +221,7 @@ EOF
   fi
  
   if [ ${#ports_to_kill[@]} -eq 0 ]; then
-    echo -e "${RED}Error: No ports specified${NC}" >&2
+    echo -e "${_KILLPORTS_RED}Error: No ports specified${_KILLPORTS_NC}" >&2
     return 1
   fi
  
@@ -237,7 +240,7 @@ EOF
   # Remove duplicates and sort
   local unique_ports=($(printf '%s\n' "${all_ports[@]}" | sort -nu))
  
-  [ "$quiet" = false ] && echo -e "${CYAN}Processing ${#unique_ports[@]} port(s)...${NC}"
+  [ "$quiet" = false ] && echo -e "${_KILLPORTS_CYAN}Processing ${#unique_ports[@]} port(s)...${_KILLPORTS_NC}"
  
   local killed_count=0
   local not_found_count=0
@@ -247,16 +250,16 @@ EOF
     pids=$(lsof -ti:"$port" 2>/dev/null)
 
     if [ -z "$pids" ]; then
-      [ "$quiet" = false ] && echo -e "${YELLOW}No process found on port $port${NC}"
+      [ "$quiet" = false ] && echo -e "${_KILLPORTS_YELLOW}No process found on port $port${_KILLPORTS_NC}"
       ((not_found_count++))
       continue
     fi
 
     # Show process info if requested
     if [ "$list_before_kill" = true ] || [ "$quiet" = false ]; then
-      echo -e "${BLUE}Port $port processes:${NC}"
+      echo -e "${_KILLPORTS_BLUE}Port $port processes:${_KILLPORTS_NC}"
       lsof -i:"$port" 2>/dev/null | tail -n +2 | while IFS= read -r line; do
-        echo -e "${GREEN}  $line${NC}"
+        echo -e "${_KILLPORTS_GREEN}  $line${_KILLPORTS_NC}"
       done
     fi
 
@@ -266,16 +269,16 @@ EOF
       cmd_name=$(ps -p "$pid" -o comm= 2>/dev/null | tr -d '\n')
 
       if [ "$force_kill" = true ]; then
-        [ "$quiet" = false ] && echo -e "${RED}Force killing $cmd_name (PID: $pid) on port $port${NC}"
+        [ "$quiet" = false ] && echo -e "${_KILLPORTS_RED}Force killing $cmd_name (PID: $pid) on port $port${_KILLPORTS_NC}"
         kill -9 "$pid" 2>/dev/null
       else
-        [ "$quiet" = false ] && echo -e "${YELLOW}Terminating $cmd_name (PID: $pid) on port $port${NC}"
+        [ "$quiet" = false ] && echo -e "${_KILLPORTS_YELLOW}Terminating $cmd_name (PID: $pid) on port $port${_KILLPORTS_NC}"
         kill -15 "$pid" 2>/dev/null
 
         # Wait a moment, then force kill if still alive
         sleep 0.5
         if kill -0 "$pid" 2>/dev/null; then
-          [ "$quiet" = false ] && echo -e "${RED}Force killing stubborn process (PID: $pid)${NC}"
+          [ "$quiet" = false ] && echo -e "${_KILLPORTS_RED}Force killing stubborn process (PID: $pid)${_KILLPORTS_NC}"
           kill -9 "$pid" 2>/dev/null
         fi
       fi
@@ -285,7 +288,7 @@ EOF
   done
  
   if [ "$quiet" = false ]; then
-    echo -e "${GREEN}Summary: ${killed_count} process(es) killed, ${not_found_count} port(s) were already free${NC}"
+    echo -e "${_KILLPORTS_GREEN}Summary: ${killed_count} process(es) killed, ${not_found_count} port(s) were already free${_KILLPORTS_NC}"
   fi
 }
 

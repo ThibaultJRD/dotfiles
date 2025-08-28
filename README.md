@@ -289,6 +289,8 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 **Smart Functions:**
 - `y()` - Yazi with directory navigation (changes shell directory on exit)
 - `z <directory>` - Smart directory jumping with zoxide
+- `killports` - Kill processes by port number or range (with auto-completion)
+- `listports` - List active network connections and ports
 
 </details>
 
