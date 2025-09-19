@@ -291,6 +291,7 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 - `z <directory>` - Smart directory jumping with zoxide
 - `killports` - Kill processes by port number or range (with auto-completion)
 - `listports` - List active network connections and ports
+- `cleanup` - Interactive development environment cleanup tool (TUI)
 
 </details>
 
@@ -302,6 +303,7 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 | **Neovim**       | `nvim`, `v` | Modern text editor with LazyVim              |
 | **Lazygit**      | `lg`        | Terminal UI for Git operations               |
 | **Lazydocker**   | -           | Terminal UI for Docker management            |
+| **Cleanup Tool** | `cleanup`   | Interactive development cache cleanup (Go/TUI) |
 | **Node.js**      | `node`      | JavaScript runtime (via `n` version manager) |
 | **Go**           | `go`        | Go programming language                      |
 | **npm/yarn/bun** | -           | JavaScript package managers                  |

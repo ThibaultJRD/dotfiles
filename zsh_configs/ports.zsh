@@ -3,13 +3,15 @@
 # ==============================================================================
 # This file provides utilities for managing processes using network ports.
 
-# Colors for output
-readonly _KILLPORTS_RED='\033[0;31m'
-readonly _KILLPORTS_GREEN='\033[0;32m'
-readonly _KILLPORTS_YELLOW='\033[1;33m'
-readonly _KILLPORTS_BLUE='\033[0;34m'
-readonly _KILLPORTS_CYAN='\033[0;36m'
-readonly _KILLPORTS_NC='\033[0m' # No Color
+# Colors for output (only define if not already set)
+if [[ -z ${_KILLPORTS_RED+x} ]]; then
+    readonly _KILLPORTS_RED='\033[0;31m'
+    readonly _KILLPORTS_GREEN='\033[0;32m'
+    readonly _KILLPORTS_YELLOW='\033[1;33m'
+    readonly _KILLPORTS_BLUE='\033[0;34m'
+    readonly _KILLPORTS_CYAN='\033[0;36m'
+    readonly _KILLPORTS_NC='\033[0m' # No Color
+fi
 
 # Helper function to check if a port is valid
 _is_valid_port() {
@@ -333,6 +335,11 @@ _listports_completion() {
   fi
 }
 
-# Register completions
-compdef _killports_completion killports
-compdef _listports_completion listports
+# Register completions (only if not already registered)
+if ! compdef -p killports >/dev/null 2>&1; then
+    compdef _killports_completion killports
+fi
+
+if ! compdef -p listports >/dev/null 2>&1; then
+    compdef _listports_completion listports
+fi
