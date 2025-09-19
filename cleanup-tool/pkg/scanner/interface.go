@@ -16,6 +16,7 @@ type Item struct {
 	Selected     bool
 	Type         string   // Type of item (node_modules, pods, etc.)
 	ProjectPath  string   // Parent project path for context
+	DeletionStatus string // Status during deletion: "", "pending", "deleting", "deleted", "error"
 }
 
 // ScanProgress represents the current scanning progress

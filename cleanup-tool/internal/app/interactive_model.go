@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -198,7 +199,17 @@ func (m *InteractiveModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case DeletionProgressMsg:
 		m.deletionProgress = string(msg)
-		return m, nil
+		
+		// Calculate which item we just processed and continue with the next one
+		deletedCount := 0
+		for _, item := range m.items {
+			if item.DeletionStatus == "deleted" || item.DeletionStatus == "error" {
+				deletedCount++
+			}
+		}
+		
+		// Continue with next item
+		return m, m.deleteNextItem(deletedCount)
 
 	case DeletionCompleteMsg:
 		result := DeletionResult(msg)
@@ -728,6 +739,7 @@ func (m *InteractiveModel) renderItemSelection() string {
 func (m *InteractiveModel) renderDeleting() string {
 	var s strings.Builder
 
+	// Header
 	headerStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("196")).
@@ -736,34 +748,62 @@ func (m *InteractiveModel) renderDeleting() string {
 	s.WriteString(headerStyle.Render("🗑️  Deleting Items..."))
 	s.WriteString("\n\n")
 
-	if m.deletionProgress != "" {
-		progressStyle := lipgloss.NewStyle().
-			Foreground(lipgloss.Color("33"))
-		s.WriteString(progressStyle.Render("⚡ " + m.deletionProgress))
+	// Progress bar
+	totalItems := len(m.items)
+	deletedCount := 0
+	for _, item := range m.items {
+		if item.DeletionStatus == "deleted" {
+			deletedCount++
+		}
+	}
+	
+	if totalItems > 0 {
+		progressPercent := float64(deletedCount) / float64(totalItems)
+		progressBar := ui.RenderProgressBar(progressPercent, ui.DefaultProgressBarStyle())
+		percentText := fmt.Sprintf("%d/%d (%d%%)", deletedCount, totalItems, int(progressPercent*100))
+		
+		progressLine := fmt.Sprintf("Progress: %s %s", progressBar, percentText)
+		s.WriteString(progressLine)
 		s.WriteString("\n\n")
 	}
 
-	// Show completed deletions
-	for _, result := range m.deletionResults {
-		status := "✓"
-		color := lipgloss.Color("46")
-		if !result.Success {
-			status = "✗"
-			color = lipgloss.Color("196")
-		}
+	// Instructions
+	instructionStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("241"))
+	s.WriteString(instructionStyle.Render("Deletion in progress... Press q to quit"))
+	s.WriteString("\n\n")
 
-		line := lipgloss.NewStyle().
-			Foreground(color).
-			Render(fmt.Sprintf("%s %s", status, result.Path))
+	// Items list with deletion status (similar to selection interface)
+	visibleItems := m.getVisibleItems()
+	for i, item := range visibleItems {
+		actualIndex := m.scrollOffset + i
+		isHighlighted := actualIndex == m.itemCursor
 		
-		if result.Size > 0 {
-			line += lipgloss.NewStyle().
-				Foreground(lipgloss.Color("241")).
-				Render(fmt.Sprintf(" (%s)", utils.FormatBytes(result.Size)))
-		}
-
+		line := m.renderDeletingItemLine(item, isHighlighted)
 		s.WriteString(line)
 		s.WriteString("\n")
+	}
+
+	// Scroll indicator
+	if len(m.items) > len(visibleItems) {
+		s.WriteString("\n")
+		scrollInfo := fmt.Sprintf("Showing %d-%d of %d items", 
+			m.scrollOffset+1, 
+			m.scrollOffset+len(visibleItems), 
+			len(m.items))
+		scrollStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("241"))
+		s.WriteString(scrollStyle.Render(scrollInfo))
+	}
+
+	// Summary
+	s.WriteString("\n\n")
+	totalFreed := m.totalFreed
+	summaryStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("86"))
+	if totalFreed > 0 {
+		s.WriteString(summaryStyle.Render(fmt.Sprintf("🚀 Freed: %s", utils.FormatBytes(totalFreed))))
 	}
 
 	return s.String()
@@ -959,33 +999,73 @@ func (m *InteractiveModel) getSelectedItems() []scanner.Item {
 }
 
 func (m *InteractiveModel) performDeletions(items []scanner.Item) tea.Cmd {
-	return func() tea.Msg {
-		results := make([]DeletionResult, 0, len(items))
-		var totalFreed int64
-		
-		for _, item := range items {
-			// Perform deletion
-			err := utils.SafeRemoveAll(item.Path)
-			
-			result := DeletionResult{
-				Path:    item.Path,
-				Size:    item.Size,
-				Success: err == nil,
-				Error:   err,
-			}
-			
-			if result.Success {
-				totalFreed += result.Size
-			}
-			
-			results = append(results, result)
+	// Mark selected items as pending deletion
+	for i := range m.items {
+		if m.items[i].Selected {
+			m.items[i].DeletionStatus = "pending"
 		}
+	}
+	
+	// Start deleting the first item
+	return m.deleteNextItem(0)
+}
 
-		// Return completion message with all results
-		return AllDeletionsCompleteMsg{
-			Results: results,
-			TotalFreed: totalFreed,
+// deleteNextItem deletes the item at the given index and schedules the next one
+func (m *InteractiveModel) deleteNextItem(index int) tea.Cmd {
+	return func() tea.Msg {
+		// Find the next selected item to delete
+		var currentItem *scanner.Item
+		var actualIndex int = -1
+		
+		selectedCount := 0
+		for i := range m.items {
+			if m.items[i].Selected {
+				if selectedCount == index {
+					currentItem = &m.items[i]
+					actualIndex = i
+					break
+				}
+				selectedCount++
+			}
 		}
+		
+		// If no more items to delete, we're done
+		if currentItem == nil {
+			return AllDeletionsCompleteMsg{
+				Results: m.deletionResults,
+				TotalFreed: m.totalFreed,
+			}
+		}
+		
+		// Mark item as being deleted
+		m.items[actualIndex].DeletionStatus = "deleting"
+		
+		// Send progress message to update UI
+		progressMsg := fmt.Sprintf("Deleting %d/%d: %s", index+1, selectedCount, currentItem.Path)
+		
+		// Perform the deletion
+		err := utils.SafeRemoveAll(currentItem.Path)
+		
+		// Create result
+		result := DeletionResult{
+			Path:    currentItem.Path,
+			Size:    currentItem.Size,
+			Success: err == nil,
+			Error:   err,
+		}
+		
+		// Update item status and add to results
+		if result.Success {
+			m.items[actualIndex].DeletionStatus = "deleted"
+			m.totalFreed += result.Size
+		} else {
+			m.items[actualIndex].DeletionStatus = "error"
+		}
+		
+		m.deletionResults = append(m.deletionResults, result)
+		
+		// Return message to trigger next deletion
+		return DeletionProgressMsg(progressMsg)
 	}
 }
 
@@ -1077,6 +1157,75 @@ func (m *InteractiveModel) getVisibleItems() []scanner.Item {
 	}
 	
 	return m.items[m.scrollOffset:end]
+}
+
+// renderDeletingItemLine renders a single item line during deletion with status indicators
+func (m *InteractiveModel) renderDeletingItemLine(item scanner.Item, isHighlighted bool) string {
+	// Status indicator based on deletion status
+	var statusIcon string
+	var statusColor lipgloss.Color
+	
+	switch item.DeletionStatus {
+	case "pending":
+		statusIcon = "○"
+		statusColor = lipgloss.Color("241") // Gray
+	case "deleting":
+		statusIcon = "🔄"
+		statusColor = lipgloss.Color("33") // Yellow
+	case "deleted":
+		statusIcon = "✓"
+		statusColor = lipgloss.Color("46") // Green  
+	case "error":
+		statusIcon = "✗"
+		statusColor = lipgloss.Color("196") // Red
+	default:
+		if item.Selected {
+			statusIcon = "○" // Pending deletion
+			statusColor = lipgloss.Color("241")
+		} else {
+			statusIcon = " " // Not selected for deletion
+			statusColor = lipgloss.Color("241")
+		}
+	}
+
+	// Cursor indicator  
+	cursor := " "
+	if isHighlighted {
+		cursor = "▶"
+	}
+
+	// Size with color coding
+	sizeText := utils.FormatBytes(item.Size)
+	var sizeColor lipgloss.Color
+	if item.Size > 500*1024*1024 { // > 500MB
+		sizeColor = lipgloss.Color("196") // Red
+	} else if item.Size > 100*1024*1024 { // > 100MB  
+		sizeColor = lipgloss.Color("208") // Orange
+	} else {
+		sizeColor = lipgloss.Color("241") // Gray
+	}
+
+	// Project context
+	projectInfo := ""
+	if item.ProjectPath != "" {
+		projectInfo = fmt.Sprintf(" [%s]", filepath.Base(item.ProjectPath))
+	}
+
+	// Compose the line
+	pathStyle := lipgloss.NewStyle()
+	if isHighlighted {
+		pathStyle = pathStyle.Bold(true).Foreground(lipgloss.Color("39"))
+	}
+
+	line := fmt.Sprintf("%s %s %s %s%s",
+		cursor,
+		lipgloss.NewStyle().Foreground(statusColor).Render(statusIcon),
+		pathStyle.Render(item.Path),
+		lipgloss.NewStyle().Foreground(sizeColor).Render(fmt.Sprintf("(%s)", sizeText)),
+		lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render(projectInfo),
+	)
+
+	return line
 }
 
 // renderItemLine renders a single item line with enhanced formatting
