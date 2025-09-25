@@ -45,6 +45,10 @@ type InteractiveModel struct {
 	progress       scanner.ScanProgress
 	items          []scanner.Item
 	
+	// Queue for multiple interactive cleanups
+	queuedInteractiveOptions []CleanupOption
+	currentInteractiveIndex  int
+	
 	// Item selection state
 	itemCursor       int
 	scrollOffset     int
@@ -184,6 +188,15 @@ func (m *InteractiveModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		item := scanner.Item(msg)
 		m.addOrUpdateItem(item)
 		return m, nil
+		
+	case scanner.ItemFoundWithContinuationMsg:
+		// Add the item to the list
+		m.addOrUpdateItem(msg.Item)
+		// Continue listening for more items
+		if unifiedScanner, ok := m.currentScanner.(*scanner.UnifiedScanner); ok {
+			return m, unifiedScanner.ContinueListeningWithChannels(msg.ItemChan, msg.DoneChan)
+		}
+		return m, nil
 
 	case scanner.ScanCompleteMsg:
 		m.state = stateSelectItems
@@ -220,10 +233,19 @@ func (m *InteractiveModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case AllDeletionsCompleteMsg:
-		m.state = stateDeletionComplete
 		m.deletionResults = msg.Results
 		m.totalFreed = msg.TotalFreed
-		return m, nil
+		
+		// Check if there are more interactive cleanups queued
+		if len(m.queuedInteractiveOptions) > 0 && m.currentInteractiveIndex+1 < len(m.queuedInteractiveOptions) {
+			// Move to next interactive cleanup
+			m.currentInteractiveIndex++
+			return m.startNextInteractiveCleanup()
+		} else {
+			// No more interactive cleanups, show completion
+			m.state = stateDeletionComplete
+			return m, nil
+		}
 
 	// Handle legacy cleanup messages
 	case cleanup.ProgressMsg:
@@ -462,60 +484,30 @@ func (m *InteractiveModel) processSelectedOptions(options []CleanupOption) (tea.
 		return m, cleanup.RunCleanups(cleanupTypes)
 	}
 	
-	// If we have interactive cleanups, start with the first one
+	// If we have interactive cleanups, check for special combinations
 	if len(interactiveOptions) > 0 {
-		option := interactiveOptions[0]
-		m.currentScanner = option.Scanner
-		m.state = stateScanning
-		m.items = make([]scanner.Item, 0)
+		// Check if both node_modules and Pods are selected -> use unified scanner
+		hasNodeModules := false
+		hasPods := false
 		
-		// Create cancellable context for scanning
-		m.scanContext, m.scanCancel = context.WithCancel(context.Background())
-		
-		// Get home directory for scanning
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			homeDir = "/"
-		}
-		
-		// Initialize progress tracking with realistic estimates
-		zone := "Other"
-		estimatedTotal := 5000 // Conservative default
-		
-		// Try to determine zone for better estimation
-		if _, ok := m.currentScanner.(*scanner.NodeModulesScanner); ok {
-			// Check if scanning full home directory
-			if homeDir != "/" {
-				lowerPath := strings.ToLower(homeDir)
-				// Check for development-specific patterns
-				devPatterns := []string{"projects", "code", "development", "dev", "workspace", "repos"}
-				for _, pattern := range devPatterns {
-					if strings.Contains(lowerPath, pattern) {
-						zone = "Projects"
-						estimatedTotal = 3000
-						break
-					}
-				}
-				
-				// If no dev patterns, assume full home scan
-				if zone == "Other" {
-					zone = "Home"
-					estimatedTotal = 15000
-				}
+		for _, option := range interactiveOptions {
+			if option.ID == "node_modules_interactive" {
+				hasNodeModules = true
+			}
+			if option.ID == "pods_interactive" {
+				hasPods = true
 			}
 		}
 		
-		m.progress = scanner.ScanProgress{
-			ScanStartTime:  time.Now(),
-			EstimatedTotal: estimatedTotal,
+		// If both node_modules and Pods are selected, use unified scanner
+		if hasNodeModules && hasPods {
+			return m.startUnifiedCleanup()
 		}
 		
-		// Start scanning and progress tracking
-		return m, tea.Batch(
-			m.currentScanner.Scan(m.scanContext, homeDir),
-			m.tickProgress(), // Start progress updates
-			m.trackRealTimeProgress(), // Start real-time progress tracking
-		)
+		// Otherwise, queue them for sequential processing
+		m.queuedInteractiveOptions = interactiveOptions
+		m.currentInteractiveIndex = 0
+		return m.startNextInteractiveCleanup()
 	}
 	
 	return m, nil
@@ -1132,7 +1124,7 @@ func (m *InteractiveModel) trackRealTimeProgress() tea.Cmd {
 		return scanner.RealTimeProgressMsg{
 			CurrentPath:        currentPath,
 			DirectoriesScanned: m.progress.DirectoriesScanned,
-			ItemsFound:        m.progress.ItemsFound, // Keep existing count
+			ItemsFound:        len(m.items), // Use real count of items found
 			ScanSpeed:         m.progress.ScanSpeed,  // Use smoothed speed
 			EstimatedTotal:    m.progress.EstimatedTotal,
 			Zone:              "Projects",
@@ -1194,6 +1186,17 @@ func (m *InteractiveModel) renderDeletingItemLine(item scanner.Item, isHighlight
 		cursor = "▶"
 	}
 
+	// Type indicator (icon based on item type)
+	typeIcon := ""
+	switch item.Type {
+	case "node_modules":
+		typeIcon = "📦"
+	case "pods":
+		typeIcon = "🍎"
+	default:
+		typeIcon = "📁" // Generic folder icon
+	}
+
 	// Size with color coding
 	sizeText := utils.FormatBytes(item.Size)
 	var sizeColor lipgloss.Color
@@ -1217,9 +1220,10 @@ func (m *InteractiveModel) renderDeletingItemLine(item scanner.Item, isHighlight
 		pathStyle = pathStyle.Bold(true).Foreground(lipgloss.Color("39"))
 	}
 
-	line := fmt.Sprintf("%s %s %s %s%s",
+	line := fmt.Sprintf("%s %s %s %s %s%s",
 		cursor,
 		lipgloss.NewStyle().Foreground(statusColor).Render(statusIcon),
+		typeIcon,
 		pathStyle.Render(item.Path),
 		lipgloss.NewStyle().Foreground(sizeColor).Render(fmt.Sprintf("(%s)", sizeText)),
 		lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render(projectInfo),
@@ -1240,6 +1244,17 @@ func (m *InteractiveModel) renderItemLine(item scanner.Item, isSelected, isHighl
 	cursor := " "
 	if isHighlighted {
 		cursor = "▶"
+	}
+
+	// Type indicator (icon based on item type)
+	typeIcon := ""
+	switch item.Type {
+	case "node_modules":
+		typeIcon = "📦"
+	case "pods":
+		typeIcon = "🍎"
+	default:
+		typeIcon = "📁" // Generic folder icon
 	}
 
 	// Project context
@@ -1270,7 +1285,7 @@ func (m *InteractiveModel) renderItemLine(item scanner.Item, isSelected, isHighl
 	dateStr := item.LastModified.Format("Jan 02")
 	
 	// Format path to fit available space
-	maxPathWidth := m.width - len(cursor) - len(checkbox) - len(projectName) - len(sizeStr) - len(dateStr) - 10
+	maxPathWidth := m.width - len(cursor) - len(checkbox) - len(typeIcon) - len(projectName) - len(sizeStr) - len(dateStr) - 12
 	if maxPathWidth < 20 {
 		maxPathWidth = 20
 	}
@@ -1281,7 +1296,7 @@ func (m *InteractiveModel) renderItemLine(item scanner.Item, isSelected, isHighl
 	}
 
 	// Build the line
-	line := fmt.Sprintf("%s %s %s%s", cursor, checkbox, projectName, pathStr)
+	line := fmt.Sprintf("%s %s %s %s%s", cursor, checkbox, typeIcon, projectName, pathStr)
 	
 	// Add size and date with proper spacing
 	padding := m.width - len(line) - len(sizeStr) - len(dateStr) - 4
@@ -1307,4 +1322,130 @@ func (m *InteractiveModel) renderItemLine(item scanner.Item, isSelected, isHighl
 	}
 
 	return line
+}
+
+// startNextInteractiveCleanup starts the next interactive cleanup in the queue
+func (m *InteractiveModel) startNextInteractiveCleanup() (tea.Model, tea.Cmd) {
+	// Check if we have any more interactive cleanups to process
+	if m.currentInteractiveIndex >= len(m.queuedInteractiveOptions) {
+		// No more interactive cleanups, return to main menu
+		m.state = stateMainMenu
+		m.queuedInteractiveOptions = nil
+		m.currentInteractiveIndex = 0
+		m.items = make([]scanner.Item, 0)
+		m.selected = make(map[int]bool)
+		m.menuCursor = 0
+		return m, nil
+	}
+	
+	// Get the current interactive option
+	option := m.queuedInteractiveOptions[m.currentInteractiveIndex]
+	m.currentScanner = option.Scanner
+	m.state = stateScanning
+	m.items = make([]scanner.Item, 0)
+	
+	// Create cancellable context for scanning
+	m.scanContext, m.scanCancel = context.WithCancel(context.Background())
+	
+	// Get home directory for scanning
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		homeDir = "/"
+	}
+	
+	// Initialize progress tracking with realistic estimates
+	zone := "Other"
+	estimatedTotal := 5000 // Conservative default
+	
+	// Try to determine zone for better estimation
+	if _, ok := m.currentScanner.(*scanner.NodeModulesScanner); ok {
+		// Check if scanning full home directory
+		if homeDir != "/" {
+			lowerPath := strings.ToLower(homeDir)
+			// Check for development-specific patterns
+			devPatterns := []string{"projects", "code", "development", "dev", "workspace", "repos"}
+			for _, pattern := range devPatterns {
+				if strings.Contains(lowerPath, pattern) {
+					zone = "Projects"
+					estimatedTotal = 3000
+					break
+				}
+			}
+			
+			// If no dev patterns, assume full home scan
+			if zone == "Other" {
+				zone = "Home"
+				estimatedTotal = 15000
+			}
+		}
+	}
+	
+	m.progress = scanner.ScanProgress{
+		ScanStartTime:  time.Now(),
+		EstimatedTotal: estimatedTotal,
+	}
+	
+	// Start scanning and progress tracking
+	return m, tea.Batch(
+		m.currentScanner.Scan(m.scanContext, homeDir),
+		m.tickProgress(), // Start progress updates
+		m.trackRealTimeProgress(), // Start real-time progress tracking
+	)
+}
+
+// startUnifiedCleanup starts a unified cleanup session for both node_modules and Pods
+func (m *InteractiveModel) startUnifiedCleanup() (tea.Model, tea.Cmd) {
+	// Use the unified scanner
+	m.currentScanner = scanner.NewUnifiedScanner()
+	m.state = stateScanning
+	m.items = make([]scanner.Item, 0)
+	
+	// Clear the queue since we're doing unified processing
+	m.queuedInteractiveOptions = nil
+	m.currentInteractiveIndex = 0
+	
+	// Create cancellable context for scanning
+	m.scanContext, m.scanCancel = context.WithCancel(context.Background())
+	
+	// Get home directory for scanning
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		homeDir = "/"
+	}
+	
+	// Initialize progress tracking with realistic estimates for unified scan
+	zone := "Other"
+	estimatedTotal := 5000 // Conservative default
+	
+	// Since unified scanner handles both types, use slightly higher estimate
+	if homeDir != "/" {
+		lowerPath := strings.ToLower(homeDir)
+		// Check for development-specific patterns
+		devPatterns := []string{"projects", "code", "development", "dev", "workspace", "repos"}
+		for _, pattern := range devPatterns {
+			if strings.Contains(lowerPath, pattern) {
+				zone = "Projects"
+				estimatedTotal = 3500 // Slightly higher for unified scan
+				break
+			}
+		}
+		
+		// If no dev patterns, assume full home scan
+		if zone == "Other" {
+			zone = "Home"
+			estimatedTotal = 16000 // Slightly higher for unified scan
+		}
+	}
+	
+	m.progress = scanner.ScanProgress{
+		ScanStartTime:  time.Now(),
+		EstimatedTotal: estimatedTotal,
+	}
+	
+	// Start unified scanning and progress tracking
+	return m, tea.Batch(
+		m.currentScanner.Scan(m.scanContext, homeDir),
+		m.tickProgress(), // Start progress updates
+		m.trackRealTimeProgress(), // Start real-time progress tracking
+	)
 }
