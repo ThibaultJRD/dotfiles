@@ -451,10 +451,11 @@ export PATH="$N_PREFIX/bin:$PATH"
 n lts
 echo_success "Node.js LTS is installed."
 
-# 10. Install Claude Code
-echo_info "Installing Claude Code..."
+# 10. Install tools
+echo_info "Installing tools..."
 curl -fsSL https://claude.ai/install.sh | bash
-echo_success "Claude Code installed."
+curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
+echo_success "Tools installed."
 
 # --- Installation End ---
 echo_info "-------------------------------------------------"
