@@ -1,0 +1,128 @@
+# Atuin Configuration
+# https://docs.atuin.sh/configuration/config/
+
+# -------------------------------------------------------------------
+# Search & Filter Settings
+# -------------------------------------------------------------------
+
+# Search mode: fuzzy allows flexible matching with operators like ^, !, $
+search_mode = "fuzzy"
+
+# Filter mode: global shows all commands from history
+# You can switch modes during search with Ctrl+R
+filter_mode = "global"
+
+# Workspace mode enabled - filters commands by git repository
+workspaces = true
+
+# -------------------------------------------------------------------
+# UI Customization
+# -------------------------------------------------------------------
+
+# Compact style for better terminal space usage
+style = "compact"
+
+# Maximum interface height (0 = full-screen)
+inline_height = 20
+
+# Search bar at bottom (false) or top (true)
+invert = false
+
+# Show preview of selected command
+show_preview = true
+
+# Preview height for long commands
+max_preview_height = 4
+
+# Show help row with version and keymap hints
+show_help = true
+
+# Show tabs (Search/Inspector)
+show_tabs = true
+
+# -------------------------------------------------------------------
+# Behavior
+# -------------------------------------------------------------------
+
+# Enter immediately executes command (Tab to edit)
+enter_accept = true
+
+# Keymap mode: auto detects from shell
+keymap_mode = "auto"
+
+# -------------------------------------------------------------------
+# Sync Settings
+# -------------------------------------------------------------------
+
+# Sync disabled - local history only
+auto_sync = false
+
+# -------------------------------------------------------------------
+# Security & Privacy
+# -------------------------------------------------------------------
+
+# Auto-filter secrets (AWS keys, GitHub tokens, etc.)
+secrets_filter = true
+
+# Custom filters for your API keys
+history_filter = [
+  "^export .*API_KEY",
+  "^export .*SECRET",
+  "^export .*TOKEN",
+  "^export .*PASSWORD",
+  "^export GEMINI_API_KEY",
+]
+
+# -------------------------------------------------------------------
+# Keybindings (macOS optimized)
+# -------------------------------------------------------------------
+
+[keys]
+# Use Ctrl instead of Alt for shortcuts (better for macOS)
+ctrl_n_shortcuts = true
+
+# Up/down exits at first/last entry
+scroll_exits = true
+
+# Left arrow exits at line start
+exit_past_line_start = true
+
+# Right arrow accepts line for editing
+accept_past_line_end = true
+
+# -------------------------------------------------------------------
+# Statistics
+# -------------------------------------------------------------------
+
+[stats]
+# Track subcommands for these tools
+common_subcommands = [
+  "git",
+  "docker",
+  "kubectl",
+  "npm",
+  "pnpm",
+  "cargo",
+  "go",
+  "tmux",
+]
+
+# Ignore sudo prefix in stats
+common_prefix = ["sudo"]
+
+# -------------------------------------------------------------------
+# Theme
+# -------------------------------------------------------------------
+
+[theme]
+# Catppuccin Mocha Mauve theme (matches your terminal background)
+name = "catppuccin-mocha-mauve"
+
+# -------------------------------------------------------------------
+# Search Filters
+# -------------------------------------------------------------------
+
+[search]
+# List of enabled filter modes, in order of priority for Ctrl+R cycling
+# global: all commands | workspace: git repo | session: tmux session | directory: current folder
+filters = ["global", "workspace", "session", "directory"]

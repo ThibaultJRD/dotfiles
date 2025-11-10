@@ -63,6 +63,9 @@ export BUN_INSTALL="$HOME/.bun"
 # Zoxide (smarter cd)
 eval "$(zoxide init zsh --cmd cd)"
 
+# Atuin (shell history)
+eval "$(atuin init zsh)"
+
 # General aliases
 alias cat='bat'
 alias lg='lazygit'

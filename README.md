@@ -92,6 +92,7 @@ A powerful tmux setup featuring 12+ plugins for enhanced productivity, session m
 - **[Eza](https://github.com/eza-community/eza)** - Modern `ls` replacement with icons
 - **[fzf](https://github.com/junegunn/fzf)** - Fuzzy finder for files and history
 - **[Zoxide](https://github.com/ajeetdsouza/zoxide)** - Smart directory navigation
+- **[Atuin](https://github.com/atuinsh/atuin)** - Magical shell history with sync and search capabilities
 
 ### 🔧 Enhanced CLI Experience
 
@@ -319,6 +320,7 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 | **Eza**    | `ls`, `la`, `lt` | Modern `ls` with icons and colors   |
 | **Zoxide** | `z <dir>`        | Smart directory navigation          |
 | **fzf**    | `fzf`            | Fuzzy finder with Catppuccin theme and advanced previews |
+| **Atuin**  | `Ctrl+R`         | Enhanced shell history with search, sync and statistics |
 
 #### 🎯 Advanced fzf Configuration
 
