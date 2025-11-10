@@ -11,7 +11,6 @@
 set -e
 
 # --- Configuration ---
-DRY_RUN="${DRY_RUN:-false}"
 VERBOSE="${VERBOSE:-false}"
 
 # --- Utility Functions ---
@@ -41,50 +40,15 @@ echo_error() {
   exit 1
 }
 
-# Rollback function
-rollback_changes() {
-  if [ -f "$ROLLBACK_LOG" ]; then
-    echo_warning "Rolling back changes..."
-    while IFS= read -r line; do
-      if [[ "$line" == BACKUP:* ]]; then
-        source_backup="${line#BACKUP:}"
-        target_file="${source_backup%.bak.$BACKUP_DATE}"
-        if [ -f "$source_backup" ]; then
-          echo_debug "Restoring $target_file from $source_backup"
-          mv "$source_backup" "$target_file"
-        fi
-      elif [[ "$line" == LINK:* ]]; then
-        link_file="${line#LINK:}"
-        if [ -L "$link_file" ]; then
-          echo_debug "Removing symlink $link_file"
-          rm "$link_file"
-        fi
-      fi
-    done <"$ROLLBACK_LOG"
-    echo_success "Rollback completed"
-  fi
-  exit 1
-}
-
-# Set up error handling
-trap rollback_changes ERR
-
 # --- Variables ---
 DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
 BACKUP_DIR="$HOME/.dotfiles_backup_$BACKUP_DATE"
-ROLLBACK_LOG="$BACKUP_DIR/rollback.log"
 
 # --- Pre-run Check and Backup Function ---
 backup_and_link() {
   local source_path=$1
   local target_path=$2
-
-  # Dry run mode
-  if [ "$DRY_RUN" = "true" ]; then
-    echo_info "[DRY RUN] Would link '$source_path' to '$target_path'"
-    return 0
-  fi
 
   # Ensure backup directory exists
   mkdir -p "$BACKUP_DIR"
@@ -100,7 +64,6 @@ backup_and_link() {
     backup_file="$target_path.bak.$BACKUP_DATE"
     echo_info "Backing up existing '$target_path' to '$backup_file'"
     mv "$target_path" "$backup_file"
-    echo "BACKUP:$backup_file" >>"$ROLLBACK_LOG"
   fi
 
   # If target is a symlink (but not to the correct source, handled above), remove it
@@ -111,17 +74,12 @@ backup_and_link() {
 
   mkdir -p "$(dirname "$target_path")"
   ln -s "$source_path" "$target_path"
-  echo "LINK:$target_path" >>"$ROLLBACK_LOG"
   echo_success "Linked '$source_path' to '$target_path'"
 }
 
 # --- Installation Start ---
-if [ "$DRY_RUN" = "true" ]; then
-  echo_info "DRY RUN MODE: No changes will be made to your system"
-else
-  echo_info "Starting dotfiles setup..."
-  echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
-fi
+echo_info "Starting dotfiles setup..."
+echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
 
 # Pre-requisite checks
 echo_info "Checking prerequisites..."
@@ -155,12 +113,10 @@ elif ! command -v brew &>/dev/null; then
   echo_success "Homebrew installed and configured."
 else
   echo_success "Homebrew is already installed. Updating..."
-  trap - ERR
   set +e
   brew update
   BREW_UPDATE_STATUS=$?
   set -e
-  trap rollback_changes ERR
 
   if [ $BREW_UPDATE_STATUS -ne 0 ]; then
     echo_warning "Warning: 'brew update' failed. Continuing with setup..."
@@ -180,12 +136,10 @@ fi
 
 # 3. Install dependencies from Brewfile
 echo_info "Installing all dependencies from Brewfile..."
-trap - ERR
 set +e
 brew bundle --file="$DOTFILES_DIR/Brewfile"
 BREW_BUNDLE_STATUS=$?
 set -e
-trap rollback_changes ERR
 
 if [ $BREW_BUNDLE_STATUS -ne 0 ]; then
   echo_warning "Warning: 'brew bundle' finished with errors. Some packages may not be installed."
@@ -251,12 +205,10 @@ echo_success "All config files are linked."
 # 4. Build Caches
 echo_info "Building caches for tools..."
 if command -v bat &>/dev/null; then
-  trap - ERR
   set +e
   bat cache --build
   BAT_CACHE_STATUS=$?
   set -e
-  trap rollback_changes ERR
 
   if [ $BAT_CACHE_STATUS -ne 0 ]; then
     echo_warning "Warning: 'bat cache --build' failed. Syntax highlighting may not work optimally."
@@ -270,21 +222,25 @@ fi
 # 5. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-# Function to simplify plugin install/update
-install_or_update_plugin() {
-  local repo_url=$1
-  local plugin_dir_name=$(basename "$repo_url" .git)
-  local target_dir="${ZSH_CUSTOM}/plugins/${plugin_dir_name}"
+
+# List of Zsh plugins to install
+ZSH_PLUGINS=(
+  "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+  "https://github.com/zsh-users/zsh-autosuggestions.git"
+  "https://github.com/zsh-users/zsh-completions.git"
+  "https://github.com/zsh-users/zsh-history-substring-search.git"
+)
+
+# Install or update each plugin
+for repo_url in "${ZSH_PLUGINS[@]}"; do
+  plugin_dir_name=$(basename "$repo_url" .git)
+  target_dir="${ZSH_CUSTOM}/plugins/${plugin_dir_name}"
   if [ -d "$target_dir" ]; then
     (cd "$target_dir" && git pull)
   else
     git clone "$repo_url" "$target_dir"
   fi
-}
-install_or_update_plugin https://github.com/zsh-users/zsh-syntax-highlighting.git
-install_or_update_plugin https://github.com/zsh-users/zsh-autosuggestions.git
-install_or_update_plugin https://github.com/zsh-users/zsh-completions.git
-install_or_update_plugin https://github.com/zsh-users/zsh-history-substring-search.git
+done
 echo_success "Zsh plugins are up to date."
 
 # 6. Install Node.js LTS version
@@ -319,6 +275,3 @@ echo_info "Your Zsh shell is configured and ready to use with vi mode."
 echo_info "Nushell is available for data manipulation tasks - run 'nu' to start."
 echo ""
 echo_info "Restart your terminal to apply all changes."
-
-# Clear the trap on successful completion
-trap - ERR

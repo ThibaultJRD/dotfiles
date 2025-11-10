@@ -127,14 +127,7 @@ cd dotfiles
 # Set a Nerd Font in your terminal settings for proper icon display
 ```
 
-### Option 2: Preview Changes (Dry Run)
-
-```bash
-# See what changes would be made without applying them
-DRY_RUN=true ./install.sh
-```
-
-### Option 3: Install Dependencies Only
+### Option 2: Install Dependencies Only
 
 ```bash
 # Install Homebrew packages without configuration
@@ -144,12 +137,11 @@ brew bundle --file=Brewfile
 ### Post-Installation
 
 1. **Configure Terminal Font**: Set a Nerd Font in your terminal preferences
-2. **Test Installation**: Run `./test.sh` to verify everything works
-3. **Explore Shells**:
+2. **Explore Shells**:
    - **Zsh**: Your daily driver with Oh My Zsh, autosuggestions, and syntax highlighting
    - **Nushell**: For data manipulation tasks → See `nushell/README.md`
-4. **Start Tmux**: Launch `tmux` for session management with automatic plugin installation
-5. **Explore**: Try `y` (yazi), `lg` (lazygit), `v` (neovim)
+3. **Start Tmux**: Launch `tmux` for session management with automatic plugin installation
+4. **Explore**: Try `y` (yazi), `lg` (lazygit), `v` (neovim)
 
 ### 🐚 Shell Selection
 
@@ -244,36 +236,21 @@ $env.YOUR_VAR = "your_value"
 </details>
 
 <details>
-<summary><strong>🧪 Testing and Validation</strong></summary>
-
-### Test Installation
-
-```bash
-./test.sh  # Comprehensive validation suite
-```
-
-The test script validates:
-- **Homebrew**: Installation and PATH configuration
-- **Shell Configuration**: Zsh, .zshrc, Oh My Zsh, Starship
-- **Core Tools**: All 25+ CLI tools and applications
-- **Configuration Files**: Symlinks and config file existence
-- **Environment**: Variables, PATH, and shell integration
-- **Aliases**: All custom aliases and functions
-- **Node.js**: n version manager and npm setup
-- **Fonts**: Nerd Font installation verification
-- **Zsh Plugins**: All custom plugins properly installed
-
-### Preview Changes
-
-```bash
-DRY_RUN=true ./install.sh  # See what would change without applying
-```
+<summary><strong>🔄 Reinstalling</strong></summary>
 
 ### Reinstall After Changes
+
+If you modify the dotfiles and want to reapply the configuration:
 
 ```bash
 ./install.sh  # Safely reinstall with automatic backups
 ```
+
+The installation script will:
+- Backup existing configuration files with timestamps
+- Create or update symlinks to your dotfiles
+- Skip already installed packages
+- Continue even if some operations fail
 
 </details>
 
@@ -439,12 +416,6 @@ The `y` function provides seamless directory navigation:
 
 <details>
 <summary><strong>Reset and Debug</strong></summary>
-
-### Test Installation
-
-```bash
-./test.sh  # Run diagnostic tests
-```
 
 ### Check Dependencies
 
