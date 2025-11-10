@@ -1,43 +1,28 @@
-# ==============================================================================
-# FZF Advanced Configuration for Fish
-# ==============================================================================
-# This file configures fzf with advanced options, keybindings, and previews
+# fzf.fish is only meant to be used in interactive mode. If not in interactive mode and not in CI, skip the config to speed up shell startup
+if not status is-interactive && test "$CI" != true
+    exit
+end
 
-# --- FZF Commands Configuration ---
-# Core command used by fzf to find files
-set -gx FZF_DEFAULT_COMMAND "fd --hidden --strip-cwd-prefix --exclude .git"
+# Because of scoping rules, to capture the shell variables exactly as they are, we must read
+# them before even executing _fzf_search_variables. We use psub to store the
+# variables' info in temporary files and pass in the filenames as arguments.
+# This variable is global so that it can be referenced by fzf_configure_bindings and in tests
+set --global _fzf_search_vars_command '_fzf_search_variables (set --show | psub) (set --names | psub)'
 
-# Use the same command for CTRL+T keybinding
-set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_COMMAND"
 
-# For ALT+C, find only directories
-set -gx FZF_ALT_C_COMMAND "fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+# Install the default bindings, which are mnemonic and minimally conflict with fish's preset bindings
+fzf_configure_bindings
 
-# --- FZF Theme (Catppuccin Macchiato) ---
-set -gx FZF_DEFAULT_OPTS "\
---color=bg+:#363A4F,bg:#24273A,spinner:#F4DBD6,hl:#ED8796 \
---color=fg:#CAD3F5,header:#ED8796,info:#C6A0F6,pointer:#F4DBD6 \
---color=marker:#B7BDF8,fg+:#CAD3F5,prompt:#C6A0F6,hl+:#ED8796 \
---color=selected-bg:#494D64 \
---color=border:#363A4F,label:#CAD3F5"
+# Doesn't erase autoloaded _fzf_* functions because they are not easily accessible once key bindings are erased
+function _fzf_uninstall --on-event fzf_uninstall
+    _fzf_uninstall_bindings
 
-# --- FZF Previews ---
-# Preview command for files and directories
-set -l show_file_or_dir_preview "if test -d {}; eza --tree --level=2 --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; end"
+    set --erase _fzf_search_vars_command
+    functions --erase _fzf_uninstall _fzf_migration_message _fzf_uninstall_bindings fzf_configure_bindings
+    complete --erase fzf_configure_bindings
 
-# Assign preview to CTRL+T
-set -gx FZF_CTRL_T_OPTS "--preview '$show_file_or_dir_preview'"
-
-# Preview for ALT+C (directory tree)
-set -gx FZF_ALT_C_OPTS "--preview 'eza --tree --level=2 --color=always {} | head -200'"
-
-# --- FZF Path Completion (for Fish) ---
-# Note: Fish has excellent native completion, but fzf can enhance it further
-# Install fzf.fish plugin with Fisher for advanced fzf+Fish integration:
-#   fisher install PatrickF1/fzf.fish
-#
-# This provides:
-# - CTRL+R: Search command history with fzf
-# - CTRL+ALT+F: Search files with fzf
-# - CTRL+ALT+L: Search git log with fzf
-# - CTRL+V: Search and preview environment variables
+    set_color cyan
+    echo "fzf.fish uninstalled."
+    echo "You may need to manually remove fzf_configure_bindings from your config.fish if you were using custom key bindings."
+    set_color normal
+end

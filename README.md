@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![macOS](https://img.shields.io/badge/macOS-Sonoma+-blue.svg)](https://www.apple.com/macos/)
-[![Shell](https://img.shields.io/badge/Shell-Fish%20%7C%20Zsh%20%7C%20Nushell-green.svg)](https://fishshell.com/)
+[![Shell](https://img.shields.io/badge/Shell-Zsh%20%7C%20Nushell-green.svg)](https://www.zsh.org/)
 [![Theme](https://img.shields.io/badge/Theme-Catppuccin-pink.svg)](https://github.com/catppuccin)
 
 <img width="476" alt="Modern terminal setup with Catppuccin theme" src="https://github.com/user-attachments/assets/c149ee55-8844-40d3-a833-a63e136217a2" />
@@ -39,8 +39,7 @@ cd dotfiles
 
 - **[Kitty](https://sw.kovidgoyal.net/kitty/)** - GPU-accelerated terminal emulator
 - **Multiple Shell Options:**
-  - **[Fish](https://fishshell.com/)** (recommended) - Modern shell with native autosuggestions and syntax highlighting
-  - **[Zsh](https://zsh.sourceforge.io/) + [Oh My Zsh](https://ohmyz.sh/)** - Enhanced shell with extensive plugin ecosystem
+  - **[Zsh](https://zsh.sourceforge.io/) + [Oh My Zsh](https://ohmyz.sh/)** - Enhanced shell with extensive plugin ecosystem and powerful autosuggestions
   - **[Nushell](https://www.nushell.sh/)** - Structured data shell for data manipulation tasks
 - **[Starship](https://starship.rs/)** - Lightning-fast, customizable prompt (works with all shells)
 - **[Tmux](https://github.com/tmux/tmux)** - Advanced terminal multiplexer with rich plugin ecosystem
@@ -146,31 +145,28 @@ brew bundle --file=Brewfile
 
 1. **Configure Terminal Font**: Set a Nerd Font in your terminal preferences
 2. **Test Installation**: Run `./test.sh` to verify everything works
-3. **Choose Your Shell** (optional):
-   - **Fish** (recommended): Modern shell with better defaults → See `fish/README.md`
-   - **Zsh** (current): Traditional shell, already configured
+3. **Explore Shells**:
+   - **Zsh**: Your daily driver with Oh My Zsh, autosuggestions, and syntax highlighting
    - **Nushell**: For data manipulation tasks → See `nushell/README.md`
 4. **Start Tmux**: Launch `tmux` for session management with automatic plugin installation
 5. **Explore**: Try `y` (yazi), `lg` (lazygit), `v` (neovim)
 
-### 🐟 Shell Selection
+### 🐚 Shell Selection
 
-The setup installs **three shells** with complete configurations:
+The setup installs **two shells** with complete configurations:
 
-| Shell | Use Case | Switch Command |
-|-------|----------|----------------|
-| **Fish** | Daily driver (recommended) | `chsh -s $(which fish)` |
-| **Zsh** | Fallback/compatibility | `chsh -s $(which zsh)` |
+| Shell | Use Case | How to Use |
+|-------|----------|------------|
+| **Zsh** | Daily driver (default) | Already configured with Oh My Zsh |
 | **Nushell** | Data manipulation only | Run `nu` when needed |
 
-**Why Fish?**
-- Native autosuggestions & syntax highlighting (no plugins needed)
-- Better completions out of the box
-- All your tools work (zoxide, starship, atuin, fzf, etc.)
-- Cleaner syntax than Zsh
+**Zsh Features:**
+- Powerful autosuggestions via zsh-autosuggestions plugin
+- Syntax highlighting with fast-syntax-highlighting
+- All your tools work seamlessly (zoxide, starship, atuin, fzf, etc.)
+- Vi mode for efficient editing
 
 **Learn more:**
-- Fish guide: `fish/README.md`
 - Nushell examples: `nushell/README.md` and `nushell/scripts/examples.nu`
 
 ## 🔧 Customization
@@ -223,9 +219,6 @@ echo 'alias myalias="my command"' > ~/.config/zsh/conf.d/custom.zsh
 ```bash
 # Zsh: Add to ~/.zshrc
 export YOUR_VAR="your_value"
-
-# Fish: Add to ~/.config/fish/conf.d/custom.fish
-set -gx YOUR_VAR "your_value"
 
 # Nushell: Add to ~/.config/nushell/env.nu
 $env.YOUR_VAR = "your_value"
@@ -292,32 +285,11 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 | Tool         | Command | Description                                 |
 | ------------ | ------- | ------------------------------------------- |
 | **Kitty**    | `kitty` | GPU-accelerated terminal emulator           |
-| **Fish** ⭐   | `fish`  | Modern shell with native features (recommended) |
 | **Zsh**      | `zsh`   | Enhanced shell with Oh My Zsh framework     |
 | **Nushell**  | `nu`    | Structured data shell for data manipulation |
 | **Starship** | -       | Cross-shell prompt with Git integration     |
 | **Tmux**     | `tmux`  | Advanced terminal multiplexer with 12+ plugins |
 | **Homebrew** | `brew`  | macOS package manager                       |
-| **Fisher**   | `fisher`| Fish shell plugin manager                   |
-
-### Fish Features (Built-in)
-
-Fish comes with these features built-in (no plugins needed):
-- **Syntax highlighting** - Real-time command validation
-- **Autosuggestions** - History-based command completion
-- **Smart completions** - Generated from man pages automatically
-- **Web-based configuration** - Run `fish_config` to configure via browser
-- **Enhanced fzf** - Install `fzf.fish` plugin for best experience
-
-### Zsh Plugins (if using Zsh)
-
-- **git** - Git aliases and functions
-- **fzf** - Fuzzy finder integration (`Ctrl+R`)
-- **sudo** - Add sudo with `Esc` twice
-- **zsh-completions** - Extended tab completions
-- **zsh-syntax-highlighting** - Real-time syntax highlighting
-- **zsh-autosuggestions** - History-based suggestions
-- **history-substring-search** - Enhanced history search
 
 ### Shell Aliases & Functions
 
