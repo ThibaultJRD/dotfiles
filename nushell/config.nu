@@ -66,8 +66,8 @@ alias v = nvim
 alias lg = lazygit
 
 # --- Integrations ---
-# Starship prompt (optional, uncomment if you want to use it in Nushell)
-# source ~/.cache/starship/init.nu
+# Starship prompt
+source ~/.cache/starship/init.nu
 
 # Zoxide integration
 source ~/.local/share/zoxide/init.nu

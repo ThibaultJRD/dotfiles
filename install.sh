@@ -14,8 +14,6 @@ set -e
 DRY_RUN="${DRY_RUN:-false}"
 VERBOSE="${VERBOSE:-false}"
 
-# No secrets management needed - keep configs simple
-
 # --- Utility Functions ---
 # For printing informational headers
 echo_info() {
@@ -117,8 +115,6 @@ backup_and_link() {
   echo_success "Linked '$source_path' to '$target_path'"
 }
 
-# Simplified .zshrc management - no secrets handling needed
-
 # --- Installation Start ---
 if [ "$DRY_RUN" = "true" ]; then
   echo_info "DRY RUN MODE: No changes will be made to your system"
@@ -173,7 +169,16 @@ else
   fi
 fi
 
-# 2. Install dependencies from Brewfile
+# 2. Install Oh My Zsh
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  echo_info "Installing Oh My Zsh..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  echo_success "Oh My Zsh installed."
+else
+  echo_success "Oh My Zsh is already installed."
+fi
+
+# 3. Install dependencies from Brewfile
 echo_info "Installing all dependencies from Brewfile..."
 trap - ERR
 set +e
@@ -194,8 +199,8 @@ echo_info "Linking other configuration files..."
 
 # Automatically link modular tool config directories
 for tool_dir in "$DOTFILES_DIR"/*/; do
-  # Skip .git and nushell directories (handled separately)
-  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"nushell/"* ]]; then
+  # Skip .git, zsh_configs, and nushell directories (handled separately)
+  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"zsh_configs/"* ]] || [[ "$tool_dir" == *"nushell/"* ]]; then
     continue
   fi
 
@@ -218,6 +223,19 @@ for tool_dir in "$DOTFILES_DIR"/*/; do
     backup_and_link "$source_item_dot" "${HOME}/.${tool_name}"
   fi
 done
+
+# Link custom zsh configuration files
+ZSH_CONF_SOURCE_DIR="$DOTFILES_DIR/zsh_configs"
+ZSH_CONF_TARGET_DIR="$HOME/.config/zsh/conf.d"
+if [ -d "$ZSH_CONF_SOURCE_DIR" ]; then
+  echo_info "Linking custom Zsh configurations..."
+  mkdir -p "$ZSH_CONF_TARGET_DIR"
+  for conf_file in "$ZSH_CONF_SOURCE_DIR"/*.zsh; do
+    if [ -f "$conf_file" ]; then
+      backup_and_link "$conf_file" "$ZSH_CONF_TARGET_DIR/$(basename "$conf_file")"
+    fi
+  done
+fi
 
 # Link Nushell configuration
 NUSHELL_SOURCE_DIR="$DOTFILES_DIR/nushell"
@@ -249,28 +267,58 @@ else
   echo_warning "Warning: 'bat' command not found. Skipping cache build."
 fi
 
-# 5. Install Node.js LTS version
+# 5. Install or Update Zsh Plugins
+echo_info "Installing or updating Zsh plugins..."
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+# Function to simplify plugin install/update
+install_or_update_plugin() {
+  local repo_url=$1
+  local plugin_dir_name=$(basename "$repo_url" .git)
+  local target_dir="${ZSH_CUSTOM}/plugins/${plugin_dir_name}"
+  if [ -d "$target_dir" ]; then
+    (cd "$target_dir" && git pull)
+  else
+    git clone "$repo_url" "$target_dir"
+  fi
+}
+install_or_update_plugin https://github.com/zsh-users/zsh-syntax-highlighting.git
+install_or_update_plugin https://github.com/zsh-users/zsh-autosuggestions.git
+install_or_update_plugin https://github.com/zsh-users/zsh-completions.git
+install_or_update_plugin https://github.com/zsh-users/zsh-history-substring-search.git
+echo_success "Zsh plugins are up to date."
+
+# 6. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
 export N_PREFIX="$HOME/.n"
 export PATH="$N_PREFIX/bin:$PATH"
 n lts
 echo_success "Node.js LTS is installed."
 
-# 6. Install tools
+# 7. Install tools
 echo_info "Installing tools..."
 curl -fsSL https://bun.sh/install | bash
 curl -fsSL https://claude.ai/install.sh | bash
 curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
 echo_success "Tools installed."
 
+# 8. Setup Starship for Nushell
+if command -v starship &>/dev/null; then
+  echo_info "Setting up Starship for Nushell..."
+  mkdir -p ~/.cache/starship
+  starship init nu > ~/.cache/starship/init.nu
+  echo_success "Starship configuration for Nushell generated."
+else
+  echo_warning "Starship not found. Skipping Nushell Starship setup."
+fi
+
 # --- Installation End ---
 echo_info "-------------------------------------------------"
 echo_success "Setup complete!"
 echo ""
-echo_info "Your Zsh shell is configured and ready to use."
+echo_info "Your Zsh shell is configured and ready to use with vi mode."
 echo_info "Nushell is available for data manipulation tasks - run 'nu' to start."
 echo ""
-echo_info "See nushell/README.md for Nushell usage guide and examples."
+echo_info "Restart your terminal to apply all changes."
 
 # Clear the trap on successful completion
 trap - ERR
