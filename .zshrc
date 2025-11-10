@@ -6,6 +6,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # -------------------------------------------------------------------
 # The order is important. Homebrew should be first to take precedence.
 export PATH="/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.n/bin:$PATH"
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="$PATH:$(brew --prefix go)/libexec/bin:$HOME/go/bin"

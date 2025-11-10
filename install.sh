@@ -451,11 +451,10 @@ export PATH="$N_PREFIX/bin:$PATH"
 n lts
 echo_success "Node.js LTS is installed."
 
-# 10. Install Global NPM Packages
-echo_info "Installing global NPM packages..."
-npm install -g @google/gemini-cli
-npm install -g @anthropic-ai/claude-code
-echo_success "Global NPM packages installed."
+# 10. Install Claude Code
+echo_info "Installing Claude Code..."
+curl -fsSL https://claude.ai/install.sh | bash
+echo_success "Claude Code installed."
 
 # --- Installation End ---
 echo_info "-------------------------------------------------"
