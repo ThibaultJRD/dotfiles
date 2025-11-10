@@ -14,12 +14,7 @@ set -e
 DRY_RUN="${DRY_RUN:-false}"
 VERBOSE="${VERBOSE:-false}"
 
-# --- Secrets Management ---
-# Add any secret environment variables you want the script to manage here.
-SECRETS_TO_MANAGE=(
-  # "GEMINI_API_KEY"
-  # "ANOTHER_API_KEY" # Example: Add more keys here in the future
-)
+# No secrets management needed - keep configs simple
 
 # --- Utility Functions ---
 # For printing informational headers
@@ -122,81 +117,7 @@ backup_and_link() {
   echo_success "Linked '$source_path' to '$target_path'"
 }
 
-# Function to extract template content from .zshrc (without API keys)
-extract_template_content() {
-  local zshrc_file=$1
-  if [ ! -f "$zshrc_file" ]; then
-    echo ""
-    return
-  fi
-
-  # Extract everything before the local secrets marker
-  awk '/^# Local-only secrets \(not in Git\)/{exit} {print}' "$zshrc_file" | sed '/^[[:space:]]*$/d'
-}
-
-# Function to extract secret value from .zshrc
-extract_secret_value() {
-  local zshrc_file=$1
-  local key_name=$2
-  if [ ! -f "$zshrc_file" ]; then
-    echo ""
-    return
-  fi
-
-  # Look for the export line and extract the value between quotes
-  grep "^export $key_name=" "$zshrc_file" | head -1 | sed 's/^export [^=]*="\(.*\)"$/\1/'
-}
-
-# Function to remove all instances of a secret from .zshrc
-remove_secret_from_zshrc() {
-  local zshrc_file=$1
-  local key_name=$2
-
-  # Create a temporary file without the secret entries and the marker if it becomes empty
-  awk -v key="$key_name" '
-    BEGIN { in_secrets = 0; skip_line = 0 }
-    /^# Local-only secrets \(not in Git\)/ { 
-      secrets_marker_line = NR
-      in_secrets = 1
-      print
-      next
-    }
-    in_secrets && /^export / && $0 ~ "^export " key "=" {
-      skip_line = 1
-      next
-    }
-    in_secrets && /^[[:space:]]*$/ && skip_line {
-      skip_line = 0
-      next
-    }
-    in_secrets && /^[^#]/ && !/^export/ && !/^[[:space:]]*$/ {
-      in_secrets = 0
-    }
-    !skip_line { print }
-  ' "$zshrc_file" >"$zshrc_file.tmp" && mv "$zshrc_file.tmp" "$zshrc_file"
-}
-
-# Function to check if zshrc template has changed
-zshrc_template_changed() {
-  local existing_zshrc="$HOME/.zshrc"
-  local template_zshrc="$DOTFILES_DIR/.zshrc"
-
-  if [ ! -f "$existing_zshrc" ]; then
-    echo_debug "No existing .zshrc found, template change detected"
-    return 0 # Consider as changed if no existing file
-  fi
-
-  local existing_template_content=$(extract_template_content "$existing_zshrc")
-  local new_template_content=$(extract_template_content "$template_zshrc")
-
-  if [ "$existing_template_content" = "$new_template_content" ]; then
-    echo_debug ".zshrc template content is identical, no backup needed"
-    return 1 # No change
-  else
-    echo_debug ".zshrc template content differs, backup needed"
-    return 0 # Changed
-  fi
-}
+# Simplified .zshrc management - no secrets handling needed
 
 # --- Installation Start ---
 if [ "$DRY_RUN" = "true" ]; then
@@ -286,87 +207,31 @@ else
   echo_success "All Homebrew dependencies are installed."
 fi
 
-# 5. Setup Zsh Configuration and API Keys
-echo_info "Setting up Zsh configuration and local secrets..."
+# 5. Setup Zsh Configuration
+echo_info "Setting up Zsh configuration..."
 
-# Preserve existing secrets using standard arrays for macOS compatibility
-declare -a preserved_keys=()
-declare -a preserved_values=()
+# Simple backup and copy approach
 if [ -f "$HOME/.zshrc" ]; then
-  for key_name in "${SECRETS_TO_MANAGE[@]}"; do
-    value=$(extract_secret_value "$HOME/.zshrc" "$key_name")
-    if [ -n "$value" ]; then
-      preserved_keys+=("$key_name")
-      preserved_values+=("$value")
-      echo "Found existing $key_name. Preserving it."
-      # Remove all instances of this key from the file to avoid duplicates
-      remove_secret_from_zshrc "$HOME/.zshrc" "$key_name"
-    fi
-  done
-fi
-
-# Check if template has changed before backing up
-if zshrc_template_changed; then
-  # Template has changed, backup and replace
-  if [ -f "$HOME/.zshrc" ]; then
-    echo "Backing up existing ~/.zshrc to ~/.zshrc.bak.$BACKUP_DATE (template changed)"
-    mv "$HOME/.zshrc" "$HOME/.zshrc.bak.$BACKUP_DATE"
-  fi
-  cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-  echo_success "Updated .zshrc template from repository."
-else
-  # Template hasn't changed, only update if no existing file
-  if [ ! -f "$HOME/.zshrc" ]; then
+  if ! cmp -s "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"; then
+    echo "Backing up existing ~/.zshrc to ~/.zshrc.bak.$BACKUP_DATE"
+    cp "$HOME/.zshrc" "$HOME/.zshrc.bak.$BACKUP_DATE"
     cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-    echo_success "Copied .zshrc template to home directory."
+    echo_success "Updated .zshrc from repository."
   else
-    echo_success ".zshrc template is up to date, preserving existing file."
+    echo_success ".zshrc is already up to date."
   fi
+else
+  cp "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+  echo_success "Copied .zshrc to home directory."
 fi
-
-# Handle API keys: re-apply preserved keys or prompt for new ones.
-LOCAL_ONLY_MARKER="# Local-only secrets (not in Git)"
-
-# Re-apply all preserved keys first
-if ((${#preserved_keys[@]} > 0)); then
-  # Add the marker only if it's not there yet
-  if ! grep -q "$LOCAL_ONLY_MARKER" "$HOME/.zshrc"; then
-    echo -e "\n$LOCAL_ONLY_MARKER" >>"$HOME/.zshrc"
-  fi
-  for i in "${!preserved_keys[@]}"; do
-    key_name="${preserved_keys[$i]}"
-    key_value="${preserved_values[$i]}"
-    echo "export $key_name=\"$key_value\"" >>"$HOME/.zshrc"
-    echo_success "Restored existing $key_name."
-  done
-fi
-
-# Now, prompt for any keys that are in the list but were not preserved
-for key_name in "${SECRETS_TO_MANAGE[@]}"; do
-  if ! grep -q "$key_name" "$HOME/.zshrc"; then
-    echo_info "Setting up $key_name..."
-    read -s -p "Enter your $key_name (will not be displayed): " new_key_value
-    echo # Newline for cleaner output
-    if [ -n "$new_key_value" ]; then
-      # Add the marker only if it's not there yet
-      if ! grep -q "$LOCAL_ONLY_MARKER" "$HOME/.zshrc"; then
-        echo -e "\n$LOCAL_ONLY_MARKER" >>"$HOME/.zshrc"
-      fi
-      echo "export $key_name=\"$new_key_value\"" >>"$HOME/.zshrc"
-      echo_success "$key_name saved to ~/.zshrc"
-    else
-      echo "No value entered for $key_name. Skipping."
-    fi
-  fi
-done
 
 # 6. Link Other Configuration Files
 echo_info "Linking other configuration files..."
 
 # Automatically link modular tool config directories
 for tool_dir in "$DOTFILES_DIR"/*/; do
-  # Skip .git and zsh_configs directories
-  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"zsh_configs/"* ]]; then
+  # Skip .git, zsh_configs, fish, and nushell directories (handled separately)
+  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"zsh_configs/"* ]] || [[ "$tool_dir" == *"fish/"* ]] || [[ "$tool_dir" == *"nushell/"* ]]; then
     continue
   fi
 
@@ -401,6 +266,24 @@ if [ -d "$ZSH_CONF_SOURCE_DIR" ]; then
       backup_and_link "$conf_file" "$ZSH_CONF_TARGET_DIR/$(basename "$conf_file")"
     fi
   done
+fi
+
+# Link Fish shell configuration
+FISH_SOURCE_DIR="$DOTFILES_DIR/fish"
+FISH_TARGET_DIR="$HOME/.config/fish"
+if [ -d "$FISH_SOURCE_DIR" ]; then
+  echo_info "Linking Fish shell configuration..."
+  backup_and_link "$FISH_SOURCE_DIR" "$FISH_TARGET_DIR"
+  echo_success "Fish configuration linked."
+fi
+
+# Link Nushell configuration
+NUSHELL_SOURCE_DIR="$DOTFILES_DIR/nushell"
+NUSHELL_TARGET_DIR="$HOME/.config/nushell"
+if [ -d "$NUSHELL_SOURCE_DIR" ]; then
+  echo_info "Linking Nushell configuration..."
+  backup_and_link "$NUSHELL_SOURCE_DIR" "$NUSHELL_TARGET_DIR"
+  echo_success "Nushell configuration linked."
 fi
 
 echo_success "All config files are linked."
@@ -457,11 +340,58 @@ curl -fsSL https://claude.ai/install.sh | bash
 curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
 echo_success "Tools installed."
 
+# 11. Setup Fish Shell
+if command -v fish &>/dev/null; then
+  echo_info "Setting up Fish shell..."
+
+  # Add Fish to /etc/shells if not present
+  FISH_PATH=$(which fish)
+  if ! grep -q "^$FISH_PATH$" /etc/shells 2>/dev/null; then
+    echo_info "Adding Fish to /etc/shells..."
+    echo "$FISH_PATH" | sudo tee -a /etc/shells >/dev/null
+    echo_success "Fish added to /etc/shells"
+  else
+    echo_success "Fish is already in /etc/shells"
+  fi
+
+  # Check if Fish is already the default shell
+  CURRENT_SHELL=$(basename "$SHELL")
+  if [ "$CURRENT_SHELL" = "fish" ]; then
+    echo_success "Fish is already your default shell"
+  else
+    # Offer to change default shell to Fish
+    echo ""
+    echo_info "Fish shell is installed and configured."
+    echo_info "Would you like to set Fish as your default shell?"
+    echo_info "Current shell: $SHELL"
+    echo_info "New shell would be: $FISH_PATH"
+    echo ""
+    read -p "Change default shell to Fish? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      chsh -s "$FISH_PATH"
+      echo_success "Default shell changed to Fish!"
+      echo_info "Please restart your terminal for changes to take effect."
+      echo_info "Your Zsh configuration is preserved and you can switch back anytime with: chsh -s \$(which zsh)"
+    else
+      echo_info "Keeping current shell. You can switch to Fish later with: chsh -s \$(which fish)"
+      echo_info "Or just run 'fish' to try it temporarily."
+    fi
+  fi
+else
+  echo_warning "Fish shell not found. Run 'brew install fish' to install it."
+fi
+
 # --- Installation End ---
 echo_info "-------------------------------------------------"
 echo_success "Setup complete!"
-echo_info "Please restart your terminal or run 'source ~/.zshrc' to apply all changes."
-echo_info "To test your installation, run: ./test.sh"
+echo ""
+echo_info "Installed shells:"
+echo_info "  • Zsh (current): source ~/.zshrc or restart terminal"
+echo_info "  • Fish (recommended): Switch with 'chsh -s \$(which fish)' or run 'fish' to try"
+echo_info "  • Nushell (data tasks): Run 'nu' to start or 'nu -c \"command\"' for one-off tasks"
+echo ""
+echo_info "See fish/README.md and nushell/README.md for usage guides."
 
 # Clear the trap on successful completion
 trap - ERR
