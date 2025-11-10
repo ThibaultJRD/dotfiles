@@ -77,6 +77,35 @@ backup_and_link() {
   echo_success "Linked '$source_path' to '$target_path'"
 }
 
+# --- Backup and Copy Function ---
+backup_and_copy() {
+  local source_path=$1
+  local target_path=$2
+  local backup_file=""
+
+  # If target exists, back it up
+  if [ -e "$target_path" ]; then
+    backup_file="$target_path.bak.$BACKUP_DATE"
+    echo_info "Backing up existing '$target_path' to '$backup_file'"
+    cp "$target_path" "$backup_file"
+  fi
+
+  # Copy the source file to target
+  mkdir -p "$(dirname "$target_path")"
+  cp "$source_path" "$target_path"
+  echo_success "Copied '$source_path' to '$target_path'"
+
+  # Show diff if backup was created
+  if [ -n "$backup_file" ] && [ -f "$backup_file" ]; then
+    echo_info "Showing differences between old and new configuration:"
+    if command -v delta &>/dev/null; then
+      git diff --no-index --color=always "$backup_file" "$target_path" | delta || true
+    else
+      git diff --no-index --color=always "$backup_file" "$target_path" || true
+    fi
+  fi
+}
+
 # --- Installation Start ---
 echo_info "Starting dotfiles setup..."
 echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
@@ -189,6 +218,12 @@ if [ -d "$ZSH_CONF_SOURCE_DIR" ]; then
       backup_and_link "$conf_file" "$ZSH_CONF_TARGET_DIR/$(basename "$conf_file")"
     fi
   done
+fi
+
+# Copy main .zshrc file
+if [ -f "$DOTFILES_DIR/.zshrc" ]; then
+  echo_info "Setting up main .zshrc configuration..."
+  backup_and_copy "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 fi
 
 # Link Nushell configuration
