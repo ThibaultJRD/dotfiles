@@ -1,6 +1,10 @@
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+# XDG Base Directory specification
+# This ensures tools like Nushell use ~/.config for their configuration
+export XDG_CONFIG_HOME="$HOME/.config"
+
 # -------------------------------------------------------------------
 # PATH Configuration
 # -------------------------------------------------------------------
@@ -66,6 +70,9 @@ eval "$(zoxide init zsh --cmd cd)"
 
 # Atuin (shell history)
 eval "$(atuin init zsh)"
+
+# Carapace (advanced completions)
+eval "$(carapace _carapace)"
 
 # General aliases
 alias cat='bat'

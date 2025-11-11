@@ -19,7 +19,7 @@ $env.config = {
 
     table: {
         mode: rounded
-        index_mode: auto
+        index_mode: always
         show_empty: true
         trim: {
             methodology: wrapping
@@ -30,7 +30,8 @@ $env.config = {
     history: {
         max_size: 100_000
         sync_on_enter: true
-        file_format: "sqlite"
+        file_format: "plaintext"
+        isolation: false
     }
 
     completions: {
@@ -40,37 +41,44 @@ $env.config = {
         algorithm: "fuzzy"
     }
 
-    filesize: {
-        metric: false
-        format: "auto"
-    }
-
     cursor_shape: {
         emacs: line
         vi_insert: line
         vi_normal: block
     }
 
-    edit_mode: emacs
-    shell_integration: true
-    use_grid_icons: true
+    edit_mode: vi
 }
+
+# --- Theme ---
+source ~/.config/nushell/catppuccin_mocha.nu
 
 # --- Aliases ---
 # Common commands with sensible defaults
 alias cat = bat
-alias ls = eza --color=always --long --git --no-filesize --icons=always --no-time --no-user --no-permissions
-alias la = eza -l --icons --git -a --group-directories-first
+alias la = ls -a
 alias lt = eza --tree --level=2 --long --icons --git
 alias v = nvim
 alias lg = lazygit
+alias p = pnpm
+
+# --- Vi Mode Indicators ---
+# Visual feedback for vi mode state
+$env.PROMPT_INDICATOR_VI_INSERT = {|| ": " }
+$env.PROMPT_INDICATOR_VI_NORMAL = {|| "> " }
 
 # --- Integrations ---
-# Starship prompt
-source ~/.cache/starship/init.nu
+# Starship prompt (use 'use' instead of 'source' for starship)
+use ~/.cache/starship/init.nu
 
-# Zoxide integration
-source ~/.local/share/zoxide/init.nu
+# Zoxide (smart cd) - using 'cd' command instead of 'z'
+source ~/.zoxide.nu
+
+# Atuin (shell history sync)
+source ~/.local/share/atuin/init.nu
+
+# Carapace (advanced completions)
+source ~/.cache/carapace/init.nu
 
 # Yazi integration
 def --env y [...args] {

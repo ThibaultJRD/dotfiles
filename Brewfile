@@ -7,6 +7,7 @@
 # CLI Tools & Utilities
 brew "bash"
 brew "bat"
+brew "carapace"
 brew "btop"
 brew "eza"
 brew "fd"
