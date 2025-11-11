@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![macOS](https://img.shields.io/badge/macOS-Sonoma+-blue.svg)](https://www.apple.com/macos/)
-[![Shell](https://img.shields.io/badge/Shell-Zsh-green.svg)](https://zsh.sourceforge.io/)
+[![Shell](https://img.shields.io/badge/Shell-Zsh%20%7C%20Nushell-green.svg)](https://www.zsh.org/)
 [![Theme](https://img.shields.io/badge/Theme-Catppuccin-pink.svg)](https://github.com/catppuccin)
 
 <img width="476" alt="Modern terminal setup with Catppuccin theme" src="https://github.com/user-attachments/assets/c149ee55-8844-40d3-a833-a63e136217a2" />
@@ -38,8 +38,10 @@ cd dotfiles
 ### 🖥️ Terminal Environment
 
 - **[Kitty](https://sw.kovidgoyal.net/kitty/)** - GPU-accelerated terminal emulator
-- **[Zsh](https://zsh.sourceforge.io/) + [Oh My Zsh](https://ohmyz.sh/)** - Enhanced shell with plugins
-- **[Starship](https://starship.rs/)** - Lightning-fast, customizable prompt
+- **Multiple Shell Options:**
+  - **[Zsh](https://zsh.sourceforge.io/) + [Oh My Zsh](https://ohmyz.sh/)** - Enhanced shell with extensive plugin ecosystem and powerful autosuggestions
+  - **[Nushell](https://www.nushell.sh/)** - Structured data shell for data manipulation tasks
+- **[Starship](https://starship.rs/)** - Lightning-fast, customizable prompt (works with all shells)
 - **[Tmux](https://github.com/tmux/tmux)** - Advanced terminal multiplexer with rich plugin ecosystem
 
 #### 🔧 Tmux Configuration
@@ -125,14 +127,7 @@ cd dotfiles
 # Set a Nerd Font in your terminal settings for proper icon display
 ```
 
-### Option 2: Preview Changes (Dry Run)
-
-```bash
-# See what changes would be made without applying them
-DRY_RUN=true ./install.sh
-```
-
-### Option 3: Install Dependencies Only
+### Option 2: Install Dependencies Only
 
 ```bash
 # Install Homebrew packages without configuration
@@ -142,9 +137,29 @@ brew bundle --file=Brewfile
 ### Post-Installation
 
 1. **Configure Terminal Font**: Set a Nerd Font in your terminal preferences
-2. **Test Installation**: Run `./test.sh` to verify everything works
+2. **Explore Shells**:
+   - **Zsh**: Your daily driver with Oh My Zsh, autosuggestions, and syntax highlighting
+   - **Nushell**: For data manipulation tasks → See `nushell/README.md`
 3. **Start Tmux**: Launch `tmux` for session management with automatic plugin installation
 4. **Explore**: Try `y` (yazi), `lg` (lazygit), `v` (neovim)
+
+### 🐚 Shell Selection
+
+The setup installs **two shells** with complete configurations:
+
+| Shell | Use Case | How to Use |
+|-------|----------|------------|
+| **Zsh** | Daily driver (default) | Already configured with Oh My Zsh |
+| **Nushell** | Data manipulation only | Run `nu` when needed |
+
+**Zsh Features:**
+- Powerful autosuggestions via zsh-autosuggestions plugin
+- Syntax highlighting with fast-syntax-highlighting
+- All your tools work seamlessly (zoxide, starship, atuin, fzf, etc.)
+- Vi mode for efficient editing
+
+**Learn more:**
+- Nushell examples: `nushell/README.md` and `nushell/scripts/examples.nu`
 
 ## 🔧 Customization
 
@@ -194,9 +209,11 @@ echo 'alias myalias="my command"' > ~/.config/zsh/conf.d/custom.zsh
 ### Environment Variables
 
 ```bash
-# Add to ~/.zshrc (automatically preserved by install script)
+# Zsh: Add to ~/.zshrc
 export YOUR_VAR="your_value"
-export API_KEY="your_secret_key"
+
+# Nushell: Add to ~/.config/nushell/env.nu
+$env.YOUR_VAR = "your_value"
 ```
 
 ### Adding New Tools
@@ -219,36 +236,21 @@ export API_KEY="your_secret_key"
 </details>
 
 <details>
-<summary><strong>🧪 Testing and Validation</strong></summary>
-
-### Test Installation
-
-```bash
-./test.sh  # Comprehensive validation suite
-```
-
-The test script validates:
-- **Homebrew**: Installation and PATH configuration
-- **Shell Configuration**: Zsh, .zshrc, Oh My Zsh, Starship
-- **Core Tools**: All 25+ CLI tools and applications
-- **Configuration Files**: Symlinks and config file existence
-- **Environment**: Variables, PATH, and shell integration
-- **Aliases**: All custom aliases and functions
-- **Node.js**: n version manager and npm setup
-- **Fonts**: Nerd Font installation verification
-- **Zsh Plugins**: All custom plugins properly installed
-
-### Preview Changes
-
-```bash
-DRY_RUN=true ./install.sh  # See what would change without applying
-```
+<summary><strong>🔄 Reinstalling</strong></summary>
 
 ### Reinstall After Changes
+
+If you modify the dotfiles and want to reapply the configuration:
 
 ```bash
 ./install.sh  # Safely reinstall with automatic backups
 ```
+
+The installation script will:
+- Backup existing configuration files with timestamps
+- Create or update symlinks to your dotfiles
+- Skip already installed packages
+- Continue even if some operations fail
 
 </details>
 
@@ -261,19 +263,10 @@ DRY_RUN=true ./install.sh  # See what would change without applying
 | ------------ | ------- | ------------------------------------------- |
 | **Kitty**    | `kitty` | GPU-accelerated terminal emulator           |
 | **Zsh**      | `zsh`   | Enhanced shell with Oh My Zsh framework     |
+| **Nushell**  | `nu`    | Structured data shell for data manipulation |
 | **Starship** | -       | Cross-shell prompt with Git integration     |
 | **Tmux**     | `tmux`  | Advanced terminal multiplexer with 12+ plugins |
 | **Homebrew** | `brew`  | macOS package manager                       |
-
-### Zsh Plugins
-
-- **git** - Git aliases and functions
-- **fzf** - Fuzzy finder integration (`Ctrl+R`)
-- **sudo** - Add sudo with `Esc` twice
-- **zsh-completions** - Extended tab completions
-- **zsh-syntax-highlighting** - Real-time syntax highlighting
-- **zsh-autosuggestions** - History-based suggestions
-- **history-substring-search** - Enhanced history search
 
 ### Shell Aliases & Functions
 
@@ -423,12 +416,6 @@ The `y` function provides seamless directory navigation:
 
 <details>
 <summary><strong>Reset and Debug</strong></summary>
-
-### Test Installation
-
-```bash
-./test.sh  # Run diagnostic tests
-```
 
 ### Check Dependencies
 

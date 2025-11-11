@@ -4,19 +4,17 @@
 # This file lists all Homebrew packages and dependencies for the setup.
 # It can be installed with the `brew bundle` command.
 
-# Official tap for the Bun package
-tap "oven-sh/bun"
-
 # CLI Tools & Utilities
 brew "bash"
 brew "bat"
-brew "bun"
+brew "carapace"
 brew "btop"
 brew "eza"
 brew "fd"
 brew "ffmpeg"
 brew "fzf"
 brew "gh"
+brew "git-delta"
 brew "ghostscript"
 brew "git"
 brew "glow"
@@ -29,6 +27,7 @@ brew "luarocks"
 brew "lynx"
 brew "n"
 brew "neovim"
+brew "nushell"
 brew "pnpm"
 brew "poppler"
 brew "protobuf"
