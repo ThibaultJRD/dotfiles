@@ -87,12 +87,12 @@ alias p = pnpm
 
 # --- FZF Custom Commands ---
 # File and directory picker
+# Using ^ prefix to force external commands and avoid Nushell's structured data
 def fzf-file-picker [] {
     let selection = (
-        fd --hidden --strip-cwd-prefix --exclude .git
-        | lines
-        | each { |it| $it | str trim }
-        | fzf
+        ^fd --hidden --strip-cwd-prefix --exclude .git
+        | ^fzf --preview 'if [ -d {} ]; then eza --tree --level=2 --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi'
+        | str trim
     )
     if ($selection | is-not-empty) {
         print $selection
@@ -102,13 +102,12 @@ def fzf-file-picker [] {
 # Directory picker for quick navigation
 def --env fzf-cd [] {
     let selection = (
-        fd --type=d --hidden --strip-cwd-prefix --exclude .git
-        | lines
-        | each { |it| $it | str trim }
-        | fzf
+        ^fd --type=d --hidden --strip-cwd-prefix --exclude .git
+        | ^fzf --preview 'eza --tree --level=2 --color=always {} | head -200'
+        | str trim
     )
     if ($selection | is-not-empty) {
-        cd ($selection | str trim)
+        cd $selection
     }
 }
 
