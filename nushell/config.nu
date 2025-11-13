@@ -48,6 +48,29 @@ $env.config = {
     }
 
     edit_mode: vi
+
+    keybindings: [
+        {
+            name: fzf_file_picker
+            modifier: control
+            keycode: char_t
+            mode: [emacs vi_insert vi_normal]
+            event: {
+                send: executehostcommand
+                cmd: "fzf-file-picker"
+            }
+        }
+        {
+            name: fzf_directory_picker
+            modifier: alt
+            keycode: char_c
+            mode: [emacs vi_insert vi_normal]
+            event: {
+                send: executehostcommand
+                cmd: "fzf-cd"
+            }
+        }
+    ]
 }
 
 # --- Theme ---
@@ -62,10 +85,37 @@ alias v = nvim
 alias lg = lazygit
 alias p = pnpm
 
+# --- FZF Custom Commands ---
+# File and directory picker
+def fzf-file-picker [] {
+    let selection = (
+        fd --hidden --strip-cwd-prefix --exclude .git
+        | lines
+        | each { |it| $it | str trim }
+        | fzf
+    )
+    if ($selection | is-not-empty) {
+        print $selection
+    }
+}
+
+# Directory picker for quick navigation
+def --env fzf-cd [] {
+    let selection = (
+        fd --type=d --hidden --strip-cwd-prefix --exclude .git
+        | lines
+        | each { |it| $it | str trim }
+        | fzf
+    )
+    if ($selection | is-not-empty) {
+        cd ($selection | str trim)
+    }
+}
+
 # --- Vi Mode Indicators ---
-# Visual feedback for vi mode state
-$env.PROMPT_INDICATOR_VI_INSERT = {|| ": " }
-$env.PROMPT_INDICATOR_VI_NORMAL = {|| "> " }
+# Visual feedback for vi mode state (using Starship-style symbols with colors)
+$env.PROMPT_INDICATOR_VI_INSERT = {|| $"(ansi green_bold)❯(ansi reset) " }
+$env.PROMPT_INDICATOR_VI_NORMAL = {|| $"(ansi yellow_bold)❮(ansi reset) " }
 
 # --- Integrations ---
 # Starship prompt (use 'use' instead of 'source' for starship)
