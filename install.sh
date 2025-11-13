@@ -182,8 +182,8 @@ echo_info "Linking other configuration files..."
 
 # Automatically link modular tool config directories
 for tool_dir in "$DOTFILES_DIR"/*/; do
-  # Skip .git, zsh_configs, and nushell directories (handled separately)
-  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"zsh_configs/"* ]] || [[ "$tool_dir" == *"nushell/"* ]]; then
+  # Skip .git, and zsh_configs directories (handled separately)
+  if [ ! -d "$tool_dir" ] || [[ "$tool_dir" == *".git/"* ]] || [[ "$tool_dir" == *"zsh_configs/"* ]]; then
     continue
   fi
 
@@ -225,15 +225,6 @@ fi
 if [ -f "$DOTFILES_DIR/.zshrc" ]; then
   echo_info "Setting up main .zshrc configuration..."
   backup_and_copy "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
-fi
-
-# Link Nushell configuration
-NUSHELL_SOURCE_DIR="$DOTFILES_DIR/nushell"
-NUSHELL_TARGET_DIR="$HOME/.config/nushell"
-if [ -d "$NUSHELL_SOURCE_DIR" ]; then
-  echo_info "Linking Nushell configuration..."
-  backup_and_link "$NUSHELL_SOURCE_DIR" "$NUSHELL_TARGET_DIR"
-  echo_success "Nushell configuration linked."
 fi
 
 echo_success "All config files are linked."
@@ -292,16 +283,6 @@ curl -fsSL https://bun.sh/install | bash
 curl -fsSL https://claude.ai/install.sh | bash
 curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
 echo_success "Tools installed."
-
-# 8. Setup Starship for Nushell
-if command -v starship &>/dev/null; then
-  echo_info "Setting up Starship for Nushell..."
-  mkdir -p ~/.cache/starship
-  starship init nu > ~/.cache/starship/init.nu
-  echo_success "Starship configuration for Nushell generated."
-else
-  echo_warning "Starship not found. Skipping Nushell Starship setup."
-fi
 
 # --- Installation End ---
 echo_info "-------------------------------------------------"

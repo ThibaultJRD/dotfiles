@@ -30,7 +30,7 @@ $env.FZF_DEFAULT_OPTS = "--height 40% --layout=reverse --border --color=bg+:#363
 # This must be set BEFORE starship init and remain in environment
 $env.STARSHIP_CONFIG = ($env.HOME | path join ".config" "starship" "nushell.toml")
 mkdir ~/.cache/starship
-^/opt/homebrew/bin/starship init nu | save -f ~/.cache/starship/init.nu
+^starship init nu | save -f ~/.cache/starship/init.nu
 
 # Atuin history sync
 mkdir ~/.local/share/atuin
