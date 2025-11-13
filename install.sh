@@ -43,15 +43,11 @@ echo_error() {
 # --- Variables ---
 DOTFILES_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
-BACKUP_DIR="$HOME/.dotfiles_backup_$BACKUP_DATE"
 
-# --- Pre-run Check and Backup Function ---
-backup_and_link() {
+# --- Symlink Creation Function ---
+create_symlink() {
   local source_path=$1
   local target_path=$2
-
-  # Ensure backup directory exists
-  mkdir -p "$BACKUP_DIR"
 
   # Check if the target is already a symlink to the source
   if [ -L "$target_path" ] && [ "$(readlink "$target_path")" = "$source_path" ]; then
@@ -59,17 +55,10 @@ backup_and_link() {
     return 0
   fi
 
-  # If target exists and is not a symlink, back it up
-  if [ -e "$target_path" ] && [ ! -L "$target_path" ]; then
-    backup_file="$target_path.bak.$BACKUP_DATE"
-    echo_info "Backing up existing '$target_path' to '$backup_file'"
-    mv "$target_path" "$backup_file"
-  fi
-
-  # If target is a symlink (but not to the correct source, handled above), remove it
-  if [ -L "$target_path" ]; then
-    echo "Removing old symlink '$target_path'"
-    rm "$target_path"
+  # Remove old target if it exists (file or wrong symlink)
+  if [ -e "$target_path" ] || [ -L "$target_path" ]; then
+    echo_info "Removing existing '$target_path'"
+    rm -rf "$target_path"
   fi
 
   mkdir -p "$(dirname "$target_path")"
@@ -108,7 +97,7 @@ backup_and_copy() {
 
 # --- Installation Start ---
 echo_info "Starting dotfiles setup..."
-echo "Your existing configs will be backed up with the suffix .bak.$BACKUP_DATE"
+echo "Your existing .zshrc will be backed up with the suffix .bak.$BACKUP_DATE if it exists"
 
 # Pre-requisite checks
 echo_info "Checking prerequisites..."
@@ -195,7 +184,7 @@ for tool_dir in "$DOTFILES_DIR"/*/; do
     while IFS= read -r -d '' source_item_config; do
       if [ -n "$source_item_config" ]; then
         target_name=$(basename "$source_item_config")
-        backup_and_link "$source_item_config" "${HOME}/.config/${target_name}"
+        create_symlink "$source_item_config" "${HOME}/.config/${target_name}"
       fi
     done < <(find "${tool_dir}.config/" -mindepth 1 -maxdepth 1 -print0 2>/dev/null)
   fi
@@ -204,7 +193,7 @@ for tool_dir in "$DOTFILES_DIR"/*/; do
   # This covers gemini
   source_item_dot="${tool_dir}.${tool_name}"
   if [ -d "$source_item_dot" ] || [ -f "$source_item_dot" ]; then
-    backup_and_link "$source_item_dot" "${HOME}/.${tool_name}"
+    create_symlink "$source_item_dot" "${HOME}/.${tool_name}"
   fi
 done
 
@@ -216,7 +205,7 @@ if [ -d "$ZSH_CONF_SOURCE_DIR" ]; then
   mkdir -p "$ZSH_CONF_TARGET_DIR"
   for conf_file in "$ZSH_CONF_SOURCE_DIR"/*.zsh; do
     if [ -f "$conf_file" ]; then
-      backup_and_link "$conf_file" "$ZSH_CONF_TARGET_DIR/$(basename "$conf_file")"
+      create_symlink "$conf_file" "$ZSH_CONF_TARGET_DIR/$(basename "$conf_file")"
     fi
   done
 fi
