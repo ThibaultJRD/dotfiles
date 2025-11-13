@@ -192,11 +192,12 @@ for tool_dir in "$DOTFILES_DIR"/*/; do
   # Case 1: Configuration in .config/TOOL_NAME or .config/TOOL_NAME.ext
   # This covers kitty, nvim, bat, yazi, starship, tmux
   if [ -d "${tool_dir}.config/" ]; then
-    source_item_config=$(find "${tool_dir}.config/" -mindepth 1 -maxdepth 1 2>/dev/null)
-    if [ -n "$source_item_config" ]; then
-      target_name=$(basename "$source_item_config")
-      backup_and_link "$source_item_config" "${HOME}/.config/${target_name}"
-    fi
+    while IFS= read -r -d '' source_item_config; do
+      if [ -n "$source_item_config" ]; then
+        target_name=$(basename "$source_item_config")
+        backup_and_link "$source_item_config" "${HOME}/.config/${target_name}"
+      fi
+    done < <(find "${tool_dir}.config/" -mindepth 1 -maxdepth 1 -print0 2>/dev/null)
   fi
 
   # Case 2: Configuration in .TOOL_NAME (e.g., .gemini)
