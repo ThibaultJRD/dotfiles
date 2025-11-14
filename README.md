@@ -76,6 +76,22 @@ A powerful tmux setup featuring 12+ plugins for enhanced productivity, session m
 - **Status Bar:** Top-positioned with CPU, memory, IP, and battery monitoring
 - **Mouse Support:** Enabled for pane selection and resizing
 
+**Default Shell:**
+
+Tmux is configured to launch **Nushell** by default for its structured data manipulation capabilities. This provides a modern shell experience optimized for working with data.
+
+To use Zsh instead, edit `tmux/.config/tmux/tmux.conf` and modify line 107:
+
+```bash
+# Comment out or change the default shell
+# set -g default-command /opt/homebrew/bin/nu  # launch nushell by default
+
+# Or change to zsh
+set -g default-command /bin/zsh
+```
+
+After making changes, reload tmux configuration with `Prefix + r` (Ctrl+s, then r).
+
 ### 🎨 Consistent Theming
 
 - **[Catppuccin Mocha](https://github.com/catppuccin)** theme across all tools
@@ -149,8 +165,13 @@ The setup installs **two shells** with complete configurations:
 
 | Shell | Use Case | How to Use |
 |-------|----------|------------|
-| **Zsh** | Daily driver (default) | Already configured with Oh My Zsh |
-| **Nushell** | Data manipulation only | Run `nu` when needed |
+| **Zsh** | System default shell | Already configured with Oh My Zsh |
+| **Nushell** | Tmux default & data tasks | Launches automatically in tmux, or run `nu` |
+
+**Important:**
+- **System shell (login):** Zsh is your default system shell
+- **Tmux sessions:** Nushell launches automatically (configurable in `tmux.conf`)
+- You can change the tmux default shell back to Zsh (see Tmux Configuration section above)
 
 **Zsh Features:**
 - Powerful autosuggestions via zsh-autosuggestions plugin

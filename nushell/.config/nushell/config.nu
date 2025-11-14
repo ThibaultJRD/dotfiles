@@ -21,10 +21,23 @@ $env.config = {
     mode: rounded
     index_mode: always
     show_empty: true
+    padding: { left: 1, right: 1 }
     trim: {
       methodology: wrapping
       wrapping_try_keep_words: true
     }
+  }
+
+  explore: {
+    status_bar_background: { fg: "#1D1F21", bg: "#C4C9C6" },
+    command_bar_text: { fg: "#C4C9C6" },
+    highlight: { fg: "black", bg: "yellow" },
+    status: {
+      error: { fg: "white", bg: "red" },
+      warn: {}
+      info: {}
+    },
+    selected_cell: { bg: light_blue },
   }
 
   history: {
@@ -38,7 +51,13 @@ $env.config = {
     case_sensitive: false
     quick: true
     partial: true
-    algorithm: "fuzzy"
+    algorithm: "prefix"
+    external: {
+      enable: true
+      max_results: 100
+      completer: null
+    }
+    use_ls_colors: true
   }
 
   cursor_shape: {
@@ -97,6 +116,7 @@ source ~/.config/nushell/catppuccin_mocha.nu
 alias cat = bat
 alias la = ls -a
 alias lt = eza --tree --level=2 --long --icons --git
+alias ll = eza -l --icons --git -a --group-directories-first
 alias v = nvim
 alias lg = lazygit
 alias p = pnpm
