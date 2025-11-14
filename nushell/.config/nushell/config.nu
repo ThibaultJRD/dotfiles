@@ -55,10 +55,26 @@ $env.config = {
             modifier: control
             keycode: char_t
             mode: [emacs vi_insert vi_normal]
-            event: {
-                send: executehostcommand
-                cmd: "fzf-file-picker"
-            }
+            event: [
+                {
+                    send: ExecuteHostCommand
+                    cmd: "commandline edit (
+                            if ((commandline | str trim | str length) == 0) {
+                                (^fd --hidden --strip-cwd-prefix --exclude .git | ^fzf --height=40% --layout=reverse --preview 'if [ -d {} ]; then eza --tree --level=2 --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi' | decode utf-8 | str trim)
+                            } else if (commandline | str ends-with ' ') {
+                                [
+                                    (commandline)
+                                    (^fd --hidden --strip-cwd-prefix --exclude .git | ^fzf --height=40% --layout=reverse --preview 'if [ -d {} ]; then eza --tree --level=2 --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi' | decode utf-8 | str trim)
+                                ] | str join
+                            } else {
+                                [
+                                    (commandline | split words | reverse | skip 1 | reverse | str join ' ')
+                                    (^fd --hidden --strip-cwd-prefix --exclude .git | ^fzf --height=40% --layout=reverse -q (commandline | split words | last) | decode utf-8 | str trim)
+                                ] | str join ' '
+                            }
+                          )"
+                }
+            ]
         }
         {
             name: fzf_directory_picker
@@ -86,19 +102,6 @@ alias lg = lazygit
 alias p = pnpm
 
 # --- FZF Custom Commands ---
-# File and directory picker
-# Using ^ prefix to force external commands and avoid Nushell's structured data
-def fzf-file-picker [] {
-    let selection = (
-        ^fd --hidden --strip-cwd-prefix --exclude .git
-        | ^fzf --preview 'if [ -d {} ]; then eza --tree --level=2 --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi'
-        | str trim
-    )
-    if ($selection | is-not-empty) {
-        print $selection
-    }
-}
-
 # Directory picker for quick navigation
 def --env fzf-cd [] {
     let selection = (
