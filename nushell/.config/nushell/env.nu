@@ -47,6 +47,7 @@ atuin init nu | save -f ~/.local/share/atuin/init.nu
 zoxide init nushell --cmd cd | save -f ~/.zoxide.nu
 
 # Carapace completions
+$env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense'
 mkdir ~/.cache/carapace
 carapace _carapace nushell | save --force ~/.cache/carapace/init.nu
 
