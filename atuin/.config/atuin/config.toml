@@ -47,8 +47,8 @@ show_tabs = true
 # Enter immediately executes command (Tab to edit)
 enter_accept = true
 
-# Keymap mode: auto detects from shell
-keymap_mode = "auto"
+# Keymap mode: vim-insert enables vi mode (ESC to switch to normal mode)
+keymap_mode = "vim-insert"
 
 # -------------------------------------------------------------------
 # Sync Settings
