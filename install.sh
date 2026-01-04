@@ -269,7 +269,6 @@ echo_success "Node.js LTS is installed."
 # 7. Install tools
 echo_info "Installing tools..."
 curl -fsSL https://bun.sh/install | bash
-curl -fsSL https://claude.ai/install.sh | bash
 curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
 echo_success "Tools installed."
 
