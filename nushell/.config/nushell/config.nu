@@ -152,6 +152,9 @@ source ~/.local/share/atuin/init.nu
 # Carapace (advanced completions)
 source ~/.cache/carapace/init.nu
 
+# Rust integration
+source $"($nu.home-path)/.cargo/env.nu"
+
 # Yazi integration
 def --env y [...args] {
   let tmp = (mktemp -t "yazi-cwd.XXXXXX")
