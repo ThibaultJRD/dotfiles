@@ -153,7 +153,7 @@ source ~/.local/share/atuin/init.nu
 source ~/.cache/carapace/init.nu
 
 # Rust integration
-source $"($nu.home-path)/.cargo/env.nu"
+source $"($nu.home-dir)/.cargo/env.nu"
 
 # Yazi integration
 def --env y [...args] {
