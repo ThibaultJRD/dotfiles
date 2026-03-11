@@ -166,7 +166,31 @@ else
   echo_success "All Homebrew dependencies are installed."
 fi
 
-# 3. Link Configuration Files
+# 4. Install Rust and Cargo
+# Using -y for non-interactive install and --no-modify-path to prevent rustup
+# from modifying shell configs (PATH is managed manually in .zshrc and config.nu)
+if command -v rustup &>/dev/null; then
+  echo_success "Rust is already installed. Updating..."
+  rustup update
+  echo_success "Rust updated."
+else
+  echo_info "Installing Rust and Cargo via rustup..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+  echo_success "Rust and Cargo installed."
+fi
+
+# Ensure cargo is available in current session
+if [ -f "$HOME/.cargo/env" ]; then
+  # shellcheck disable=SC1091
+  source "$HOME/.cargo/env"
+fi
+
+# 5. Install Cargo tools
+echo_info "Installing Cargo tools..."
+cargo install lazyprune
+echo_success "Cargo tools installed."
+
+# 6. Link Configuration Files
 echo_info "Linking other configuration files..."
 
 # Automatically link modular tool config directories
@@ -218,7 +242,7 @@ fi
 
 echo_success "All config files are linked."
 
-# 4. Build Caches
+# 7. Build Caches
 echo_info "Building caches for tools..."
 if command -v bat &>/dev/null; then
   set +e
@@ -235,7 +259,7 @@ else
   echo_warning "Warning: 'bat' command not found. Skipping cache build."
 fi
 
-# 5. Install or Update Zsh Plugins
+# 8. Install or Update Zsh Plugins
 echo_info "Installing or updating Zsh plugins..."
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 
@@ -259,14 +283,14 @@ for repo_url in "${ZSH_PLUGINS[@]}"; do
 done
 echo_success "Zsh plugins are up to date."
 
-# 6. Install Node.js LTS version
+# 9. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
 export N_PREFIX="$HOME/.n"
 export PATH="$N_PREFIX/bin:$PATH"
 n lts
 echo_success "Node.js LTS is installed."
 
-# 7. Install tools
+# 10. Install tools
 echo_info "Installing tools..."
 curl -fsSL https://bun.sh/install | bash
 curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
