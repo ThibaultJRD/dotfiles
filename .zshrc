@@ -15,6 +15,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.n/bin:$PATH"
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="$HOME/.atuin/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$PATH:$(brew --prefix go)/libexec/bin:$HOME/go/bin"
 
 # -------------------------------------------------------------------
