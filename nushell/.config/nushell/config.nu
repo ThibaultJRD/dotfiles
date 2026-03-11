@@ -4,6 +4,11 @@
 # Nushell is designed for structured data manipulation, not as a daily driver
 # Use it for: JSON/CSV processing, API calls, data transformation tasks
 
+# --- Carapace Completer ---
+let carapace_completer = {|spans: list<string>|
+  carapace $spans.0 nushell ...$spans | from json
+}
+
 # --- Basic Settings ---
 $env.config = {
   show_banner: false
@@ -43,7 +48,7 @@ $env.config = {
   history: {
     max_size: 100_000
     sync_on_enter: true
-    file_format: "plaintext"
+    file_format: "sqlite"
     isolation: false
   }
 
@@ -55,7 +60,7 @@ $env.config = {
     external: {
       enable: true
       max_results: 100
-      completer: null
+      completer: $carapace_completer
     }
     use_ls_colors: true
   }
@@ -67,6 +72,21 @@ $env.config = {
   }
 
   edit_mode: vi
+  highlight_resolved_externals: true
+
+  shell_integration: {
+    osc2: true
+    osc7: true
+    osc8: true
+    osc9_9: true
+    oscs133: true
+    oscs633: true
+    reset_application_mode: true
+  }
+
+  hooks: {
+    display_output: "if (term size).columns >= 100 { table -e } else { table }"
+  }
 
   keybindings: [
     {
@@ -120,6 +140,24 @@ alias ll = eza -l --icons --git -a --group-directories-first
 alias v = nvim
 alias lg = lazygit
 alias p = pnpm
+
+
+# Git Aliases
+alias gc = git commit -m
+alias gca = git commit -a -m
+alias gp = git push origin HEAD
+alias gpu = git pull origin
+alias gst = git status
+alias glog = git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit
+alias gdiff = git diff
+alias gco = git checkout
+alias gb = git branch
+alias gba = git branch -a
+alias gadd = git add
+alias ga = git add -p
+alias gcoall = git checkout -- .
+alias gr = git remote
+alias gre = git reset
 
 # --- FZF Custom Commands ---
 # Directory picker for quick navigation
