@@ -115,7 +115,7 @@ common_prefix = ["sudo"]
 # -------------------------------------------------------------------
 
 [theme]
-# Catppuccin Mocha Mauve theme (matches your terminal background)
+# Catppuccin Mocha Mauve theme
 name = "catppuccin-mocha-mauve"
 
 # -------------------------------------------------------------------

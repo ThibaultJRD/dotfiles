@@ -292,8 +292,23 @@ echo_success "Node.js LTS is installed."
 
 # 10. Install tools
 echo_info "Installing tools..."
-curl -fsSL https://bun.sh/install | bash
-curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
+
+if command -v bun &>/dev/null; then
+  echo_success "Bun is already installed. Updating..."
+  bun upgrade
+else
+  echo_info "Installing Bun..."
+  curl -fsSL https://bun.sh/install | bash
+fi
+
+if command -v atuin &>/dev/null; then
+  echo_success "Atuin is already installed. Updating..."
+  atuin update
+else
+  echo_info "Installing Atuin..."
+  curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | sh
+fi
+
 echo_success "Tools installed."
 
 # --- Installation End ---

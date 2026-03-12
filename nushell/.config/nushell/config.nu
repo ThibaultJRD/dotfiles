@@ -1,8 +1,6 @@
 # ==============================================================================
 # Nushell Configuration
 # ==============================================================================
-# Nushell is designed for structured data manipulation, not as a daily driver
-# Use it for: JSON/CSV processing, API calls, data transformation tasks
 
 # --- Carapace Completer ---
 let carapace_completer = {|spans: list<string>|
@@ -116,13 +114,13 @@ $env.config = {
       ]
     }
     {
-      name: fzf_directory_picker
-      modifier: alt
-      keycode: char_c
+      name: zoxide_directory_picker
+      modifier: control
+      keycode: char_g
       mode: [emacs vi_insert vi_normal]
       event: {
         send: executehostcommand
-        cmd: "fzf-cd"
+        cmd: "zoxide-cd"
       }
     }
   ]
@@ -160,16 +158,19 @@ alias gr = git remote
 alias gre = git reset
 
 # --- FZF Custom Commands ---
-# Directory picker for quick navigation
-def --env fzf-cd [] {
-  let selection = (
-    ^fd --type=d --hidden --strip-cwd-prefix --exclude .git
-    | ^fzf --preview 'eza --tree --level=2 --color=always {} | head -200'
-    | str trim
-  )
+# Zoxide directory picker with fzf (Ctrl+G)
+# Reads the commandline to pre-filter zoxide results (e.g. "cd do" + Ctrl+G filters on "do")
+def --env zoxide-cd [] {
+  let query = (commandline | str replace -r '^cd\s*' '' | str trim)
+  let selection = if ($query | is-empty) {
+    ^zoxide query --interactive | str trim
+  } else {
+    ^zoxide query --interactive -- $query | str trim
+  }
   if ($selection | is-not-empty) {
     cd $selection
   }
+  commandline edit ""
 }
 
 # --- Vi Mode Indicators ---
