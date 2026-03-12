@@ -67,6 +67,9 @@ A powerful tmux setup featuring 12+ plugins for enhanced productivity, session m
 
 **Advanced Tools:**
 - **[tmux-sessionx](https://github.com/omerxx/tmux-sessionx)** - Fuzzy session manager with zoxide integration (`Prefix + o`)
+- **[tmux-floax](https://github.com/omerxx/tmux-floax)** - Floating terminal pane overlay (`Prefix + f`)
+- **[tmux-thumbs](https://github.com/fcsonline/tmux-thumbs)** - Vimium-like copy/paste hints for terminal text (`Prefix + T`)
+- **[tmux-fzf-url](https://github.com/wfxr/tmux-fzf-url)** - Quick URL opening from terminal output (`Prefix + u`)
 
 **Key Features:**
 - **Custom Prefix:** `Ctrl+s` for ergonomic access
@@ -75,6 +78,9 @@ A powerful tmux setup featuring 12+ plugins for enhanced productivity, session m
 - **Session Persistence:** Automatic save/restore with Neovim session support
 - **Status Bar:** Top-positioned with CPU, memory, IP, and battery monitoring
 - **Mouse Support:** Enabled for pane selection and resizing
+- **Floating Terminal:** `Prefix + f` for a quick floating pane overlay
+- **Quick Copy:** `Prefix + T` for vimium-style hint copying (lowercase = clipboard, UPPERCASE = paste)
+- **URL Opening:** `Prefix + u` to fuzzy-find and open URLs from terminal output
 
 **Default Shell:**
 
@@ -94,7 +100,7 @@ After making changes, reload tmux configuration with `Prefix + r` (Ctrl+s, then 
 
 ### 🎨 Consistent Theming
 
-- **[Catppuccin Mocha](https://github.com/catppuccin)** theme across all tools
+- **[Catppuccin Macchiato](https://github.com/catppuccin)** theme across all tools (tmux, fzf, starship, kitty, etc.)
 - Seamless visual integration between terminal, editor, and file manager
 - Carefully selected color palette for reduced eye strain
 
@@ -154,8 +160,8 @@ brew bundle --file=Brewfile
 
 1. **Configure Terminal Font**: Set a Nerd Font in your terminal preferences
 2. **Explore Shells**:
-   - **Zsh**: Your daily driver with Oh My Zsh, autosuggestions, and syntax highlighting
-   - **Nushell**: For data manipulation tasks → See `nushell/README.md`
+   - **Zsh**: System default shell with Oh My Zsh, autosuggestions, and syntax highlighting
+   - **Nushell**: Default shell in tmux, structured data manipulation
 3. **Start Tmux**: Launch `tmux` for session management with automatic plugin installation
 4. **Explore**: Try `y` (yazi), `lg` (lazygit), `v` (neovim)
 
@@ -175,12 +181,15 @@ The setup installs **two shells** with complete configurations:
 
 **Zsh Features:**
 - Powerful autosuggestions via zsh-autosuggestions plugin
-- Syntax highlighting with fast-syntax-highlighting
-- All your tools work seamlessly (zoxide, starship, atuin, fzf, etc.)
+- Syntax highlighting with zsh-syntax-highlighting
+- All tools integrated (zoxide, starship, atuin, fzf, etc.)
 - Vi mode for efficient editing
 
-**Learn more:**
-- Nushell examples: `nushell/README.md` and `nushell/scripts/examples.nu`
+**Nushell Features:**
+- Structured data pipelines (JSON, CSV, YAML natively)
+- Same keybindings as Zsh (`Ctrl+T`, `Ctrl+G`, `Ctrl+R`)
+- Carapace completions for external commands
+- Vi mode with Starship prompt
 
 ## 🔧 Customization
 
@@ -303,7 +312,7 @@ The installation script will:
 
 **Smart Functions:**
 - `y()` - Yazi with directory navigation (changes shell directory on exit)
-- `z <directory>` - Smart directory jumping with zoxide
+- `cd <directory>` - Smart directory jumping powered by zoxide
 - `killports` - Kill processes by port number or range (with auto-completion)
 - `listports` - List active network connections and ports
 
@@ -319,8 +328,10 @@ The installation script will:
 | **Lazydocker**   | -           | Terminal UI for Docker management            |
 | **Node.js**      | `node`      | JavaScript runtime (via `n` version manager) |
 | **Go**           | `go`        | Go programming language                      |
+| **Rust**         | `cargo`     | Rust toolchain (via rustup)                  |
 | **npm/yarn/bun** | -           | JavaScript package managers                  |
 | **Glow**         | `glow`      | Terminal markdown renderer                   |
+| **btop**         | `btop`      | System resource monitor                      |
 | **Visual Studio Code** | `code` | GUI code editor                             |
 
 </details>
@@ -332,9 +343,9 @@ The installation script will:
 | ---------- | ---------------- | ----------------------------------- |
 | **Yazi**   | `y`              | Terminal file manager with previews and smart directory navigation |
 | **Eza**    | `ls`, `la`, `lt` | Modern `ls` with icons and colors   |
-| **Zoxide** | `z <dir>`        | Smart directory navigation          |
+| **Zoxide** | `cd <dir>`       | Smart directory navigation (replaces `cd`) |
 | **fzf**    | `fzf`            | Fuzzy finder with Catppuccin theme and advanced previews |
-| **Atuin**  | `Ctrl+R`         | Enhanced shell history with search, sync and statistics |
+| **Atuin**  | `Ctrl+R`         | Enhanced shell history with vi mode, fuzzy search and workspace filtering |
 
 #### 🎯 Advanced fzf Configuration
 
@@ -356,10 +367,10 @@ The fzf setup includes sophisticated features for enhanced productivity:
 - Excludes `.git` directories automatically
 - Strips current working directory prefix for cleaner output
 
-**Key Bindings:**
+**Key Bindings (same in Zsh and Nushell):**
 - `Ctrl+T` - Find files with preview
-- `Alt+C` - Find directories with tree preview  
-- `Ctrl+R` - Enhanced history search with Oh My Zsh integration
+- `Ctrl+G` - Zoxide interactive directory picker with tree preview
+- `Ctrl+R` - Atuin shell history search (vi mode, fuzzy matching)
 
 #### 🗂️ Smart Yazi Integration
 
@@ -390,6 +401,7 @@ The `y` function provides seamless directory navigation:
 | **jq**      | `jq`   | JSON processor and formatter   |
 | **yq**      | `yq`   | YAML processor and formatter   |
 | **Docker**  | `docker` | Containerization platform    |
+| **[Lazyprune](https://github.com/ThibaultJRD/lazyprune)** | `lazyprune` | TUI tool to find and delete heavy cache/dependency directories |
 
 </details>
 
