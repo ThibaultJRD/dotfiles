@@ -1,519 +1,371 @@
-# 🏠 Personal Dotfiles
+# Dotfiles
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![macOS](https://img.shields.io/badge/macOS-Sonoma+-blue.svg)](https://www.apple.com/macos/)
 [![Shell](https://img.shields.io/badge/Shell-Zsh%20%7C%20Nushell-green.svg)](https://www.zsh.org/)
 [![Theme](https://img.shields.io/badge/Theme-Catppuccin-pink.svg)](https://github.com/catppuccin)
 
-<img width="476" alt="Modern terminal setup with Catppuccin theme" src="https://github.com/user-attachments/assets/c149ee55-8844-40d3-a833-a63e136217a2" />
+<p>
+  <img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/palette/macchiato.png" width="400" />
+</p>
 
-A modern, automated dotfiles setup for macOS that creates a beautiful and productive terminal environment. Features a consistent Catppuccin theme, powerful CLI tools, and seamless integration between all components.
+<img width="476" alt="Terminal screenshot" src="https://github.com/user-attachments/assets/c149ee55-8844-40d3-a833-a63e136217a2" />
 
-## 📋 Table of Contents
+Automated macOS terminal setup — tmux, neovim, and 40+ CLI tools with a consistent Catppuccin theme.
 
-- [Quick Start](#-quick-start)
-- [Features](#-features)
-- [Requirements](#-requirements)
-- [Installation](#-installation)
-- [Customization](#-customization)
-- [Included Software](#-included-software)
-- [Fonts](#-fonts)
-- [Troubleshooting](#-troubleshooting)
-- [Uninstallation](#-uninstallation)
-- [License](#-license)
+---
 
 ## ⚡ Quick Start
 
 ```bash
-# Clone and install
 git clone https://github.com/ThibaultJRD/dotfiles.git
 cd dotfiles
 ./install.sh
 ```
 
-> **Note:** The script will backup your existing configs before making changes.
-
-## ✨ Features
-
-### 🖥️ Terminal Environment
-
-- **[Kitty](https://sw.kovidgoyal.net/kitty/)** - GPU-accelerated terminal emulator
-- **Multiple Shell Options:**
-  - **[Zsh](https://zsh.sourceforge.io/) + [Oh My Zsh](https://ohmyz.sh/)** - Enhanced shell with extensive plugin ecosystem and powerful autosuggestions
-  - **[Nushell](https://www.nushell.sh/)** - Structured data shell for data manipulation tasks
-- **[Starship](https://starship.rs/)** - Lightning-fast, customizable prompt (works with all shells)
-- **[Tmux](https://github.com/tmux/tmux)** - Advanced terminal multiplexer with rich plugin ecosystem
-
-#### 🔧 Tmux Configuration
-
-A powerful tmux setup featuring 12+ plugins for enhanced productivity, session management, and system monitoring:
-
-**Essential Plugins:**
-- **[tmux-sensible](https://github.com/tmux-plugins/tmux-sensible)** - Sensible default configurations
-- **[tmux-yank](https://github.com/tmux-plugins/tmux-yank)** - Enhanced system clipboard integration
-- **[vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator)** - Seamless navigation between tmux panes and vim splits
-- **[tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect)** - Persist tmux sessions across system restarts
-- **[tmux-continuum](https://github.com/tmux-plugins/tmux-continuum)** - Automatic session saving every 15 minutes
-
-**Theme & UI Enhancement:**
-- **[catppuccin/tmux](https://github.com/catppuccin/tmux)** - Beautiful Catppuccin theme integration
-- **[tmux-nerd-font-window-name](https://github.com/joshmedeski/tmux-nerd-font-window-name)** - Nerd Font icons for window names
-- **[tmux-which-key](https://github.com/alexwforsythe/tmux-which-key)** - Interactive key binding help (`Prefix + Space`)
-
-**System Monitoring:**
-- **[tmux-cpu](https://github.com/tmux-plugins/tmux-cpu)** - Real-time CPU usage display
-- **[tmux-battery](https://github.com/tmux-plugins/tmux-battery)** - Battery status (when available)
-- **[tmux-primary-ip](https://github.com/dreknix/tmux-primary-ip)** - Network interface IP address display
-
-**Advanced Tools:**
-- **[tmux-sessionx](https://github.com/omerxx/tmux-sessionx)** - Fuzzy session manager with zoxide integration (`Prefix + o`)
-- **[tmux-floax](https://github.com/omerxx/tmux-floax)** - Floating terminal pane overlay (`Prefix + f`)
-- **[tmux-thumbs](https://github.com/fcsonline/tmux-thumbs)** - Vimium-like copy/paste hints for terminal text (`Prefix + T`)
-- **[tmux-fzf-url](https://github.com/wfxr/tmux-fzf-url)** - Quick URL opening from terminal output (`Prefix + u`)
-
-**Key Features:**
-- **Custom Prefix:** `Ctrl+s` for ergonomic access
-- **Smart Window Splitting:** `|` (horizontal) and `-` (vertical) with current path preservation
-- **Vim-style Navigation:** `Ctrl+h/j/k/l` seamlessly between tmux panes and Neovim
-- **Session Persistence:** Automatic save/restore with Neovim session support
-- **Status Bar:** Top-positioned with CPU, memory, IP, and battery monitoring
-- **Mouse Support:** Enabled for pane selection and resizing
-- **Floating Terminal:** `Prefix + f` for a quick floating pane overlay
-- **Quick Copy:** `Prefix + T` for vimium-style hint copying (lowercase = clipboard, UPPERCASE = paste)
-- **URL Opening:** `Prefix + u` to fuzzy-find and open URLs from terminal output
-
-**Default Shell:**
-
-Tmux is configured to launch **Nushell** by default for its structured data manipulation capabilities. This provides a modern shell experience optimized for working with data.
-
-To use Zsh instead, edit `tmux/.config/tmux/tmux.conf` and modify line 107:
-
-```bash
-# Comment out or change the default shell
-# set -g default-command /opt/homebrew/bin/nu  # launch nushell by default
-
-# Or change to zsh
-set -g default-command /bin/zsh
-```
-
-After making changes, reload tmux configuration with `Prefix + r` (Ctrl+s, then r).
-
-### 🎨 Consistent Theming
-
-- **[Catppuccin Macchiato](https://github.com/catppuccin)** theme across all tools (tmux, fzf, starship, kitty, etc.)
-- Seamless visual integration between terminal, editor, and file manager
-- Carefully selected color palette for reduced eye strain
-
-### 🛠️ Development Tools
-
-- **[Neovim (LazyVim)](https://neovim.io/)** - Modern, extensible text editor
-- **[Lazygit](https://github.com/jesseduffield/lazygit)** - Terminal UI for Git operations
-- **Node.js, Go, npm/yarn/bun** - Complete development environment
-
-### 📁 File Management
-
-- **[Yazi](https://github.com/sxyazi/yazi)** - Fast terminal file manager with previews
-- **[Eza](https://github.com/eza-community/eza)** - Modern `ls` replacement with icons
-- **[fzf](https://github.com/junegunn/fzf)** - Fuzzy finder for files and history
-- **[Zoxide](https://github.com/ajeetdsouza/zoxide)** - Smart directory navigation
-- **[Atuin](https://github.com/atuinsh/atuin)** - Magical shell history with sync and search capabilities
-
-### 🔧 Enhanced CLI Experience
-
-- **[Bat](https://github.com/sharkdp/bat)** - Syntax-highlighted `cat` replacement
-- Intelligent autosuggestions and syntax highlighting
-- Rich media previews for images, videos, and documents
-- Extensive shell completions and aliases
-
-## 📋 Requirements
-
-- macOS Sonoma (14.0) or later
-- Git (for cloning the repository)
-- Internet connection (for downloading dependencies)
-
-## 🚀 Installation
-
-> **⚠️ Backup Notice:** The script automatically creates timestamped backups of existing configuration files before making changes.
-
-### Option 1: Full Installation (Recommended)
-
-```bash
-# Clone the repository
-git clone https://github.com/ThibaultJRD/dotfiles.git
-cd dotfiles
-
-# Run the installation script
-./install.sh
-
-# Restart your terminal
-# Set a Nerd Font in your terminal settings for proper icon display
-```
-
-### Option 2: Install Dependencies Only
-
-```bash
-# Install Homebrew packages without configuration
-brew bundle --file=Brewfile
-```
-
-### Post-Installation
-
-1. **Configure Terminal Font**: Set a Nerd Font in your terminal preferences
-2. **Explore Shells**:
-   - **Zsh**: System default shell with Oh My Zsh, autosuggestions, and syntax highlighting
-   - **Nushell**: Default shell in tmux, structured data manipulation
-3. **Start Tmux**: Launch `tmux` for session management with automatic plugin installation
-4. **Explore**: Try `y` (yazi), `lg` (lazygit), `v` (neovim)
-
-### 🐚 Shell Selection
-
-The setup installs **two shells** with complete configurations:
-
-| Shell | Use Case | How to Use |
-|-------|----------|------------|
-| **Zsh** | System default shell | Already configured with Oh My Zsh |
-| **Nushell** | Tmux default & data tasks | Launches automatically in tmux, or run `nu` |
-
-**Important:**
-- **System shell (login):** Zsh is your default system shell
-- **Tmux sessions:** Nushell launches automatically (configurable in `tmux.conf`)
-- You can change the tmux default shell back to Zsh (see Tmux Configuration section above)
-
-**Zsh Features:**
-- Powerful autosuggestions via zsh-autosuggestions plugin
-- Syntax highlighting with zsh-syntax-highlighting
-- All tools integrated (zoxide, starship, atuin, fzf, etc.)
-- Vi mode for efficient editing
-
-**Nushell Features:**
-- Structured data pipelines (JSON, CSV, YAML natively)
-- Same keybindings as Zsh (`Ctrl+T`, `Ctrl+G`, `Ctrl+R`)
-- Carapace completions for external commands
-- Vi mode with Starship prompt
-
-## 🔧 Customization
-
-<details>
-<summary><strong>🎨 Changing Themes</strong></summary>
-
-### Starship Prompt
-
-```bash
-# Edit starship/.config/starship.toml
-palette = 'your_preferred_palette'  # Change from 'catppuccin_mocha'
-```
-
-### Kitty Terminal
-
-```bash
-# Edit kitty/.config/kitty/kitty.conf
-include your-theme.conf  # Replace the theme include line
-```
-
-### Tmux
-
-```bash
-# Edit tmux/.config/tmux/tmux.conf
-set -g @catppuccin_flavor 'your_flavor'  # Change from 'macchiato'
-
-# Customize key bindings
-set -g prefix C-a  # Change prefix from C-s to C-a
-
-# Disable specific plugins
-# set -g @plugin 'tmux-plugins/tmux-cpu'  # Comment out unwanted plugins
-```
-
-</details>
-
-<details>
-<summary><strong>⚙️ Adding Custom Configuration</strong></summary>
-
-### Custom Aliases and Functions
-
-```bash
-# Create custom Zsh config (preserved during updates)
-mkdir -p ~/.config/zsh/conf.d
-echo 'alias myalias="my command"' > ~/.config/zsh/conf.d/custom.zsh
-```
-
-### Environment Variables
-
-```bash
-# Zsh: Add to ~/.zshrc
-export YOUR_VAR="your_value"
-
-# Nushell: Add to ~/.config/nushell/env.nu
-$env.YOUR_VAR = "your_value"
-```
-
-### Adding New Tools
-
-1. **Add to Brewfile:**
-
-   ```bash
-   echo 'brew "your-tool"' >> Brewfile
-   ```
-
-2. **Create configuration:**
-
-   ```bash
-   mkdir -p your-tool/.config/your-tool
-   # Add your config files here
-   ```
-
-3. **Update install script** if needed for symlinks
-
-</details>
-
-<details>
-<summary><strong>🔄 Reinstalling</strong></summary>
-
-### Reinstall After Changes
-
-If you modify the dotfiles and want to reapply the configuration:
-
-```bash
-./install.sh  # Safely reinstall with automatic backups
-```
-
-The installation script will:
-- Backup existing configuration files with timestamps
-- Create or update symlinks to your dotfiles
-- Skip already installed packages
-- Continue even if some operations fail
-
-</details>
-
-## 🛠️ Included Software
-
-<details>
-<summary><strong>🖥️ Terminal & Shell</strong></summary>
-
-| Tool         | Command | Description                                 |
-| ------------ | ------- | ------------------------------------------- |
-| **Kitty**    | `kitty` | GPU-accelerated terminal emulator           |
-| **Zsh**      | `zsh`   | Enhanced shell with Oh My Zsh framework     |
-| **Nushell**  | `nu`    | Structured data shell for data manipulation |
-| **Starship** | -       | Cross-shell prompt with Git integration     |
-| **Tmux**     | `tmux`  | Advanced terminal multiplexer with 12+ plugins |
-| **Homebrew** | `brew`  | macOS package manager                       |
-
-### Shell Aliases & Functions
-
-**File Operations:**
-- `cat` → `bat` - Syntax-highlighted file viewing
-- `ls` → `eza --color=always --long --git --icons` - Enhanced file listing
-- `la` → `eza -l --icons --git -a --group-directories-first` - All files with details
-- `lt` → `eza --tree --level=2 --long --icons --git` - Tree view (2 levels)
-
-**Development Tools:**
-- `v` → `nvim` - Quick Neovim access
-- `lg` → `lazygit` - Git TUI launcher
-
-**Smart Functions:**
-- `y()` - Yazi with directory navigation (changes shell directory on exit)
-- `cd <directory>` - Smart directory jumping powered by zoxide
-- `killports` - Kill processes by port number or range (with auto-completion)
-- `listports` - List active network connections and ports
-
-</details>
-
-<details>
-<summary><strong>📝 Development Tools</strong></summary>
-
-| Tool             | Alias       | Description                                  |
-| ---------------- | ----------- | -------------------------------------------- |
-| **Neovim**       | `nvim`, `v` | Modern text editor with LazyVim              |
-| **Lazygit**      | `lg`        | Terminal UI for Git operations               |
-| **Lazydocker**   | -           | Terminal UI for Docker management            |
-| **Node.js**      | `node`      | JavaScript runtime (via `n` version manager) |
-| **Go**           | `go`        | Go programming language                      |
-| **Rust**         | `cargo`     | Rust toolchain (via rustup)                  |
-| **npm/yarn/bun** | -           | JavaScript package managers                  |
-| **Glow**         | `glow`      | Terminal markdown renderer                   |
-| **btop**         | `btop`      | System resource monitor                      |
-| **Visual Studio Code** | `code` | GUI code editor                             |
-
-</details>
-
-<details>
-<summary><strong>📁 File Management</strong></summary>
-
-| Tool       | Alias            | Description                         |
-| ---------- | ---------------- | ----------------------------------- |
-| **Yazi**   | `y`              | Terminal file manager with previews and smart directory navigation |
-| **Eza**    | `ls`, `la`, `lt` | Modern `ls` with icons and colors   |
-| **Zoxide** | `cd <dir>`       | Smart directory navigation (replaces `cd`) |
-| **fzf**    | `fzf`            | Fuzzy finder with Catppuccin theme and advanced previews |
-| **Atuin**  | `Ctrl+R`         | Enhanced shell history with vi mode, fuzzy search and workspace filtering |
-
-#### 🎯 Advanced fzf Configuration
-
-The fzf setup includes sophisticated features for enhanced productivity:
-
-**Theme & Appearance:**
-- **Catppuccin Macchiato** theme integration for consistent styling
-- Custom color scheme matching the overall dotfiles theme
-- Border and highlight colors optimized for readability
-
-**Enhanced Previews:**
-- **File previews** with `bat` syntax highlighting (first 500 lines)
-- **Directory previews** with `eza` tree structure (2 levels deep)
-- **Tab completion previews** for different commands (`cd`, `ssh`, environment variables)
-
-**Smart File Discovery:**
-- Uses `fd` instead of `find` for better performance
-- Includes hidden files and directories (configurable)
-- Excludes `.git` directories automatically
-- Strips current working directory prefix for cleaner output
-
-**Key Bindings (same in Zsh and Nushell):**
-- `Ctrl+T` - Find files with preview
-- `Ctrl+G` - Zoxide interactive directory picker with tree preview
-- `Ctrl+R` - Atuin shell history search (vi mode, fuzzy matching)
-
-#### 🗂️ Smart Yazi Integration
-
-The `y` function provides seamless directory navigation:
-- **Auto-navigation**: Changes shell directory to last browsed location on exit
-- **Temporary file handling**: Uses secure temporary files for directory tracking
-- **Path preservation**: Maintains current working directory context
-
-### Yazi Preview Support
-
-- **ffmpeg** - Video thumbnails
-- **imagemagick** - Image previews
-- **poppler** - PDF previews
-- **resvg** - SVG previews
-- **sevenzip** - Archive previews
-- **jq** - JSON formatting
-
-</details>
-
-<details>
-<summary><strong>🔧 CLI Utilities</strong></summary>
-
-| Tool        | Alias  | Description                    |
-| ----------- | ------ | ------------------------------ |
-| **Bat**     | `cat`  | Syntax-highlighted file viewer |
-| **Ripgrep** | `rg`   | Fast text search tool          |
-| **fd**      | `find` | Fast file finder               |
-| **jq**      | `jq`   | JSON processor and formatter   |
-| **yq**      | `yq`   | YAML processor and formatter   |
-| **Docker**  | `docker` | Containerization platform    |
-| **[Lazyprune](https://github.com/ThibaultJRD/lazyprune)** | `lazyprune` | TUI tool to find and delete heavy cache/dependency directories |
-
-</details>
-
-## 🔤 Fonts
-
-**Nerd Fonts** are automatically installed for proper icon display:
-
-- **Caskaydia Cove Nerd Font** - Cascadia Code with icons
-- **Victor Mono Nerd Font** - Cursive italic programming font
-- **JetBrains Mono NL Nerd Font** - Clean, readable monospace
-- **Symbols Only Nerd Font** - Icon fallback font
-
-**Configuration**: The default font is set in `kitty.conf`, but you can change it in your terminal preferences.
-
-## 🩺 Troubleshooting
-
-<details>
-<summary><strong>Common Issues</strong></summary>
-
-### Icons Not Displaying
-
-- Ensure you're using a Nerd Font in your terminal settings
-- Restart your terminal after font installation
-- Check if the font is properly installed: `fc-list | grep -i nerd`
-
-### Zsh Plugins Not Loading
-
-- Verify Oh My Zsh installation: `ls ~/.oh-my-zsh`
-- Check plugin directory: `ls ~/.oh-my-zsh/custom/plugins`
-- Reload shell: `source ~/.zshrc`
-
-### Tool Not Found After Installation
-
-- Check if tool is in PATH: `which <tool-name>`
-- Restart terminal or run: `source ~/.zshrc`
-- Verify Homebrew installation: `brew doctor`
-
-### Configuration Not Applied
-
-- Check if symlinks were created: `ls -la ~/.config/`
-- Verify backup files exist: `ls -la ~/*.backup.*`
-- Re-run installation: `./install.sh`
-
-</details>
-
-<details>
-<summary><strong>Reset and Debug</strong></summary>
-
-### Check Dependencies
-
-```bash
-brew doctor  # Check Homebrew health
-brew list    # List installed packages
-```
-
-### View Installation Logs
-
-```bash
-# Check for error messages during installation
-./install.sh 2>&1 | tee install.log
-```
-
-</details>
-
-## 🗑️ Uninstallation
-
-<details>
-<summary><strong>Remove Dotfiles Configuration</strong></summary>
-
-### Restore Backups
-
-```bash
-# Restore backed up configurations
-for backup in ~/.*.backup.*; do
-  original="${backup%.backup.*}"
-  mv "$backup" "$original"
-done
-```
-
-### Remove Symlinks
-
-```bash
-# Remove symlinks (be careful!)
-find ~/.config -type l -ls | grep dotfiles
-# Remove specific symlinks:
-# rm ~/.config/kitty ~/.config/nvim ~/.config/yazi # etc.
-```
-
-### Uninstall Homebrew Packages
-
-```bash
-# Remove packages (optional)
-brew uninstall --ignore-dependencies $(brew list)
-```
-
-### Clean Oh My Zsh
-
-```bash
-# Remove Oh My Zsh installation
-rm -rf ~/.oh-my-zsh
-```
-
-</details>
-
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Open Kitty, run `tmux`, you're ready. The script backs up existing configs before making changes.
 
 ---
 
-<div align="center">
-  <strong>Happy coding! 🚀</strong>
-  <p>Built with ❤️ by <a href="https://github.com/ThibaultJRD">ThibaultJRD</a></p>
-</div>
+## What's Included
 
+| Category | Tool | Description | Launch |
+|----------|------|-------------|--------|
+| **Terminal** | [Kitty](https://sw.kovidgoyal.net/kitty/) | GPU-accelerated terminal | `kitty` |
+| **Shell** | [Zsh](https://zsh.sourceforge.io/) + Oh My Zsh | System default shell | default |
+| **Shell** | [Nushell](https://www.nushell.sh/) | Structured data shell (tmux default) | `nu` |
+| **Prompt** | [Starship](https://starship.rs/) | Cross-shell prompt with vi mode indicators | auto |
+| **Multiplexer** | [Tmux](https://github.com/tmux/tmux) | Terminal multiplexer with 12+ plugins | `tmux` |
+| **Editor** | [Neovim](https://neovim.io/) (LazyVim) | Extensible text editor | `v` |
+| **Files** | [Yazi](https://github.com/sxyazi/yazi) | Terminal file manager with previews | `y` |
+| **Git** | [Lazygit](https://github.com/jesseduffield/lazygit) | Git TUI | `lg` |
+| **Git** | [gh](https://cli.github.com/) | GitHub CLI | `gh` |
+| **Search** | [fzf](https://github.com/junegunn/fzf) | Fuzzy finder | `Ctrl+T` |
+| **Search** | [ripgrep](https://github.com/BurntSushi/ripgrep) | Fast text search | `rg` |
+| **Search** | [fd](https://github.com/sharkdp/fd) | Fast file finder | `fd` |
+| **Navigation** | [Zoxide](https://github.com/ajeetdsouza/zoxide) | Smart cd (replaces `cd`) | `cd` |
+| **History** | [Atuin](https://github.com/atuinsh/atuin) | Shell history with fuzzy search | `Ctrl+R` |
+| **Viewer** | [bat](https://github.com/sharkdp/bat) | Syntax-highlighted cat | `cat` |
+| **Viewer** | [eza](https://github.com/eza-community/eza) | Modern ls with icons | `ls` |
+| **Viewer** | [glow](https://github.com/charmbracelet/glow) | Markdown renderer | `glow` |
+| **Viewer** | [jq](https://github.com/jqlang/jq) / [yq](https://github.com/mikefarah/yq) | JSON / YAML processors | `jq`, `yq` |
+| **Viewer** | [delta](https://github.com/dandavison/delta) | Syntax-highlighted git diffs | auto |
+| **Monitor** | [btop](https://github.com/aristocratos/btop) | System resource monitor | `btop` |
+| **Completions** | [Carapace](https://github.com/carapace-sh/carapace-bin) | Multi-shell completion engine | auto |
+| **Dev** | Node.js via [n](https://github.com/tj/n) | JavaScript runtime | `node` |
+| **Dev** | [Go](https://go.dev/) | Go language | `go` |
+| **Dev** | Rust via [rustup](https://rustup.rs/) | Rust toolchain | `cargo` |
+| **Dev** | [pnpm](https://pnpm.io/) / yarn / bun | JS package managers | `p` |
+| **Docker** | [Lazydocker](https://github.com/jesseduffield/lazydocker) | Docker TUI | `lazydocker` |
+| **Utility** | [Lazyprune](https://github.com/ThibaultJRD/lazyprune) | Find and delete heavy cache dirs | `lazyprune` |
+
+---
+
+## 🖥️ Tmux — The Core Workflow
+
+Tmux is the hub of this setup. Everything runs inside it: sessions persist across restarts, panes navigate seamlessly into Neovim, and the status bar monitors your system.
+
+### Getting Started
+
+```bash
+tmux                      # new session
+tmux new -s myproject     # new named session
+tmux a                    # attach to last session
+```
+
+The **prefix** is `Ctrl+s` — all tmux shortcuts start with it. Press `Prefix + Space` to open the which-key help menu and discover all available bindings.
+
+### Session Management
+
+| Key | Action |
+|-----|--------|
+| `Prefix + o` | **Sessionx** — fuzzy session picker with zoxide integration |
+| `Prefix + d` | Detach from current session |
+| `Prefix + $` | Rename session |
+
+Sessions are automatically saved every 15 minutes and restored on tmux startup (via [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect) + [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum)), including Neovim sessions.
+
+### Windows and Panes
+
+| Key | Action |
+|-----|--------|
+| `Prefix + c` | New window (preserves current path) |
+| `Prefix + \|` | Split pane horizontally |
+| `Prefix + -` | Split pane vertically |
+| `Ctrl+h/j/k/l` | Navigate between panes **and** Neovim splits |
+| `Prefix + H/J/K/L` | Resize pane (5px increments, repeatable) |
+| `Prefix + <` | Swap window left |
+| `Prefix + >` | Swap window right |
+
+Pane navigation uses [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator) — `Ctrl+h/j/k/l` moves between tmux panes and Neovim splits seamlessly, no prefix needed.
+
+### Power Features
+
+| Key | Action | Plugin |
+|-----|--------|--------|
+| `Prefix + f` | Floating terminal overlay (80% screen) | [tmux-floax](https://github.com/omerxx/tmux-floax) |
+| `Prefix + T` | Vimium-style copy hints (lowercase = copy, UPPERCASE = paste) | [tmux-thumbs](https://github.com/fcsonline/tmux-thumbs) |
+| `Prefix + u` | Fuzzy-find and open URLs from terminal output | [tmux-fzf-url](https://github.com/wfxr/tmux-fzf-url) |
+| `Prefix + Space` | Interactive keybinding help | [tmux-which-key](https://github.com/alexwforsythe/tmux-which-key) |
+| `Prefix + r` | Reload tmux configuration | built-in |
+
+Mouse is enabled for pane selection and resizing.
+
+### Status Bar
+
+Top-positioned, showing: **session name** | windows | **IP** | **CPU** | **RAM** | **battery** (if available) | **date/time**
+
+### Default Shell
+
+Tmux launches **Nushell** by default. To switch to Zsh, edit `tmux/.config/tmux/tmux.conf`:
+
+```bash
+# Change this line:
+set -g default-command /opt/homebrew/bin/nu
+# To:
+set -g default-command /bin/zsh
+```
+
+Then reload with `Prefix + r`.
+
+### Tmux Plugins
+
+| Plugin | Purpose |
+|--------|---------|
+| [tmux-sensible](https://github.com/tmux-plugins/tmux-sensible) | Sane defaults |
+| [tmux-yank](https://github.com/tmux-plugins/tmux-yank) | System clipboard integration |
+| [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator) | Seamless pane/split navigation |
+| [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect) | Session persistence |
+| [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) | Auto-save sessions |
+| [catppuccin/tmux](https://github.com/catppuccin/tmux) | Catppuccin Macchiato theme |
+| [tmux-nerd-font-window-name](https://github.com/joshmedeski/tmux-nerd-font-window-name) | Nerd Font icons in window names |
+| [tmux-which-key](https://github.com/alexwforsythe/tmux-which-key) | Keybinding discovery |
+| [tmux-cpu](https://github.com/tmux-plugins/tmux-cpu) | CPU monitoring |
+| [tmux-battery](https://github.com/tmux-plugins/tmux-battery) | Battery status |
+| [tmux-primary-ip](https://github.com/dreknix/tmux-primary-ip) | Network IP display |
+| [tmux-sessionx](https://github.com/omerxx/tmux-sessionx) | Fuzzy session manager |
+| [tmux-floax](https://github.com/omerxx/tmux-floax) | Floating terminal pane |
+| [tmux-fzf-url](https://github.com/wfxr/tmux-fzf-url) | URL picker |
+| [tmux-thumbs](https://github.com/fcsonline/tmux-thumbs) | Copy hints |
+
+Plugins are managed by [TPM](https://github.com/tmux-plugins/tpm) and installed automatically on first launch. To manually install: `Prefix + I`.
+
+---
+
+## Shell Keybindings
+
+These work in both Zsh and Nushell:
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+T` | fzf file picker with bat/eza preview |
+| `Ctrl+G` | Zoxide interactive directory picker with tree preview |
+| `Ctrl+R` | Atuin history search (fuzzy, vi mode) |
+| `Esc` | Toggle vi mode (cursor changes: beam = insert, block = normal) |
+
+Vi mode is enabled in both shells with cursor shape feedback.
+
+---
+
+## Aliases
+
+### Shared (Zsh + Nushell)
+
+| Alias | Expands to | Description |
+|-------|------------|-------------|
+| `cat` | `bat` | Syntax-highlighted file viewing |
+| `lt` | `eza --tree` (2 levels) | Tree view |
+| `v` | `nvim` | Neovim |
+| `lg` | `lazygit` | Git TUI |
+| `p` | `pnpm` | Package manager |
+| `y` | yazi (cd-on-exit) | File manager |
+
+### Zsh only
+
+| Alias | Expands to | Description |
+|-------|------------|-------------|
+| `ls` | `eza` (icons, git, colors) | Enhanced file listing |
+| `la` | `eza -la` (grouped dirs first) | All files with details |
+
+### Nushell only
+
+| Alias | Expands to | Description |
+|-------|------------|-------------|
+| `la` | `ls -a` (Nushell built-in) | All files |
+| `ll` | `eza -la` (grouped dirs first) | All files with details |
+
+### Git Aliases (Nushell only)
+
+| Alias | Command | Description |
+|-------|---------|-------------|
+| `gst` | `git status` | Status |
+| `gc` | `git commit -m` | Commit with message |
+| `gca` | `git commit -a -m` | Commit all with message |
+| `gp` | `git push origin HEAD` | Push current branch |
+| `gpu` | `git pull origin` | Pull |
+| `glog` | `git log --graph` (formatted) | Visual commit graph |
+| `gdiff` | `git diff` | Show diff |
+| `gco` | `git checkout` | Checkout |
+| `gb` | `git branch` | List branches |
+| `gba` | `git branch -a` | List all branches |
+| `ga` | `git add -p` | Interactive patch staging |
+| `gadd` | `git add` | Stage files |
+| `gcoall` | `git checkout -- .` | Discard all changes |
+| `gr` | `git remote` | Remotes |
+| `gre` | `git reset` | Reset |
+
+### Custom Functions
+
+**`y [args]`** — Opens [Yazi](https://github.com/sxyazi/yazi) file manager. On exit, your shell `cd`s to the last directory you browsed.
+
+**`listports [OPTIONS]`** — List active network connections.
+```bash
+listports              # all ports
+listports -p 3000      # specific port
+listports -t           # TCP only
+```
+
+**`killports [OPTIONS] PORT...`** — Kill processes by port number or range.
+```bash
+killports 3000              # single port
+killports 3000 5173 8080    # multiple ports
+killports 3000-3005         # port range
+killports -f 3000           # force kill (SIGKILL)
+```
+
+---
+
+## Neovim
+
+Built on [LazyVim](https://www.lazyvim.org/) with these additions:
+
+| Plugin | Purpose |
+|--------|---------|
+| [copilot.vim](https://github.com/github/copilot.vim) | GitHub Copilot |
+| [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator) | Seamless tmux pane navigation |
+| [snacks.nvim](https://github.com/folke/snacks.nvim) | File picker with hidden files |
+| [tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | Colorscheme |
+
+`Ctrl+h/j/k/l` navigates between Neovim splits and tmux panes — same keybindings, zero context switch. `maplocalleader` is set to `ù`. ESLint and Prettier integration enabled.
+
+---
+
+## File Management — Yazi
+
+Launch with `y`. Uses vim-style keybindings:
+
+| Key | Action |
+|-----|--------|
+| `h/j/k/l` | Navigate |
+| `Enter` | Open file |
+| `y / x / p` | Copy / Cut / Paste |
+| `d` | Move to trash |
+| `D` | Permanent delete |
+| `a` | Create file/directory |
+| `r` | Rename |
+| `s` | Search by name (fd) |
+| `S` | Search by content (rg) |
+| `z` | Jump with fzf |
+| `Z` | Jump with zoxide |
+| `Space` | Select / deselect |
+| `t` | New tab |
+| `.` | Toggle hidden files |
+| `w` | Task manager |
+
+Previews supported for: images (ImageMagick), videos (ffmpeg), PDFs (poppler), SVGs (resvg), archives (7zip), code (bat with syntax highlighting).
+
+---
+
+## 🎨 Theme
+
+**Catppuccin** across the entire stack:
+
+- **Mocha**: Kitty, Starship, Yazi, Lazygit, bat, btop, Atuin, Nushell
+- **Macchiato**: Tmux, fzf
+- **TokyoNight**: Neovim (LazyVim default — change in `nvim/lua/plugins/tokyonight.lua`)
+
+**Vi mode** is enabled across all tools with cursor shape feedback:
+- Insert mode: beam cursor (`|`)
+- Normal mode: block cursor (`█`)
+
+**Nerd Fonts** installed:
+- **CaskaydiaCove** — primary font (Cascadia Code with Nerd Font icons)
+- **VictorMono** — italic font for code comments
+- **JetBrains Mono NL** — symbol fallback
+- **Symbols Only** — icon-only fallback
+
+---
+
+## Customization
+
+### Change the theme
+
+```bash
+# Starship — edit starship/.config/starship/starship.toml
+palette = 'your_palette'
+
+# Kitty — edit kitty/.config/kitty/kitty.conf
+include your-theme.conf
+
+# Tmux — edit tmux/.config/tmux/tmux.conf
+set -g @catppuccin_flavor 'your_flavor'
+```
+
+### Add custom aliases
+
+```bash
+# Create a file in the Zsh custom config directory (preserved across reinstalls)
+echo 'alias myalias="my command"' > ~/.config/zsh/conf.d/custom.zsh
+```
+
+### Add new tools
+
+1. Add to `Brewfile`: `brew "your-tool"`
+2. Create config: `mkdir -p your-tool/.config/your-tool`
+3. Update `install.sh` if symlinks are needed
+4. Run `./install.sh`
+
+---
+
+## Installation Details
+
+### Prerequisites
+
+- macOS Sonoma (14.0) or later
+- Git and internet connection
+
+### What `install.sh` Does
+
+1. Installs [Homebrew](https://brew.sh/) if missing
+2. Installs [Oh My Zsh](https://ohmyz.sh/) with plugins (syntax-highlighting, autosuggestions, completions, history-substring-search)
+3. Runs `brew bundle` to install all packages from `Brewfile`
+4. Installs Rust toolchain and [Lazyprune](https://github.com/ThibaultJRD/lazyprune)
+5. Creates symlinks from dotfiles to `~/.config/` for each tool
+6. Installs Node.js LTS via `n`, Bun, and Atuin
+7. Builds bat syntax theme cache
+
+Existing config files are backed up with a timestamp suffix before symlinking.
+
+### Reinstall
+
+```bash
+./install.sh    # safe to re-run — backs up existing files, skips installed packages
+```
+
+---
+
+## Troubleshooting
+
+**Icons not displaying** — Make sure Kitty (or your terminal) is using a Nerd Font. Restart the terminal after font installation.
+
+**Tmux plugins not installed** — Press `Prefix + I` (capital I) inside tmux to trigger TPM plugin installation.
+
+**Tool not found after install** — Restart your terminal or run `source ~/.zshrc`. Check Homebrew health with `brew doctor`.
+
+**Config not applied** — Verify symlinks exist: `ls -la ~/.config/`. Re-run `./install.sh` if needed.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
