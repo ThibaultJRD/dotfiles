@@ -27,7 +27,7 @@ Open Kitty, run `tmux`, you're ready. The script backs up existing configs befor
 
 ---
 
-## What's Included
+## 📦 What's Included
 
 | Category | Tool | Description | Launch |
 |----------|------|-------------|--------|
@@ -65,7 +65,7 @@ Open Kitty, run `tmux`, you're ready. The script backs up existing configs befor
 
 Tmux is the hub of this setup. Everything runs inside it: sessions persist across restarts, panes navigate seamlessly into Neovim, and the status bar monitors your system.
 
-### Getting Started
+### 🚀 Getting Started
 
 ```bash
 tmux                      # new session
@@ -75,7 +75,7 @@ tmux a                    # attach to last session
 
 The **prefix** is `Ctrl+s` — all tmux shortcuts start with it. Press `Prefix + Space` to open the which-key help menu and discover all available bindings.
 
-### Session Management
+### 📋 Session Management
 
 | Key | Action |
 |-----|--------|
@@ -85,7 +85,7 @@ The **prefix** is `Ctrl+s` — all tmux shortcuts start with it. Press `Prefix +
 
 Sessions are automatically saved every 15 minutes and restored on tmux startup (via [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect) + [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum)), including Neovim sessions.
 
-### Windows and Panes
+### 🪟 Windows and Panes
 
 | Key | Action |
 |-----|--------|
@@ -99,7 +99,7 @@ Sessions are automatically saved every 15 minutes and restored on tmux startup (
 
 Pane navigation uses [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator) — `Ctrl+h/j/k/l` moves between tmux panes and Neovim splits seamlessly, no prefix needed.
 
-### Power Features
+### ⚡ Power Features
 
 | Key | Action | Plugin |
 |-----|--------|--------|
@@ -111,11 +111,11 @@ Pane navigation uses [vim-tmux-navigator](https://github.com/christoomey/vim-tmu
 
 Mouse is enabled for pane selection and resizing.
 
-### Status Bar
+### 📊 Status Bar
 
 Top-positioned, showing: **session name** | windows | **IP** | **CPU** | **RAM** | **battery** (if available) | **date/time**
 
-### Default Shell
+### 🐚 Default Shell
 
 Tmux launches **Nushell** by default. To switch to Zsh, edit `tmux/.config/tmux/tmux.conf`:
 
@@ -128,7 +128,7 @@ set -g default-command /bin/zsh
 
 Then reload with `Prefix + r`.
 
-### Tmux Plugins
+### 🔌 Tmux Plugins
 
 | Plugin | Purpose |
 |--------|---------|
@@ -152,7 +152,7 @@ Plugins are managed by [TPM](https://github.com/tmux-plugins/tpm) and installed 
 
 ---
 
-## Shell Keybindings
+## ⌨️ Shell Keybindings
 
 These work in both Zsh and Nushell:
 
@@ -167,7 +167,7 @@ Vi mode is enabled in both shells with cursor shape feedback.
 
 ---
 
-## Aliases
+## 🔗 Aliases
 
 ### Shared (Zsh + Nushell)
 
@@ -214,7 +214,7 @@ Vi mode is enabled in both shells with cursor shape feedback.
 | `gr` | `git remote` | Remotes |
 | `gre` | `git reset` | Reset |
 
-### Custom Functions
+### 🛠️ Custom Functions
 
 **`y [args]`** — Opens [Yazi](https://github.com/sxyazi/yazi) file manager. On exit, your shell `cd`s to the last directory you browsed.
 
@@ -235,7 +235,7 @@ killports -f 3000           # force kill (SIGKILL)
 
 ---
 
-## Neovim
+## ✏️ Neovim
 
 Built on [LazyVim](https://www.lazyvim.org/) with these additions:
 
@@ -250,7 +250,7 @@ Built on [LazyVim](https://www.lazyvim.org/) with these additions:
 
 ---
 
-## File Management — Yazi
+## 📁 File Management — Yazi
 
 Launch with `y`. Uses vim-style keybindings:
 
@@ -296,7 +296,7 @@ Previews supported for: images (ImageMagick), videos (ffmpeg), PDFs (poppler), S
 
 ---
 
-## Customization
+## 🔧 Customization
 
 ### Change the theme
 
@@ -327,7 +327,7 @@ echo 'alias myalias="my command"' > ~/.config/zsh/conf.d/custom.zsh
 
 ---
 
-## Installation Details
+## 📥 Installation Details
 
 ### Prerequisites
 
@@ -354,7 +354,7 @@ Existing config files are backed up with a timestamp suffix before symlinking.
 
 ---
 
-## Troubleshooting
+## 🩺 Troubleshooting
 
 **Icons not displaying** — Make sure Kitty (or your terminal) is using a Nerd Font. Restart the terminal after font installation.
 
