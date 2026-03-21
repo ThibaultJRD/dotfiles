@@ -57,7 +57,7 @@ Open Kitty, run `tmux`, you're ready. The script backs up existing configs befor
 | **Dev** | Rust via [rustup](https://rustup.rs/) | Rust toolchain | `cargo` |
 | **Dev** | [pnpm](https://pnpm.io/) / yarn / bun | JS package managers | `p` |
 | **Docker** | [Lazydocker](https://github.com/jesseduffield/lazydocker) | Docker TUI | `lazydocker` |
-| **Utility** | [Lazyprune](https://github.com/ThibaultJRD/lazyprune) | Find and delete heavy cache dirs | `lazyprune` |
+| **Utility** | [Lazyprune](https://github.com/ThibaultJRD/lazyprune) | Find and delete heavy cache dirs + kill processes by port | `lazyprune` |
 
 ---
 
@@ -217,21 +217,6 @@ Vi mode is enabled in both shells with cursor shape feedback.
 ### 🛠️ Custom Functions
 
 **`y [args]`** — Opens [Yazi](https://github.com/sxyazi/yazi) file manager. On exit, your shell `cd`s to the last directory you browsed.
-
-**`listports [OPTIONS]`** — List active network connections.
-```bash
-listports              # all ports
-listports -p 3000      # specific port
-listports -t           # TCP only
-```
-
-**`killports [OPTIONS] PORT...`** — Kill processes by port number or range.
-```bash
-killports 3000              # single port
-killports 3000 5173 8080    # multiple ports
-killports 3000-3005         # port range
-killports -f 3000           # force kill (SIGKILL)
-```
 
 ---
 
