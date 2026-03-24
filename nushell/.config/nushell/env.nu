@@ -5,6 +5,7 @@
 
 # Environment variables
 $env.XDG_CONFIG_HOME = ($env.HOME | path join ".config")
+$env.GLAMOUR_STYLE = ($env.HOME | path join ".config" "glow" "catppuccin-mocha.json")
 $env.EDITOR = "nvim"
 $env.LANG = "en_US.UTF-8"
 $env.LC_ALL = "en_US.UTF-8"
