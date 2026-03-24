@@ -138,7 +138,7 @@ alias ll = eza -l --icons --git -a --group-directories-first
 alias v = nvim
 alias lg = lazygit
 alias p = pnpm
-
+alias glow = glow -t
 
 # Git Aliases
 alias gc = git commit -m

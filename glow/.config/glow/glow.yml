@@ -1,0 +1,6 @@
+# Glow configuration
+# Style: Catppuccin Mocha theme
+style: "~/.config/glow/catppuccin-mocha.json"
+# Launch in TUI mode by default
+mouse: true
+pager: true
