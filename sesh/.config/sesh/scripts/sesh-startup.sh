@@ -14,8 +14,9 @@ if git rev-parse --is-inside-work-tree &>/dev/null; then
   tmux split-window -v -l 25%
   tmux select-pane -t :.1
 
-  # Window 3: "AI" — empty terminal
+  # Window 3: "AI" — show project tree
   tmux new-window -n "AI"
+  tmux send-keys "eza --tree --level=2 --color=always" Enter
 
   # Return to window 1 (git)
   tmux select-window -t :1
