@@ -1,4 +1,4 @@
-cache = true
+cache = false
 blacklist = ["scratch"]
 
 [default_session]

@@ -11,17 +11,17 @@ esac
 
 if git rev-parse --is-inside-work-tree &>/dev/null; then
   # Window 1: rename to "git" and launch lazygit
-  tmux rename-window "git"
+  tmux rename-window "󰊢 git"
   tmux send-keys "lazygit" Enter
 
-  # Window 2: "ide" — nvim (75%) + terminal (25%) stacked vertically
-  tmux new-window -n "ide"
+  # Window 2: "IDE" — nvim (75%) + terminal (25%) stacked vertically
+  tmux new-window -n "󰅩 IDE"
   tmux send-keys "nvim" Enter
   tmux split-window -v -l 25%
   tmux select-pane -t :.1
 
   # Window 3: "AI" — show project tree
-  tmux new-window -n "AI"
+  tmux new-window -n "󰚩 AI"
   tmux send-keys "lt" Enter
 
   # Start on window 3 (AI) to see project tree
