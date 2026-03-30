@@ -36,6 +36,7 @@ Open Kitty, run `tmux`, you're ready. The script backs up existing configs befor
 | **Shell** | [Nushell](https://www.nushell.sh/) | Structured data shell (tmux default) | `nu` |
 | **Prompt** | [Starship](https://starship.rs/) | Cross-shell prompt with vi mode indicators | auto |
 | **Multiplexer** | [Tmux](https://github.com/tmux/tmux) | Terminal multiplexer with 12+ plugins | `tmux` |
+| **Sessions** | [sesh](https://github.com/joshmedeski/sesh) | Smart tmux session manager with project layouts | `Prefix + o` |
 | **Editor** | [Neovim](https://neovim.io/) (LazyVim) | Extensible text editor | `v` |
 | **Files** | [Yazi](https://github.com/sxyazi/yazi) | Terminal file manager with previews | `y` |
 | **Git** | [Lazygit](https://github.com/jesseduffield/lazygit) | Git TUI | `lg` |
@@ -79,11 +80,12 @@ The **prefix** is `Ctrl+s` — all tmux shortcuts start with it. Press `Prefix +
 
 | Key | Action |
 |-----|--------|
-| `Prefix + o` | **Sessionx** — fuzzy session picker with zoxide integration |
+| `Prefix + o` | **Sesh** — fuzzy session picker (tmux sessions, zoxide dirs, configs) |
+| `Prefix + Tab` | Switch to last session |
 | `Prefix + d` | Detach from current session |
 | `Prefix + $` | Rename session |
 
-Sessions are automatically saved every 15 minutes and restored on tmux startup (via [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect) + [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum)), including Neovim sessions.
+Sessions are managed by [sesh](https://github.com/joshmedeski/sesh). Connecting to a git repo automatically creates a 3-window layout (lazygit, nvim+terminal, AI terminal). Non-git directories get a simple terminal. The `sesh.toml` config is in `sesh/.config/sesh/`.
 
 ### 🪟 Windows and Panes
 
@@ -135,18 +137,16 @@ Then reload with `Prefix + r`.
 | [tmux-sensible](https://github.com/tmux-plugins/tmux-sensible) | Sane defaults |
 | [tmux-yank](https://github.com/tmux-plugins/tmux-yank) | System clipboard integration |
 | [vim-tmux-navigator](https://github.com/christoomey/vim-tmux-navigator) | Seamless pane/split navigation |
-| [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect) | Session persistence |
-| [tmux-continuum](https://github.com/tmux-plugins/tmux-continuum) | Auto-save sessions |
 | [catppuccin/tmux](https://github.com/catppuccin/tmux) | Catppuccin Macchiato theme |
 | [tmux-nerd-font-window-name](https://github.com/joshmedeski/tmux-nerd-font-window-name) | Nerd Font icons in window names |
 | [tmux-which-key](https://github.com/alexwforsythe/tmux-which-key) | Keybinding discovery |
 | [tmux-cpu](https://github.com/tmux-plugins/tmux-cpu) | CPU monitoring |
 | [tmux-battery](https://github.com/tmux-plugins/tmux-battery) | Battery status |
 | [tmux-primary-ip](https://github.com/dreknix/tmux-primary-ip) | Network IP display |
-| [tmux-sessionx](https://github.com/omerxx/tmux-sessionx) | Fuzzy session manager |
 | [tmux-floax](https://github.com/omerxx/tmux-floax) | Floating terminal pane |
 | [tmux-fzf-url](https://github.com/wfxr/tmux-fzf-url) | URL picker |
 | [tmux-thumbs](https://github.com/fcsonline/tmux-thumbs) | Copy hints |
+| [sesh](https://github.com/joshmedeski/sesh) | Smart session manager (standalone CLI) |
 
 Plugins are managed by [TPM](https://github.com/tmux-plugins/tpm) and installed automatically on first launch. To manually install: `Prefix + I`.
 
