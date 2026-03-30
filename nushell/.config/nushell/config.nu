@@ -86,44 +86,8 @@ $env.config = {
     display_output: "if (term size).columns >= 100 { table -e } else { table }"
   }
 
-  keybindings: [
-    {
-      name: fzf_file_picker
-      modifier: control
-      keycode: char_t
-      mode: [emacs vi_insert vi_normal]
-      event: [
-        {
-          send: ExecuteHostCommand
-          cmd: "commandline edit (
-                  if ((commandline | str trim | str length) == 0) {
-                      (^fd --hidden --strip-cwd-prefix --exclude .git | ^fzf --height=40% --layout=reverse --preview 'if [ -d {} ]; then eza --tree --level=2 --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi' | decode utf-8 | str trim)
-                  } else if (commandline | str ends-with ' ') {
-                      [
-                          (commandline)
-                          (^fd --hidden --strip-cwd-prefix --exclude .git | ^fzf --height=40% --layout=reverse --preview 'if [ -d {} ]; then eza --tree --level=2 --color=always {} | head -200; else bat -n --color=always --line-range :500 {}; fi' | decode utf-8 | str trim)
-                      ] | str join
-                  } else {
-                      [
-                          (commandline | split words | reverse | skip 1 | reverse | str join ' ')
-                          (^fd --hidden --strip-cwd-prefix --exclude .git | ^fzf --height=40% --layout=reverse -q (commandline | split words | last) | decode utf-8 | str trim)
-                      ] | str join ' '
-                  }
-                )"
-        }
-      ]
-    }
-    {
-      name: zoxide_directory_picker
-      modifier: control
-      keycode: char_g
-      mode: [emacs vi_insert vi_normal]
-      event: {
-        send: executehostcommand
-        cmd: "zoxide-cd"
-      }
-    }
-  ]
+  # Keybindings are added by conf.d/fzf.nu
+  keybindings: []
 }
 
 # --- Theme ---
@@ -157,22 +121,6 @@ alias gcoall = git checkout -- .
 alias gr = git remote
 alias gre = git reset
 
-# --- FZF Custom Commands ---
-# Zoxide directory picker with fzf (Ctrl+G)
-# Reads the commandline to pre-filter zoxide results (e.g. "cd do" + Ctrl+G filters on "do")
-def --env zoxide-cd [] {
-  let query = (commandline | str replace -r '^cd\s*' '' | str trim)
-  let selection = if ($query | is-empty) {
-    ^zoxide query --interactive | str trim
-  } else {
-    ^zoxide query --interactive -- $query | str trim
-  }
-  if ($selection | is-not-empty) {
-    cd $selection
-  }
-  commandline edit ""
-}
-
 # --- Vi Mode Indicators ---
 # Visual feedback for vi mode state (using Starship-style symbols with colors)
 $env.PROMPT_INDICATOR_VI_INSERT = {|| $"(ansi green_bold)❯(ansi reset) " }
@@ -194,13 +142,6 @@ source ~/.cache/carapace/init.nu
 # Rust integration
 source $"($nu.home-dir)/.cargo/env.nu"
 
-# Yazi integration
-def --env y [...args] {
-  let tmp = (mktemp -t "yazi-cwd.XXXXXX")
-  yazi ...$args --cwd-file $tmp
-  let cwd = (open $tmp)
-  if $cwd != "" and $cwd != $env.PWD {
-    cd $cwd
-  }
-  rm -f $tmp
-}
+# --- Modular Configurations ---
+source ~/.config/nushell/conf.d/fzf.nu
+source ~/.config/nushell/conf.d/yazi.nu

@@ -2,8 +2,9 @@
 export ZSH="$HOME/.oh-my-zsh"
 
 # XDG Base Directory specification
-# This ensures tools like Nushell use ~/.config for their configuration
 export XDG_CONFIG_HOME="$HOME/.config"
+
+# Tool configuration paths
 export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 export GLAMOUR_STYLE="$HOME/.config/glow/catppuccin-mocha.json"
 

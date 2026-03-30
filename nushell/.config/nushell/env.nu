@@ -3,14 +3,16 @@
 # ==============================================================================
 # This file is loaded before config.nu and sets up environment variables
 
-# Environment variables
+# XDG Base Directory specification
 $env.XDG_CONFIG_HOME = ($env.HOME | path join ".config")
-$env.GLAMOUR_STYLE = ($env.HOME | path join ".config" "glow" "catppuccin-mocha.json")
+
+# Environment variables
 $env.EDITOR = "nvim"
 $env.LANG = "en_US.UTF-8"
 $env.LC_ALL = "en_US.UTF-8"
 
-# Tool-specific environment variables
+# Tool configuration paths
+$env.GLAMOUR_STYLE = ($env.HOME | path join ".config" "glow" "catppuccin-mocha.json")
 $env.N_PREFIX = ($env.HOME | path join ".n")
 $env.GOPATH = ($env.HOME | path join "go")
 $env.BUN_INSTALL = ($env.HOME | path join ".bun")
