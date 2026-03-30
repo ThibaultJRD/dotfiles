@@ -1,10 +1,6 @@
+cache = true
 blacklist = ["scratch"]
 
 [default_session]
 startup_command = "~/.config/sesh/scripts/sesh-startup.sh"
 preview_command = "eza --all --git --icons --color=always {}"
-
-[[session]]
-name = "terminal"
-path = "~"
-disable_startup_command = true
