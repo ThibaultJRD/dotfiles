@@ -16,11 +16,11 @@ if git rev-parse --is-inside-work-tree &>/dev/null; then
 
   # Window 3: "AI" — show project tree
   tmux new-window -n "AI"
-  tmux send-keys "eza --tree --level=2 --color=always --git-ignore" Enter
+  tmux send-keys "lt" Enter
 
   # Start on window 3 (AI) to see project tree
   tmux select-window -t :3
 else
   # Non-git: show project tree
-  tmux send-keys "eza --tree --level=2 --color=always" Enter
+  tmux send-keys "lt" Enter
 fi

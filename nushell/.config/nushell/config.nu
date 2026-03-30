@@ -133,7 +133,7 @@ source ~/.config/nushell/catppuccin_mocha.nu
 # Common commands with sensible defaults
 alias cat = bat
 alias la = ls -a
-alias lt = eza --tree --level=2 --long --icons --git
+alias lt = eza --tree --level=2 --long --icons --git --git-ignore
 alias ll = eza -l --icons --git -a --group-directories-first
 alias v = nvim
 alias lg = lazygit
