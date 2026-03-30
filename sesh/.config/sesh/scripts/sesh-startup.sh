@@ -2,6 +2,12 @@
 
 # Sesh startup script — creates a project-specific tmux layout.
 # Git repos get 3 windows (git/ide/AI), non-git dirs get a single terminal.
+# Config sessions (neovim, tmux, claude) are handled by sesh.toml startup_command.
+
+session_name=$(tmux display-message -p '#S')
+case "$session_name" in
+  neovim|tmux|claude) exit 0 ;;
+esac
 
 if git rev-parse --is-inside-work-tree &>/dev/null; then
   # Window 1: rename to "git" and launch lazygit
