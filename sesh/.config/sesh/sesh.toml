@@ -3,4 +3,4 @@ blacklist = ["scratch"]
 
 [default_session]
 startup_command = "~/.config/sesh/scripts/sesh-startup.sh"
-preview_command = "eza --all --git --icons --color=always {}"
+preview_command = "eza --tree --level=2 --color=always --git-ignore {}"
