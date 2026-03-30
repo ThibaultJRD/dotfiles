@@ -7,5 +7,6 @@
 if sesh list -t | grep -qx "$1"; then
   sesh preview "$1"
 else
-  eza --tree --level=2 --color=always "$1"
+  path="${1/#\~/$HOME}"
+  eza --tree --level=2 --color=always --git-ignore "$path"
 fi
