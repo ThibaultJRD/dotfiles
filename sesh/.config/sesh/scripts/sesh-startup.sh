@@ -20,4 +20,7 @@ if git rev-parse --is-inside-work-tree &>/dev/null; then
 
   # Return to window 1 (git)
   tmux select-window -t :1
+else
+  # Non-git: show project tree
+  tmux send-keys "eza --tree --level=2 --color=always" Enter
 fi
