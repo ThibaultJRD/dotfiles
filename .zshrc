@@ -70,7 +70,8 @@ export BUN_INSTALL="$HOME/.bun"
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # Zoxide (smarter cd)
-eval "$(zoxide init zsh --cmd cd)"
+# Only in interactive shells so non-interactive tools (Claude Code, scripts) keep builtin cd
+[[ -o interactive ]] && eval "$(zoxide init zsh --cmd cd)"
 
 # Atuin (shell history)
 eval "$(atuin init zsh)"
