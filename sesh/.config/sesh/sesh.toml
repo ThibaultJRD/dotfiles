@@ -3,22 +3,25 @@ blacklist = ["scratch"]
 
 [default_session]
 startup_command = "~/.config/sesh/scripts/sesh-startup.sh"
-preview_command = "eza --tree --level=2 --color=always --git-ignore {}"
+preview_command = "eza --tree --level=2 --long --icons --git-ignore --color=always {}"
 
 [[session]]
 name = "neovim"
 path = "~/.config/nvim"
 startup_command = "nvim"
+preview_command = "eza --tree --level=2 --long --icons --git-ignore --color=always ~/.config/nvim/lua"
 
 
 [[session]]
 name = "tmux"
 path = "~/.config/tmux"
 startup_command = "nvim tmux.conf"
+preview_command = "bat --color=always ~/.config/tmux/tmux.conf"
 
 
 [[session]]
 name = "claude"
 path = "~/.claude"
 startup_command = "nvim CLAUDE.md"
+preview_command = "~/.config/sesh/scripts/claude-preview.sh"
 
