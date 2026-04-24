@@ -27,12 +27,18 @@ fi
 # Sanitize branch → tmux session name (slashes illegal in session names).
 session_name="wt-${branch//\//_}"
 
+# Shell-escape values so the command string survives `sh -c` inside tmux
+# even when branch/task contain quotes, spaces, or other metacharacters.
+branch_q=$(printf '%q' "$branch")
+agent_q=$(printf '%q' "$agent")
+
 if [[ -n "$task" ]]; then
+  task_q=$(printf '%q' "$task")
   tmux new-session -d -s "$session_name" -c "$repo_path" \
-    "wt switch --create '$branch' -x $agent -- '$task'"
+    "wt switch --create $branch_q -x $agent_q -- $task_q"
 else
   tmux new-session -d -s "$session_name" -c "$repo_path" \
-    "wt switch --create '$branch' -x $agent"
+    "wt switch --create $branch_q -x $agent_q"
 fi
 
 tmux display-message "🌿 worktree '$branch' running in session '$session_name'"
