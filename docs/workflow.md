@@ -156,20 +156,26 @@ never stash, you never checkout. You just spawn.
 There are two ways to create a new worktree, and they have different
 purposes:
 
-#### `wtx <branch> [task words…]` — **switch now**
+#### `prefix + w` / `wtx <branch> [task words…]` — **switch-now**
 
-Typed in your shell (zsh or nu, inside tmux or not). It:
+Two ways, same outcome. The bind is the tmux keyboard entry, `wtx` is the
+shell function it ultimately calls.
 
-1. creates a new worktree for `<branch>`,
-2. spawns the agent (claude or opencode — auto-detected) inside it,
-3. **replaces your current pane** with that agent session.
+**From tmux (`prefix + w`)**, a two-field prompt appears:
+
+```
+Branch: feat/signup
+Task:   add email verification to the signup flow
+```
+
+Enter. The command is typed into **your current pane**, which then becomes
+the agent session working inside the new worktree.
+
+**From a shell directly:**
 
 ```sh
 wtx feat/signup "add email verification to the signup flow"
 ```
-
-Use this when you want to **go work on the new branch right now**. Your
-current pane becomes the agent.
 
 If you just want an interactive agent with no initial task:
 
@@ -177,9 +183,15 @@ If you just want an interactive agent with no initial task:
 wtx hotfix/login-bug
 ```
 
-#### `prefix + W` — **fire and forget**
+Mnemonic: lowercase `w` = light touch, stays on your current pane.
 
-Pressed inside tmux. A two-field prompt appears:
+**Caveat:** `prefix + w` types into whatever is focused in that pane. If
+you're inside nvim or another TUI, the keystrokes go there, not to a
+shell. Make sure the pane is a shell prompt before triggering.
+
+#### `prefix + W` — **fire-and-forget**
+
+Pressed inside tmux. Same two-field prompt:
 
 ```
 Branch: feat/api-retry
@@ -191,7 +203,15 @@ the agent running inside the worktree. Your current session stays exactly
 where it is. You can keep coding, switch to the detached session later via
 `prefix + o` → `Ctrl-t` (or `Ctrl-w`).
 
+Mnemonic: uppercase `W` = big move, new session elsewhere.
+
 Use this when you want to **queue an agent and keep working**.
+
+#### Discovering the bindings — `prefix + Space` (which-key)
+
+`prefix + Space` opens a menu overlay listing the custom bindings. Our two
+worktree commands live under `W → Worktrunk → w|W|l` (list). Handy when
+you're new to the setup or forget a keystroke.
 
 ### Finding and switching worktrees
 
@@ -256,12 +276,11 @@ auth middleware, one in the CSS of a login page. You don't want to do them
 in sequence.
 
 ```
-# in your main session, press:
+# in your main session, press (capital W twice = two fire-and-forget):
 prefix + W
   Branch: fix/auth-middleware
   Task:   tighten the bearer token validation in auth/middleware.ts
 
-# immediately, again:
 prefix + W
   Branch: fix/login-css
   Task:   fix the centered layout breaking below 400px on /login
@@ -297,8 +316,9 @@ Gone. No stash, no checkout jank.
 |---|---|
 | `prefix + o` | sesh picker (all sessions / worktrees / zoxide / find) |
 | `prefix + Tab` | jump to last session |
-| `prefix + W` | new worktree + detached agent session |
-| `prefix + Space` | which-key (list all bindings) |
+| `prefix + w` | new worktree in **current pane** (switch-now) |
+| `prefix + W` | new worktree in **detached session** (fire-and-forget) |
+| `prefix + Space` | which-key menu (includes `W → Worktrunk` submenu) |
 | `prefix + f` | floating terminal |
 | `prefix + \|` / `-` | split pane |
 | `Ctrl-h/j/k/l` | navigate panes AND vim splits (no prefix) |
