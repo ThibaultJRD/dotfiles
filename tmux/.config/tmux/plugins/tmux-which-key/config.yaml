@@ -282,12 +282,12 @@ items:
   - name: +Worktrunk
     key: W
     menu:
-      - name: New worktree (switch-now -> current pane)
+      - name: New worktree (switch-now → focus new window)
         key: w
-        command: "command-prompt -p \"Branch:\" \"send-keys \\\"wtx %%\\\" Enter\""
-      - name: New worktree (fire-and-forget -> detached session)
+        command: 'command-prompt -p "Branch:" "run-shell \"~/.config/tmux/scripts/wt-new-worktree-window.sh \\\"%1\\\"\""'
+      - name: New worktree (fire-and-forget → detached window with task)
         key: W
-        command: "command-prompt -p \"Branch:,Task:\" \"run-shell \\\"~/.config/tmux/scripts/wt-new-session.sh \\\\\\\"%1\\\\\\\" \\\\\\\"%2\\\\\\\" \\\\\\\"#{pane_current_path}\\\\\\\"\\\"\""
+        command: 'command-prompt -p "Branch:,Task:" "run-shell \"~/.config/tmux/scripts/wt-new-worktree-window.sh --detached \\\"%1\\\" \\\"%2\\\"\""'
       - separator: true
       - name: List worktrees (wt list)
         key: l
