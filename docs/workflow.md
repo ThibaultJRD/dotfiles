@@ -31,11 +31,11 @@ few seconds.
 
 Press `prefix + o` to open the **sesh picker**. This is the single entry
 point for jumping into anything: existing tmux sessions, zoxide-known
-directories, config files, worktrees.
+directories, and config files.
 
 ```
 ⚡ C-a all  │ 🪟 C-t tmux │ ⚙️ C-g configs │ 📁 C-z zoxide
-🔎 C-f find │ ❌ C-x kill │ 🌿 C-w worktrees │ 🖱️ C-d/u scroll
+🔎 C-f find │ ❌ C-x kill │ 🖱️ C-d/u scroll
 ```
 
 While the picker is open:
@@ -47,7 +47,6 @@ While the picker is open:
 - `Ctrl-g` → config shortcuts (see `sesh.toml`: `neovim`, `tmux`, `claude`)
 - `Ctrl-z` → zoxide directories (visited dirs)
 - `Ctrl-f` → `fd` search in `~`
-- `Ctrl-w` → worktrees of the current repo (worktrunk)
 - `Ctrl-x` → kill the highlighted session
 - `Ctrl-d` / `Ctrl-u` → scroll the preview pane
 - `Enter` → attach / create the session
@@ -119,7 +118,7 @@ clipboard (tmux-yank handles the OS clipboard on macOS).
 | `prefix + f` | **floax** — a floating terminal (80% size) overlaid on the current session. Toggle it with `prefix + f` again. Good for quick commands without leaving the window. |
 | `prefix + u` | **fzf-url** — pick any URL visible on screen and open it in the browser |
 | `prefix + T` | **tmux-thumbs** — vimium-style hints, select any word on screen and copy to clipboard |
-| `prefix + W` | **new worktree session** — see §5 below |
+| `prefix + W` | **new worktree window (background)** — see §5 below |
 | `prefix + r` | reload `tmux.conf` |
 
 ---
@@ -148,75 +147,85 @@ Worktrunk (`wt`) is how you juggle multiple branches and AI agents at once
 without context-switching pain. It wraps `git worktree` with shell hooks and
 agent spawning.
 
-The mental model: **one branch = one worktree = one tmux session**. You
-never stash, you never checkout. You just spawn.
+The mental model: **one branch = one worktree = one tmux window** inside your
+current project session. You never stash, you never checkout, and you never
+leave your session. Each worktree shows up as an extra window in the status
+bar alongside your existing `git/IDE/AI` windows.
 
-### The two entry points
+### The two tmux entry points
 
-There are two ways to create a new worktree, and they have different
-purposes:
+There are two ways to create a new worktree from inside tmux, and they have
+different purposes:
 
-#### `prefix + w` / `wtx <branch>` — **switch-now**
+#### `prefix + w` — **switch-now**
 
-Two ways, same outcome. The bind is the tmux keyboard entry, `wtx` is the
-shell function it ultimately calls. **No task prompt** — you're going in
-to work interactively, so just the branch name.
-
-**From tmux (`prefix + w`)**, a one-field prompt appears:
+A one-field prompt appears:
 
 ```
 Branch: feat/signup
 ```
 
-Enter. `wtx feat/signup` is typed into **your current pane**, which then
-becomes the agent session working inside the new worktree. You type your
-first request to the agent once it's up.
+Enter. A new window named `feat/signup` is created **and immediately focused**.
+The agent starts inside the worktree. You type your first request once it's up.
 
-**From a shell directly:**
+When the agent exits (Ctrl-D or `/quit`), the window stays open as a plain
+shell sitting in the worktree directory. You can keep working — run `wt list`,
+`wt merge`, or relaunch the agent — without losing the window. Type `exit` to
+close the window when you're done.
 
-```sh
-wtx feat/signup
-```
-
-Mnemonic: lowercase `w` = light touch, stays on your current pane,
-interactive from the start.
-
-**Caveat:** `prefix + w` types into whatever is focused in that pane. If
-you're inside nvim or another TUI, the keystrokes go there, not to a
-shell. Make sure the pane is a shell prompt before triggering.
+Use this when you want to **go work in the new branch right now**.
 
 #### `prefix + W` — **fire-and-forget**
 
-Pressed inside tmux. Same two-field prompt:
+A two-field prompt appears:
 
 ```
 Branch: feat/api-retry
 Task:   add exponential backoff to the http client
 ```
 
-Enter, and a **new detached tmux session** spins up in the background with
-the agent running inside the worktree. Your current session stays exactly
-where it is. You can keep coding, switch to the detached session later via
-`prefix + o` → `Ctrl-t` (or `Ctrl-w`).
+Enter. A new window is created **in the background** — you stay on your current
+window. The agent starts with the task as its first message.
 
-Mnemonic: uppercase `W` = big move, new session elsewhere.
+Mnemonic: uppercase `W` = background work, you stay put.
 
 Use this when you want to **queue an agent and keep working**.
 
 #### Discovering the bindings — `prefix + Space` (which-key)
 
-`prefix + Space` opens a menu overlay listing the custom bindings. Our two
+`prefix + Space` opens a menu overlay listing the custom bindings. The
 worktree commands live under `W → Worktrunk → w|W|l` (list). Handy when
-you're new to the setup or forget a keystroke.
+you forget a keystroke.
+
+### `wtx <branch>` — shell function
+
+Works at any shell prompt (zsh or nushell), inside or outside tmux. Runs
+`wt switch --create <branch> -x <agent>` under the hood: creates the worktree,
+`cd`s into it, and launches the agent interactively.
+
+```sh
+wtx feat/signup
+```
+
+Use this when you're not in tmux, or when you want to create a worktree
+without any window dance.
 
 ### Finding and switching worktrees
 
-`prefix + o` → `Ctrl-w` lists all worktrees of the repo you're in (via
-`wt list --format=json`). Pick one, hit Enter — sesh attaches (or creates)
-a session pointed at that worktree.
+Worktrees live as windows in your current session — navigate with the usual
+window keys:
+
+- `prefix + n` / `prefix + p` — next / previous window
+- `prefix + 1`…`9` — jump to window by number
+- `prefix + s` — tmux `choose-tree` picker (built-in, shows all sessions and
+  their windows)
+
+`prefix + o` → `Ctrl-t` shows tmux **sessions** (your projects), not windows,
+so it is still the right way to jump between repos. Worktrees are simply
+windows inside those sessions; they don't appear as separate sessions anymore.
 
 From the shell: `wt list` shows a table with branch, path, CI status, and
-an auto-generated summary.
+diffstats. It's a report, not a picker.
 
 ### Lifecycle
 
@@ -232,9 +241,8 @@ wt squash <branch>        # squash-merge variant
 
 ### Pin the agent per machine
 
-By default the helper tries `claude`, then `opencode`. If you want to force
-one on a given machine, add this to `~/.zshrc.local` (which is **not**
-versioned):
+By default the helper tries `claude`, then `opencode`. To force one on a
+given machine, add this to `~/.zshrc.local` (which is **not** versioned):
 
 ```sh
 export WT_AGENT=opencode
@@ -267,12 +275,12 @@ commit.
 
 ### A worked example
 
-You're on `main`. A PR review asks for two unrelated fixes: one in the
-auth middleware, one in the CSS of a login page. You don't want to do them
-in sequence.
+You're in your project's tmux session. It has three windows: `git`, `IDE`,
+`AI`. A PR review asks for two unrelated fixes: one in the auth middleware,
+one in the CSS of a login page. You don't want to do them in sequence.
 
 ```
-# in your main session, press (capital W twice = two fire-and-forget):
+# press capital W twice — both stay in the background:
 prefix + W
   Branch: fix/auth-middleware
   Task:   tighten the bearer token validation in auth/middleware.ts
@@ -282,25 +290,26 @@ prefix + W
   Task:   fix the centered layout breaking below 400px on /login
 ```
 
-Two detached tmux sessions now exist: `wt-fix_auth-middleware` and
-`wt-fix_login-css`. Two agents are grinding in parallel.
+Your session now has **five windows**: `git`, `IDE`, `AI`,
+`fix/auth-middleware`, `fix/login-css`. Two agents are grinding in parallel.
 
-You keep working on `main` (maybe reviewing the PR itself). When you want
-to check on either one:
+You keep working in your original windows (reviewing the PR in `AI`,
+checking diffs in `git`). When you want to check on an agent:
 
 ```
-prefix + o → Ctrl-t → pick the wt-* session
+prefix + 4   # jump to fix/auth-middleware
+prefix + 5   # jump to fix/login-css
 ```
 
-When an agent is done, review in lazygit (`lg` inside that session's git
-window), then back in the main worktree:
+When an agent finishes, the window drops into a shell in that worktree. Review
+with `lg`, run any cleanup, then back in any window:
 
 ```sh
 wt merge fix/auth-middleware
 wt merge fix/login-css
 ```
 
-Gone. No stash, no checkout jank.
+Gone. No stash, no checkout jank, no session juggling.
 
 ---
 
@@ -310,10 +319,10 @@ Gone. No stash, no checkout jank.
 
 | | |
 |---|---|
-| `prefix + o` | sesh picker (all sessions / worktrees / zoxide / find) |
+| `prefix + o` | sesh picker (all sessions / zoxide / find) |
 | `prefix + Tab` | jump to last session |
-| `prefix + w` | new worktree in **current pane** (switch-now) |
-| `prefix + W` | new worktree in **detached session** (fire-and-forget) |
+| `prefix + w` | new worktree **window**, focused (switch-now) |
+| `prefix + W` | new worktree **window**, background (fire-and-forget) |
 | `prefix + Space` | which-key menu (includes `W → Worktrunk` submenu) |
 | `prefix + f` | floating terminal |
 | `prefix + \|` / `-` | split pane |
