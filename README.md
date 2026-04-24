@@ -13,6 +13,8 @@
 
 Automated macOS terminal setup — tmux, neovim, and 40+ CLI tools with a consistent Catppuccin theme.
 
+**New to this setup?** Start with [`docs/workflow.md`](docs/workflow.md) — a hands-on guide for tmux, sesh, and worktrunk.
+
 ---
 
 ## ⚡ Quick Start
@@ -59,6 +61,7 @@ Open Kitty, run `tmux`, you're ready. The script backs up existing configs befor
 | **Dev** | [pnpm](https://pnpm.io/) / yarn / bun | JS package managers | `p` |
 | **Docker** | [Lazydocker](https://github.com/jesseduffield/lazydocker) | Docker TUI | `lazydocker` |
 | **Utility** | [Lazyprune](https://github.com/ThibaultJRD/lazyprune) | Find and delete heavy cache dirs + kill processes by port | `lazyprune` |
+| **Worktrees** | [worktrunk](docs/workflow.md#5-worktrunk--parallel-branches-parallel-agents) | Worktrees + AI agents: parallel branches, parallel agents | `wt` |
 
 ---
 
