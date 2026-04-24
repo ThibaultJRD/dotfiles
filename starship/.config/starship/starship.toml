@@ -9,6 +9,7 @@ $directory\
 [](fg:peach bg:green)\
 $git_branch\
 $git_status\
+${custom.worktrunk}\
 [](fg:green bg:teal)\
 $c\
 $rust\
@@ -194,3 +195,13 @@ vimcmd_symbol = '[❮](bold fg:yellow)'       # Vi normal mode (after ESC)
 vimcmd_replace_one_symbol = '[](bold fg:purple)'
 vimcmd_replace_symbol = '[](bold fg:purple)'
 vimcmd_visual_symbol = '[](bold fg:lavender)'
+
+[custom.worktrunk]
+command = "wt list --format=json 2>/dev/null | jq 'length' 2>/dev/null"
+when = "command -v wt >/dev/null && git rev-parse --is-inside-work-tree >/dev/null 2>&1"
+shell = ["bash", "--noprofile", "--norc"]
+description = "Number of worktrees in the current repo"
+format = '[[ 🌿 $output ](fg:base bg:green)]($style)'
+style = "bg:green"
+require_repo = true
+ignore_timeout = true
