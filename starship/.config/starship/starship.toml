@@ -198,7 +198,7 @@ vimcmd_visual_symbol = '[](bold fg:lavender)'
 
 [custom.worktrunk]
 command = "wt list --format=json 2>/dev/null | jq 'length' 2>/dev/null"
-when = "command -v wt >/dev/null && git rev-parse --is-inside-work-tree >/dev/null 2>&1"
+when = "command -v wt >/dev/null"
 shell = ["bash", "--noprofile", "--norc"]
 description = "Number of worktrees in the current repo"
 format = '[[ 🌿 $output ](fg:base bg:green)]($style)'
