@@ -145,16 +145,16 @@ Symlinked to `~/.config/nushell/conf.d/worktrunk.nu` by `install.sh` (existing `
 Edit `tmux/.config/tmux/tmux.conf`, inside the existing `bind-key "o" run-shell "sesh connect ..."` block. Add:
 
 ```
---bind 'ctrl-w:change-prompt(🌿 )+reload(wt list 2>/dev/null)'
+--bind 'ctrl-w:change-prompt(🌿 )+reload(wt list --format=json 2>/dev/null | jq -r ".[] | \"🌿 \\(.path)\"")'
 ```
 
 …and update the header line to include `│ 🌿 C-w worktrees`.
 
-**Verify at implementation time:** output format of `wt list` (no flags) vs `wt list --full`. Need a format where:
-- The last whitespace-separated field (matching `{2..}` in existing binds) is a path or session-connectable target.
-- The display is readable.
+`wt list --format=json` emits an array of worktree objects (fields: `branch`, `path`, `is_main`, `is_current`, `commit`, `ci`, `summary`, etc. — see worktrunk docs). We keep only `path` prefixed with a leaf icon so `{2..}` in `sesh connect "{2..}"` resolves to the absolute path (sesh creates/attaches a session keyed on the path).
 
-If `wt list` default output doesn't match, use a parsing pipeline like `wt list | awk '{print ...}'` or a dedicated worktrunk subcommand that emits paths. Script can live in `sesh/.config/sesh/scripts/` if it grows beyond a one-liner.
+Optional enrichment (decide during impl if readable enough): include the branch name alongside the path, e.g. `"🌿 \(.branch) → \(.path)"`, and adjust the fzf `{2..}` range to pick the path field. If it gets messy, keep it path-only.
+
+If the jq pipeline becomes complex, extract it to `sesh/.config/sesh/scripts/wt-list-sesh.sh` for readability — same pattern as `claude-preview.sh`.
 
 ### 4. Tmux bind `prefix + W` — create worktree in detached session
 
@@ -211,45 +211,42 @@ tmux display-message "🌿 worktree '$branch' running in session '$session_name'
 
 `install.sh` already symlinks `tmux/.config/tmux/` in full, so the script is picked up. Executable bit must be committed (`chmod +x` before `git add`).
 
-### 5. `post-create.env` hook + user config
+### 5. User-level worktrunk config (machine-wide)
 
-New directory `worktrunk/.config/worktrunk/` with two files:
-
-**`config.toml`** — minimal defaults, commented example sections:
+New file `worktrunk/.config/worktrunk/config.toml` — minimal, commented. No machine-wide hooks: hooks are meaningful per-repo (what to copy, what to start) and belong in each repo's `.config/wt.toml`.
 
 ```toml
-# worktrunk user config — see https://github.com/max-sixty/worktrunk
-# Most settings live in per-project .config/wt.toml (checked in per repo).
-# This file is for machine-wide overrides.
-
+# worktrunk user-level config — see https://github.com/max-sixty/worktrunk
+#
+# This is for machine-wide defaults only. Per-project hooks, copy rules, and
+# lifecycle settings belong in each repo's .config/wt.toml (checked in).
+#
+# Uncomment and tune as needed:
+#
 # [list]
 # columns = ["name", "branch", "ci", "summary"]
+#
+# [commit.generation]
+# # defaults for LLM-generated branch summaries
 ```
 
-**`post-create.env`** — executable shell snippet run after each worktree creation. Copies `.env` files from the repo root to the new worktree so agents inherit creds:
+**Note — native file copying is a per-repo concern, not a dotfiles concern.** worktrunk provides `wt step copy-ignored` as a built-in subcommand. To opt a repo into automatic `.env*` copying, the repo gets:
 
-```bash
-#!/usr/bin/env bash
-# worktrunk post-create hook
-# Copies .env* files from the main worktree into the newly created one.
-set -euo pipefail
+1. A `.config/wt.toml` with:
+   ```toml
+   [[post-start]]
+   copy = "wt step copy-ignored"
+   ```
+2. A `.worktreeinclude` at the repo root listing patterns to copy (gitignore-style):
+   ```
+   .env
+   .env.local
+   .env.development
+   ```
 
-# worktrunk passes the new worktree path as cwd and main worktree path via env.
-# Variable name **TBD** — verify against worktrunk docs. Expected candidates:
-#   $WORKTRUNK_MAIN_WORKTREE, $WT_MAIN, or we derive from `git rev-parse`.
-main="$(git rev-parse --path-format=absolute --show-superproject-working-tree 2>/dev/null || \
-        git worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+This is documented in the user-facing workflow doc (§8) so the dev knows how to enable it per-project. Nothing in the shared dotfiles forces it globally — that would surprise repos that expect e.g. `node_modules` to stay per-worktree.
 
-if [[ -n "$main" && "$main" != "$PWD" ]]; then
-  for f in .env .env.local .env.development; do
-    [[ -f "$main/$f" && ! -f "$PWD/$f" ]] && cp "$main/$f" "$PWD/$f"
-  done
-fi
-```
-
-**Verify at implementation time:** exact hook invocation protocol (env vars passed, working directory, whether the file is sourced or executed). If worktrunk expects a different filename or format, adapt.
-
-`install.sh` already symlinks `worktrunk/.config/worktrunk/` because of the generic `.config/*` loop — no install script change needed.
+`install.sh` already symlinks `worktrunk/.config/worktrunk/` via the generic `.config/*` loop — no install-script change needed.
 
 ### 6. Starship module
 
@@ -287,17 +284,25 @@ set -agF status-right '#{E:@catppuccin_status_ctp_worktrunk}'
 
 **Verify at implementation time:** exact format expected by catppuccin for custom modules. Copy the structure from `ctp_cpu.conf` verbatim and adapt.
 
-### 8. README update
+### 8. Workflow documentation (`docs/workflow.md`)
 
-New subsection under "Tools and Integrations" → "Worktrunk":
+New file: a hands-on walkthrough for a developer who knows basic vim motions (hjkl, modes, `:w`, `:q`) but hasn't touched this dotfiles setup before. Covers:
 
-- One-line description and link
-- The `prefix + W` flow
-- `wtx` helper usage
-- `WT_AGENT` override
-- `prefix + o` → `ctrl-w` for listing
+- **Starting the day**: `tmux`, `prefix + o` (sesh picker), the 6 picker modes (`C-a` all / `C-t` tmux / `C-g` configs / `C-z` zoxide / `C-f` find / `C-w` worktrees)
+- **Inside a session**: the auto-layout (git / IDE / AI windows), vim-tmux-navigator (`C-hjkl` across panes and vim splits), yazi (`y`), lazygit (`lg`), splits (`|`, `-`)
+- **Quick ref for tmux keybinds** table (prefix is `C-s`)
+- **Worktrunk workflow** — the A+B primary use cases:
+  - `wtx feat/foo "do the thing"` — switch to a new worktree now, agent running
+  - `prefix + W` — queue an agent on a new worktree in the background, stay where you are
+  - `prefix + o` → `ctrl-w` — switch to an existing worktree
+  - `wt list` / `wt remove` / `wt merge` basics
+  - `WT_AGENT` env var to pin the agent per-machine
+- **Per-repo `.env` auto-copy** — how to enable in a repo via `.config/wt.toml` + `.worktreeinclude`
+- **Worked example**: "you're on `main`, PR feedback asks for two independent fixes" — shows how to fan out two `prefix + W` calls, let agents work in parallel, switch between them, merge back
 
-Short, scannable, same style as existing docs.
+Tone: concrete, command-first, no fluff. Each section includes an actual command you can copy-paste. Assumes zsh/nushell basics but explains tmux/sesh/worktrunk concepts.
+
+Also update the root `README.md`: a small "Worktrunk" line in "Tools and Integrations" pointing at `docs/workflow.md` for the full walkthrough.
 
 ## Data flow
 
@@ -325,7 +330,7 @@ Short, scannable, same style as existing docs.
 - Missing `wt` binary → shell hooks no-op (gated on `command -v wt`). No errors surfaced.
 - Missing `claude` AND `opencode` → `wtx` prints error to stderr and returns 1. `wt-new-session.sh` calls `tmux display-message` and exits 1.
 - Invalid branch name, existing branch conflicts, etc. → surfaced by worktrunk itself. We don't pre-validate.
-- `post-create.env` hook failures → isolated to the hook; worktree creation still succeeds. Script uses `set -euo pipefail` but only does cp operations gated on file existence.
+- Per-repo `post-start` hooks (when the user opts in to `wt step copy-ignored`) fail in the background without blocking worktree creation — worktrunk semantics, not ours.
 
 ## Testing
 
@@ -346,13 +351,11 @@ No automated tests — dotfiles repo doesn't have a test harness.
 
 These are marked `**Verify at implementation time:**` inline above. Summary:
 
-1. Exact output format of `wt list` — for sesh picker parsing and starship count
-2. `wt config shell init nu` output format and whether re-sourcing is safe
-3. `post-create.env` invocation protocol (env vars, cwd, sourced vs executed)
-4. Whether `wt list` offers `--porcelain` or `--count` flags
-5. `nu.cache-dir` location on macOS (should be `~/Library/Caches/nushell` but may differ)
+1. `wt config shell init nu` output format and whether re-sourcing is safe
+2. `nu.cache-dir` location on macOS (should be `~/Library/Caches/nushell`)
+3. Exact fzf display format for worktrees (path-only vs branch+path) — decide by eye
 
-All five are resolvable by running `wt --help` / reading the README after `brew install worktrunk`. No blocking design issues.
+All resolvable post-install. No blocking design issues.
 
 ## Out of scope
 
@@ -376,6 +379,6 @@ All five are resolvable by running `wt --help` / reading the README after `brew 
 - `tmux/.config/tmux/scripts/wt-new-session.sh` (+ `chmod +x`)
 - `tmux/.config/tmux/custom_modules/ctp_worktrunk.conf`
 - `worktrunk/.config/worktrunk/config.toml`
-- `worktrunk/.config/worktrunk/post-create.env` (+ `chmod +x`)
+- `docs/workflow.md`
 
 `install.sh` is unchanged — the generic `.config/*` symlink loop and the `zsh_configs/*.zsh` loop already cover everything.
