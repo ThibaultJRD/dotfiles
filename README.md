@@ -61,7 +61,7 @@ Open Kitty, run `tmux`, you're ready. The script backs up existing configs befor
 | **Dev** | [pnpm](https://pnpm.io/) / yarn / bun | JS package managers | `p` |
 | **Docker** | [Lazydocker](https://github.com/jesseduffield/lazydocker) | Docker TUI | `lazydocker` |
 | **Utility** | [Lazyprune](https://github.com/ThibaultJRD/lazyprune) | Find and delete heavy cache dirs + kill processes by port | `lazyprune` |
-| **Worktrees** | [worktrunk](docs/workflow.md#5-worktrunk--parallel-branches-parallel-agents) | Worktrees + AI agents: parallel branches, parallel agents | `wt` |
+| **Worktrees** | [worktrunk](docs/workflow.md) | Worktrees + AI agents: parallel branches, parallel agents | `wt` |
 
 ---
 
