@@ -156,34 +156,30 @@ never stash, you never checkout. You just spawn.
 There are two ways to create a new worktree, and they have different
 purposes:
 
-#### `prefix + w` / `wtx <branch> [task words…]` — **switch-now**
+#### `prefix + w` / `wtx <branch>` — **switch-now**
 
 Two ways, same outcome. The bind is the tmux keyboard entry, `wtx` is the
-shell function it ultimately calls.
+shell function it ultimately calls. **No task prompt** — you're going in
+to work interactively, so just the branch name.
 
-**From tmux (`prefix + w`)**, a two-field prompt appears:
+**From tmux (`prefix + w`)**, a one-field prompt appears:
 
 ```
 Branch: feat/signup
-Task:   add email verification to the signup flow
 ```
 
-Enter. The command is typed into **your current pane**, which then becomes
-the agent session working inside the new worktree.
+Enter. `wtx feat/signup` is typed into **your current pane**, which then
+becomes the agent session working inside the new worktree. You type your
+first request to the agent once it's up.
 
 **From a shell directly:**
 
 ```sh
-wtx feat/signup "add email verification to the signup flow"
+wtx feat/signup
 ```
 
-If you just want an interactive agent with no initial task:
-
-```sh
-wtx hotfix/login-bug
-```
-
-Mnemonic: lowercase `w` = light touch, stays on your current pane.
+Mnemonic: lowercase `w` = light touch, stays on your current pane,
+interactive from the start.
 
 **Caveat:** `prefix + w` types into whatever is focused in that pane. If
 you're inside nvim or another TUI, the keystrokes go there, not to a
@@ -337,7 +333,7 @@ Gone. No stash, no checkout jank.
 | `y` | yazi |
 | `lg` | lazygit |
 | `v` | nvim |
-| `wtx <br> [task]` | create worktree + agent, switch into it |
+| `wtx <br>` | create worktree + agent, switch into it (interactive) |
 | `wt list` | list worktrees |
 | `wt merge <br>` | merge worktree back into main |
 

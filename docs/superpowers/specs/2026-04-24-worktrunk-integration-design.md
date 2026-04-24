@@ -78,19 +78,17 @@ wt-agent() {
 }
 
 # Create a worktree and launch the detected agent inside it.
-# Usage: wtx <branch> [task words...]
+# Interactive use: no initial task — the agent opens, you type.
+# For fire-and-forget with a task, use `prefix + W` in tmux.
+# Usage: wtx <branch>
 wtx() {
-  local branch="$1"; shift
+  local branch="$1"
   local agent
   if ! agent=$(wt-agent); then
     print -u2 "wtx: no AI agent found (set WT_AGENT, or install claude/opencode)"
     return 1
   fi
-  if (( $# )); then
-    wt switch --create "$branch" -x "$agent" -- "$*"
-  else
-    wt switch --create "$branch" -x "$agent"
-  fi
+  wt switch --create "$branch" -x "$agent"
 }
 ```
 
@@ -125,14 +123,11 @@ def wt-agent [] {
   }
 }
 
-# Usage: wtx feat/foo "do a thing"
-def --wrapped wtx [branch: string, ...task: string] {
+# Usage: wtx feat/foo
+# Interactive — no initial task. For fire-and-forget with a task use prefix+W.
+def wtx [branch: string] {
   let agent = (wt-agent)
-  if ($task | is-empty) {
-    ^wt switch --create $branch -x $agent
-  } else {
-    ^wt switch --create $branch -x $agent -- ($task | str join " ")
-  }
+  ^wt switch --create $branch -x $agent
 }
 ```
 
@@ -162,17 +157,20 @@ Two mnemonic-paired bindings added to `tmux/.config/tmux/tmux.conf`, near the ex
 
 ```tmux
 # prefix + W (uppercase) — fire-and-forget: new worktree in a DETACHED session
+# Prompts for a branch AND a task (task is handed to the agent as initial prompt).
 bind W command-prompt -p "Branch:,Task:" \
   "run-shell '~/.config/tmux/scripts/wt-new-session.sh \"%1\" \"%2\" \"#{pane_current_path}\"'"
 
 # prefix + w (lowercase) — switch-now: new worktree in the CURRENT pane
-bind w command-prompt -p "Branch:,Task:" \
-  "run-shell '~/.config/tmux/scripts/wt-send-wtx.sh \"%1\" \"%2\" #{pane_id}'"
+# Prompts only for a branch — the agent opens interactively, you type in it.
+bind w command-prompt -p "Branch:" "send-keys 'wtx %1' Enter"
 ```
 
-Mnemonic: lowercase = "light touch, your pane", uppercase = "big move, new session". `prefix + w` overrides the default `choose-window` binding — acceptable since sesh (`prefix + o` → `Ctrl-t`) already covers window/session picking far better.
+Mnemonic: lowercase = "light touch, your pane, interactive"; uppercase = "big move, new session, hand off a task". `prefix + w` overrides the default `choose-window` binding — acceptable since sesh (`prefix + o` → `Ctrl-t`) already covers window/session picking far better.
 
 (tmux `command-prompt -p` takes a single comma-separated string for multi-prompt input.)
+
+The switch-now bind is a one-liner: `send-keys` types `wtx <branch>` + Enter into the focused pane. The shell function (zsh or nu) resolves the agent and runs `wt switch --create -x <agent>`, which replaces the pane with the interactive agent. No helper script needed.
 
 **`tmux/.config/tmux/scripts/wt-new-session.sh`** (fire-and-forget) — new file, executable:
 
@@ -214,36 +212,11 @@ fi
 tmux display-message "🌿 worktree '$branch' running in session '$session_name'"
 ```
 
-**`tmux/.config/tmux/scripts/wt-send-wtx.sh`** (switch-now) — new file, executable:
-
-```bash
-#!/usr/bin/env bash
-# Send a `wtx` invocation to the target tmux pane. The pane's shell runs
-# the function (defined in zsh_configs/worktrunk.zsh or nushell worktrunk.nu)
-# which calls `wt switch --create -x <agent>` — that replaces the pane with
-# the agent running inside the new worktree.
-#
-# Usage: wt-send-wtx.sh <branch> <task> <pane_id>
-set -euo pipefail
-
-branch="${1:?missing branch}"
-task="${2:-}"
-pane_id="${3:?missing pane id}"
-
-if [[ -z "$task" ]]; then
-  tmux send-keys -t "$pane_id" "wtx $branch" Enter
-else
-  # Escape single quotes in task for safe shell interpolation
-  escaped_task="${task//\'/\'\\\'\'}"
-  tmux send-keys -t "$pane_id" "wtx $branch '$escaped_task'" Enter
-fi
-```
-
 **Why `-x` works without shell integration:** `wt switch --create ... -x <cmd>` changes directory inside worktrunk before exec'ing `<cmd>`. Shell integration is only needed for `wt switch` bare (where wt tells the parent shell to cd). The detached tmux session runs in a fresh shell that may not have the zsh hook loaded, so we rely on `-x`.
 
 **Caveat for `prefix + w`:** send-keys types into *whatever is in the current pane*. If the user is in nvim or an agent, the keystrokes go there. The binding is user-initiated, so this is accepted behavior — documented in the workflow doc. Future improvement: detect `#{pane_current_command}` and warn if it isn't a known shell.
 
-`install.sh` already symlinks `tmux/.config/tmux/` in full, so both scripts are picked up. Executable bit must be committed (`chmod +x` before `git add`).
+`install.sh` already symlinks `tmux/.config/tmux/` in full, so `wt-new-session.sh` is picked up. Executable bit must be committed (`chmod +x` before `git add`).
 
 ### 5. User-level worktrunk config (machine-wide)
 
@@ -327,7 +300,7 @@ items:
     menu:
       - name: New worktree (switch-now → current pane)
         key: w
-        command: 'command-prompt -p "Branch:,Task:" "run-shell ''~/.config/tmux/scripts/wt-send-wtx.sh \"%1\" \"%2\" #{pane_id}''"'
+        command: 'command-prompt -p "Branch:" "send-keys ''wtx %%'' Enter"'
       - name: New worktree (fire-and-forget → detached session)
         key: W
         command: 'command-prompt -p "Branch:,Task:" "run-shell ''~/.config/tmux/scripts/wt-new-session.sh \"%1\" \"%2\" \"#{pane_current_path}\"''"'
@@ -412,11 +385,10 @@ Also update the root `README.md`: a small "Worktrunk" line in "Tools and Integra
 7. User sees a `display-message` confirmation; session visible via `prefix + o` → `ctrl-t` and `ctrl-w`
 
 **Creating a new worktree via `prefix + w` (switch-now):**
-1. User types branch + optional task at command prompt
-2. `run-shell` invokes `wt-send-wtx.sh` with `%1`, `%2`, `#{pane_id}`
-3. Script escapes the task string and `send-keys` the command `wtx <branch> '<task>'` into the target pane, followed by Enter
-4. The pane's shell (zsh or nushell, function defined in §2) resolves `wtx`, detects the agent, calls `wt switch --create <branch> -x <agent> -- "<task>"`
-5. worktrunk spawns the agent in the new worktree; the original pane is now the agent session
+1. User types a branch name at the command prompt (no task)
+2. tmux `send-keys` types `wtx <branch>` + Enter into the current pane
+3. The pane's shell (zsh or nushell, function defined in §2) resolves `wtx`, detects the agent, calls `wt switch --create <branch> -x <agent>`
+4. worktrunk spawns the agent interactively in the new worktree; the original pane is now the agent session
 
 **Switching to an existing worktree:**
 1. `prefix + o` opens the sesh picker
@@ -480,7 +452,6 @@ All resolvable post-install. No blocking design issues.
 - `zsh_configs/worktrunk.zsh`
 - `nushell/.config/nushell/conf.d/worktrunk.nu`
 - `tmux/.config/tmux/scripts/wt-new-session.sh` (+ `chmod +x`)
-- `tmux/.config/tmux/scripts/wt-send-wtx.sh` (+ `chmod +x`)
 - `tmux/.config/tmux/custom_modules/ctp_worktrunk.conf`
 - `tmux/.config/tmux/plugins/tmux-which-key/config.yaml`
 - `worktrunk/.config/worktrunk/config.toml`
