@@ -197,8 +197,8 @@ vimcmd_replace_symbol = '[](bold fg:purple)'
 vimcmd_visual_symbol = '[](bold fg:lavender)'
 
 [custom.worktrunk]
-command = "wt list --format=json 2>/dev/null | jq 'length' 2>/dev/null"
-when = "command -v wt >/dev/null"
+command = "wt list --format=json 2>/dev/null | jq '[.[] | select(.is_main | not)] | length' 2>/dev/null"
+when = "wt list --format=json 2>/dev/null | jq -e '[.[] | select(.is_main | not)] | length > 0' >/dev/null"
 shell = ["bash", "--noprofile", "--norc"]
 description = "Number of worktrees in the current repo"
 format = '[[ 🌿 $output ](fg:base bg:green)]($style)'
