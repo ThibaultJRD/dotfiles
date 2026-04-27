@@ -51,7 +51,7 @@ Branch: feat/signup-2fa
 Enter. Behind the scenes:
 
 1. `wt switch --create feat/signup-2fa` creates a new git worktree at
-   `~/Develop/acme-app/acme-app.feat-signup-2fa`
+   `~/Develop/acme-app.feat-signup-2fa`
 2. tmux opens a new window named `feat/signup-2fa`, focused, cwd set
    to the worktree
 
