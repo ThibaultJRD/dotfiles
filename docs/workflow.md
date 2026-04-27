@@ -170,8 +170,19 @@ Done. The PR is open on GitHub.
 Back from lunch. Where did the bug-fix agent end up?
 
 `prefix + Tab` jumps to your last-used window — but you've moved
-around since this morning. Instead, press `prefix + s` for tmux's
-window picker, or just `prefix + 5` if you remember the index.
+around since this morning. Better: press `prefix + g` (go to
+worktree). An fzf popup appears with every worktree of the current
+repo:
+
+```
+🌿 worktree ›
+🌿 main                              [main]
+🌿 feat/signup-2fa                   ←
+🌿 fix/login-button-align
+```
+
+Type a fragment, Enter — tmux switches to the matching window (or
+creates one in the worktree dir if you'd somehow lost it).
 
 You land in `fix/login-button-align`. The agent is done, sitting at a
 shell prompt. You review with `lg`, run the visual tests, push:
@@ -222,6 +233,7 @@ Things you actually use, daily:
 | tmux | `prefix + Tab` | last session |
 | tmux | `prefix + w` | new worktree, focus the window |
 | tmux | `prefix + W` | new worktree, leave it in the background |
+| tmux | `prefix + g` | go-to-worktree picker (fzf over `wt list`) |
 | tmux | `prefix + |` / `-` | split pane vertically / horizontally |
 | tmux | `Ctrl-h/j/k/l` | navigate panes AND nvim splits (no prefix) |
 | tmux | `prefix + f` | floating terminal (floax) |
