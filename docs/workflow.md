@@ -277,5 +277,4 @@ worktree window gets weird, `prefix + &` kills it cleanly. If the
 agent doesn't spawn, check that `claude` or `opencode` is on PATH (or
 that `WT_AGENT` is set to one of them).
 
-For everything else: `prefix + Space` (which-key) inside tmux, or just
-ask Claude.
+For everything else: `prefix + Space` (which-key) inside tmux.
