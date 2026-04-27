@@ -1,0 +1,12 @@
+# worktrunk user-level config — see https://github.com/max-sixty/worktrunk
+#
+# Machine-wide defaults only. Per-project hooks, copy rules, and lifecycle
+# settings belong in each repo's .config/wt.toml (checked in).
+#
+# Uncomment and tune as needed:
+#
+# [list]
+# columns = ["name", "branch", "ci", "summary"]
+#
+# [commit.generation]
+# # defaults for LLM-generated branch summaries
