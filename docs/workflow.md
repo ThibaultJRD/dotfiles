@@ -191,12 +191,6 @@ Mnemonic: uppercase `W` = background work, you stay put.
 
 Use this when you want to **queue an agent and keep working**.
 
-#### Discovering the bindings — `prefix + Space` (which-key)
-
-`prefix + Space` opens a menu overlay listing the custom bindings. The
-worktree commands live under `W → Worktrunk → w|W|l` (list). Handy when
-you forget a keystroke.
-
 ### `wtx <branch>` — shell function
 
 Works at any shell prompt (zsh or nushell), inside or outside tmux. Runs
@@ -323,7 +317,7 @@ Gone. No stash, no checkout jank, no session juggling.
 | `prefix + Tab` | jump to last session |
 | `prefix + w` | new worktree **window**, focused (switch-now) |
 | `prefix + W` | new worktree **window**, background (fire-and-forget) |
-| `prefix + Space` | which-key menu (includes `W → Worktrunk` submenu) |
+| `prefix + Space` | which-key menu |
 | `prefix + f` | floating terminal |
 | `prefix + \|` / `-` | split pane |
 | `Ctrl-h/j/k/l` | navigate panes AND vim splits (no prefix) |
