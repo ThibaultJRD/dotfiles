@@ -52,17 +52,16 @@ Enter. Behind the scenes:
 
 1. `wt switch --create feat/signup-2fa` creates a new git worktree at
    `~/Develop/middlewr/middlewr.feat-signup-2fa`
-2. tmux opens a new window named `feat/signup-2fa`, cwd set to the
-   worktree
-3. Claude (or opencode — auto-detected) starts inside it
+2. tmux opens a new window named `feat/signup-2fa`, focused, cwd set
+   to the worktree
 
-You're now in the new window with the agent. Tell it what you want:
-"Add SMS-based 2FA to the signup flow, see auth/middleware.ts for the
-JWT helper."
+You're now in a plain shell sitting inside the new worktree. From
+here, do whatever — open `nvim`, run `lg`, type `claude` to start an
+interactive agent session, or just hack manually. The window is
+yours.
 
-The agent starts working. When it's done (Ctrl-D or `/quit`), the
-window stays open as a shell **inside the worktree** — no work lost,
-you can run `wt list`, `git diff`, etc. without leaving.
+If you re-run `prefix + w feat/signup-2fa` later (typo, habit,
+whatever), it just jumps to the existing window — no duplicate.
 
 ---
 
@@ -90,15 +89,16 @@ windows: │ 󰊢 git │ 󰅩 IDE │ 󰚩 AI │ feat/signup-2fa │ fix/login
 Check on it later via `prefix + 5` (or `prefix + n` for next, `prefix +
 p` for previous).
 
-Mnemonic: lowercase `w` = "I want to go work there"; uppercase `W` = "I
-want it done while I'm doing something else".
+Mnemonic: lowercase `w` = "I want a worktree window, I'll drive";
+uppercase `W` = "I want an agent to drive while I do something else".
 
 ---
 
-## 10:00 — Reviewing what the agent did
+## 10:00 — Reviewing what you (or the agent) did
 
-Back in `feat/signup-2fa`. The agent finished — you're at a shell
-prompt in the worktree dir. Time to see what it changed.
+Back in `feat/signup-2fa`. Whether you typed everything yourself or
+let `claude` do the heavy lifting, you're now at a shell prompt in
+the worktree dir. Time to see what changed.
 
 Type `lg` for **lazygit**. You get a TUI showing the staged/unstaged
 diff. Use `?` for help, `space` to stage hunks, `c` to commit. Or, to

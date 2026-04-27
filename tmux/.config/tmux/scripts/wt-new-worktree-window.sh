@@ -1,29 +1,40 @@
 #!/usr/bin/env bash
-# Create a new git worktree in a new tmux WINDOW (inside the current session).
-# Window name becomes the branch name; window cwd is the worktree path.
-# The agent runs inside the window; when it exits, `exec $SHELL` takes over so
-# the window persists with a shell still inside the worktree.
+# Open a tmux WINDOW in a git worktree (creating the worktree if missing).
 #
-# Usage: wt-new-worktree-window.sh <branch> [<task>] [--detached]
+# Default (shell mode): focused window with a plain shell. Idempotent — if
+#   a window with the branch name already exists in the current session,
+#   jump to it instead of creating a duplicate.
 #
-#   --detached (or -d)  create the window in the background, stay on the
-#                       current window. Without this flag the new window
-#                       gets focus.
+# --agent [<task>]: detached window running the AI agent (claude/opencode),
+#   with the optional task as initial prompt. Always creates a new window.
+#   When the agent exits, `exec $SHELL` keeps the window alive as a shell
+#   in the worktree dir.
+#
+# Usage:
+#   wt-new-worktree-window.sh <branch>
+#   wt-new-worktree-window.sh <branch> --agent
+#   wt-new-worktree-window.sh <branch> --agent "<task>"
 
 set -euo pipefail
 
-detached=0
 branch=""
+agent_mode=0
 task=""
 
 while (($#)); do
   case "$1" in
-    -d|--detached) detached=1; shift ;;
+    --agent)
+      agent_mode=1
+      shift
+      # Optional task after --agent (anything not starting with --)
+      if (($#)) && [[ "$1" != --* ]]; then
+        task="$1"
+        shift
+      fi
+      ;;
     *)
       if [[ -z "$branch" ]]; then
         branch="$1"
-      elif [[ -z "$task" ]]; then
-        task="$1"
       else
         echo "wt-new-worktree-window: unexpected arg: $1" >&2
         exit 2
@@ -38,7 +49,37 @@ if [[ -z "$branch" ]]; then
   exit 2
 fi
 
-# Agent detection — mirrors wt-agent() in the shell configs.
+# Pre-create the worktree (silent no-op if it exists)
+wt switch --create "$branch" >/dev/null 2>&1 || true
+
+# Resolve the worktree path
+worktree_path=$(wt list --format=json 2>/dev/null \
+  | jq -r --arg br "$branch" '.[] | select(.branch == $br) | .path' 2>/dev/null \
+  | head -1)
+
+if [[ -z "$worktree_path" || ! -d "$worktree_path" ]]; then
+  tmux display-message "wt-new-worktree-window: could not resolve worktree path for '$branch'"
+  exit 1
+fi
+
+# ---- Shell mode (default, idempotent) ---------------------------------------
+if ((!agent_mode)); then
+  # If a window with the same name already exists, jump to it instead
+  # of creating a duplicate. Use window_id to avoid select-window's
+  # ambiguous-target error if multiple windows share the name.
+  window_id=$(tmux list-windows -F '#{window_id} #{window_name}' \
+    | awk -v name="$branch" '$2 == name {print $1; exit}')
+
+  if [[ -n "$window_id" ]]; then
+    tmux select-window -t "$window_id"
+  else
+    tmux new-window -n "$branch" -c "$worktree_path"
+  fi
+  exit 0
+fi
+
+# ---- Agent mode (detached, always creates) ----------------------------------
+# Detect which agent to spawn. Mirrors wt-agent() in the shell configs.
 if [[ -n "${WT_AGENT:-}" ]]; then
   agent="$WT_AGENT"
 elif command -v claude >/dev/null 2>&1; then
@@ -50,28 +91,9 @@ else
   exit 1
 fi
 
-# Pre-create the worktree from outside tmux so we can resolve its path and
-# pass `-c <path>` to `tmux new-window`. This way the new window starts
-# directly inside the worktree dir — no shell-integration warning, and
-# `exec $SHELL` (after the agent exits) lands in the right cwd.
-wt switch --create "$branch" >/dev/null 2>&1 || true
-
-# Find the worktree path for the branch from `wt list --format=json`.
-worktree_path=$(wt list --format=json 2>/dev/null \
-  | jq -r --arg br "$branch" '.[] | select(.branch == $br) | .path' 2>/dev/null \
-  | head -1)
-
-if [[ -z "$worktree_path" || ! -d "$worktree_path" ]]; then
-  tmux display-message "wt-new-worktree-window: could not resolve worktree path for '$branch'"
-  exit 1
-fi
-
-# Shell-escape values for the final `sh -c <string>` that tmux new-window runs.
 agent_q=$(printf '%q' "$agent")
 shell_q=$(printf '%q' "${SHELL:-/bin/sh}")
 
-# The window starts in the worktree (-c). The agent runs there, and when it
-# exits `exec $SHELL` keeps the window alive as a shell in the worktree.
 if [[ -n "$task" ]]; then
   task_q=$(printf '%q' "$task")
   cmd="$agent_q $task_q; exec $shell_q"
@@ -79,14 +101,5 @@ else
   cmd="$agent_q; exec $shell_q"
 fi
 
-# -d = detached (don't switch to the new window)
-new_window_flags=(-n "$branch" -c "$worktree_path")
-if ((detached)); then
-  new_window_flags=(-d "${new_window_flags[@]}")
-fi
-
-tmux new-window "${new_window_flags[@]}" "$cmd"
-
-if ((detached)); then
-  tmux display-message "🌿 worktree '$branch' running in background window"
-fi
+tmux new-window -d -n "$branch" -c "$worktree_path" "$cmd"
+tmux display-message "🌿 worktree '$branch' running in background window"
