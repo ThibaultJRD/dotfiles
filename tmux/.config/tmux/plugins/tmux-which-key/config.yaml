@@ -291,19 +291,5 @@ items:
       - separator: true
       - name: List worktrees (wt list)
         key: l
-        command: "display-popup -E -w 90% -h 80% \"wt list\""
+        command: display-popup -E -w 90% -h 80% wt\ list
         transient: true
-  - separator: true
-  - name: Sesh picker
-    key: o
-    command: "run-shell \"sesh connect \\\"$(sesh list --icons | fzf-tmux -p 80%,70% --no-sort --ansi)\\\"\""
-  - name: Floating terminal (floax)
-    key: f
-    command: "run-shell \"#{TMUX_PLUGIN_MANAGER_PATH}/tmux-floax/scripts/floax.sh\""
-    transient: true
-  - name: URL picker (fzf-url)
-    key: u
-    command: "run-shell \"#{TMUX_PLUGIN_MANAGER_PATH}/tmux-fzf-url/fzf-url.sh\""
-  - name: Thumbs (copy anything on screen)
-    key: t
-    command: "run-shell \"#{TMUX_PLUGIN_MANAGER_PATH}/tmux-thumbs/tmux-thumbs.sh\""
