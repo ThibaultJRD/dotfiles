@@ -53,10 +53,14 @@ if [[ -z "${TMUX:-}" ]]; then
   exit 0
 fi
 
-# In tmux: switch to existing window matching the branch name, otherwise
-# create a fresh one in the worktree dir.
-if tmux list-windows -F '#{window_name}' | grep -Fx -- "$branch" >/dev/null 2>&1; then
-  tmux select-window -t "$branch"
+# In tmux: switch to the first window whose name matches the branch.
+# Use window_id (e.g. @14) instead of window_name to avoid select-window's
+# ambiguous-target error when several windows share the same name.
+window_id=$(tmux list-windows -F '#{window_id} #{window_name}' \
+  | awk -v name="$branch" '$2 == name {print $1; exit}')
+
+if [[ -n "$window_id" ]]; then
+  tmux select-window -t "$window_id"
 else
   tmux new-window -n "$branch" -c "$path"
 fi
