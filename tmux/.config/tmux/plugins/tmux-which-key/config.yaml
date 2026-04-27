@@ -23,12 +23,6 @@ macros:
     commands:
       - display "#{log_info} Restarting pane"
       - "respawnp -k -c #{pane_current_path}"
-  - name: worktrunk-switch-now
-    commands:
-      - 'command-prompt -p "Branch:" "run-shell \"~/.config/tmux/scripts/wt-new-worktree-window.sh \\\"%1\\\"\""'
-  - name: worktrunk-fire-and-forget
-    commands:
-      - 'command-prompt -p "Branch:,Task:" "run-shell \"~/.config/tmux/scripts/wt-new-worktree-window.sh --detached \\\"%1\\\" \\\"%2\\\"\""'
 items:
   - name: Run
     key: space
@@ -290,10 +284,10 @@ items:
     menu:
       - name: New worktree (switch-now → focus new window)
         key: w
-        macro: worktrunk-switch-now
+        command: display-popup -E "~/.config/tmux/scripts/wt-prompt.sh switch"
       - name: New worktree (fire-and-forget → detached window with task)
         key: W
-        macro: worktrunk-fire-and-forget
+        command: display-popup -E "~/.config/tmux/scripts/wt-prompt.sh detached"
       - separator: true
       - name: List worktrees (wt list)
         key: l
