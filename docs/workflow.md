@@ -183,20 +183,19 @@ gh pr create --fill
 
 ---
 
-## 14:00 — Merging back
+## 14:00 — Cleaning up after the PRs land
 
-Both PRs got reviewed. Time to clean up locally. From any window
-inside the project session:
+Both PRs got reviewed and merged on GitHub. Time to clean up locally.
+From any window inside the project session:
 
 ```sh
-wt list           # see all worktrees + their CI status + diffstats
-wt merge fix/login-button-align     # merge into main and remove
-wt remove feat/signup-2fa           # remove the worktree (already merged via PR)
+wt list                              # see all worktrees + CI status + diffstats
+wt remove feat/signup-2fa
+wt remove fix/login-button-align
 ```
 
-The status bar's `🌿 N` indicator (in your starship prompt) drops back
-to nothing. The corresponding tmux windows can be closed with `prefix
-+ &` (asks for confirm).
+The starship `🌿 N` indicator drops back to nothing. Close the
+corresponding tmux windows with `prefix + &` (asks for confirm).
 
 ---
 
@@ -236,7 +235,7 @@ Things you actually use, daily:
 | shell | `lg` | lazygit |
 | shell | `v` | nvim |
 | shell | `wt list` | list worktrees of current repo |
-| shell | `wt merge <br>` | merge worktree back into main |
+| shell | `wt remove <br>` | remove worktree (after PR is merged on GitHub) |
 
 ---
 
