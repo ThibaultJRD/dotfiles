@@ -345,24 +345,3 @@ Gone. No stash, no checkout jank, no session juggling.
 | `wtx <br>` | create worktree + agent, switch into it (interactive) |
 | `wt list` | list worktrees |
 | `wt merge <br>` | merge worktree back into main |
-
----
-
-## 7. When things feel off
-
-- **Prefix doesn't work?** Your `Ctrl-s` may be captured by the terminal
-  (XOFF / flow control). Kitty is configured around it; other terminals
-  may need `stty -ixon`.
-- **Status bar missing?** Run `prefix + I` to force TPM to install
-  plugins. First tmux launch after a fresh install can need this.
-- **Sesh picker empty?** `sesh list` on its own — if empty, you have no
-  sessions yet. `Ctrl-z` in the picker gets you zoxide directories as a
-  starting point.
-- **`wt` command not found?** `brew bundle --file=~/dotfiles/Brewfile`
-  then open a new shell.
-- **Agent doesn't spawn?** Check `wt-agent` (zsh/nu function) — if
-  nothing returns, install `claude` or `opencode`, or set
-  `WT_AGENT=<name>` in `~/.zshrc.local`.
-
-For everything else: `prefix + Space` inside tmux, `man <tool>` outside,
-and the per-tool READMEs in `fish/README.md` and `nushell/README.md`.
