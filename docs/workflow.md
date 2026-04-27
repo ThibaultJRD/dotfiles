@@ -23,7 +23,7 @@ yet. Press `prefix + o` to open the **sesh picker**:
 ```
 
 Press `Ctrl-z` to switch to **zoxide** mode. Type a few letters of your
-project (e.g. `mid` for `middlewr`), Enter. Sesh creates a tmux session
+project (e.g. `acm` for `acme-app`), Enter. Sesh creates a tmux session
 named after the directory and runs `sesh-startup.sh`, which lays out
 three windows:
 
@@ -51,7 +51,7 @@ Branch: feat/signup-2fa
 Enter. Behind the scenes:
 
 1. `wt switch --create feat/signup-2fa` creates a new git worktree at
-   `~/Develop/middlewr/middlewr.feat-signup-2fa`
+   `~/Develop/acme-app/acme-app.feat-signup-2fa`
 2. tmux opens a new window named `feat/signup-2fa`, focused, cwd set
    to the worktree
 
