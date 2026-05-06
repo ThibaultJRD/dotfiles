@@ -4,6 +4,11 @@
 # .config/wt.toml. Project-specific dev servers, copy includes, etc. live in
 # the repo's .config/wt.toml (checked in there, not here).
 
+# Pipe the wt switch picker preview through delta so it picks up our
+# Catppuccin theme instead of the default git pager output.
+[switch.picker]
+pager = "delta --paging=never --width=$COLUMNS"
+
 # Build a dedicated tmux session for every new worktree.
 # Layout: 󰊢 git / 󰅩 IDE / 󰚩 AI (3 windows). Idempotent.
 [pre-start]
