@@ -246,7 +246,7 @@ Things you actually use, daily:
 | tmux | `prefix + W` | new worktree + session, agent runs in AI window in background |
 | tmux | `prefix + g` | go-to-worktree picker (native `wt switch` with previews) |
 | tmux | `prefix + o` → `C-w` | 🌿 worktrees-only mode (cross-repo) |
-| tmux | `prefix + |` / `-` | split pane vertically / horizontally |
+| tmux | `prefix + |` / `-` | split pane horizontally / vertically |
 | tmux | `Ctrl-h/j/k/l` | navigate panes AND nvim splits (no prefix) |
 | tmux | `prefix + f` | floating terminal (floax) |
 | tmux | `prefix + d` | detach |
@@ -266,8 +266,15 @@ Things you actually use, daily:
 ## Per-machine and per-repo tweaks
 
 **Pin the AI agent on a machine** — by default the helper picks
-`claude` then falls back to `opencode`. If you want to force one, add
-to `~/.zshrc.local` (not versioned):
+`claude` then falls back to `opencode`. To force one, set `WT_AGENT`
+in the shell that launches tmux. For nushell (the default here), add
+to `~/.config/nushell/env.nu`:
+
+```nu
+$env.WT_AGENT = "opencode"
+```
+
+For zsh, add to `~/.zshrc`:
 
 ```sh
 export WT_AGENT=opencode

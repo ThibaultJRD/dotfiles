@@ -6,7 +6,7 @@
 #
 # Called from:
 #   - ~/.config/worktrunk/config.toml [pre-start] (every wt switch --create)
-#   - ~/.config/tmux/scripts/wt-window-w.sh / wt-window-W.sh / wt-picker.sh
+#   - ~/.config/tmux/scripts/wt-window-fg.sh / wt-window-bg.sh / wt-picker.sh
 #
 # Silently skips if tmux is missing (so wt switch --create stays usable when
 # tmux isn't around — wt switch is shell-agnostic, the hook shouldn't gate it).
