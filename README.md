@@ -13,6 +13,8 @@
 
 Automated macOS terminal setup — tmux, neovim, and 40+ CLI tools with a consistent Catppuccin theme.
 
+**New to this setup?** Start with [`docs/workflow.md`](docs/workflow.md) — a hands-on guide for tmux, sesh, and worktrunk.
+
 ---
 
 ## ⚡ Quick Start
@@ -59,6 +61,7 @@ Open Kitty, run `tmux`, you're ready. The script backs up existing configs befor
 | **Dev** | [pnpm](https://pnpm.io/) / yarn / bun | JS package managers | `p` |
 | **Docker** | [Lazydocker](https://github.com/jesseduffield/lazydocker) | Docker TUI | `lazydocker` |
 | **Utility** | [Lazyprune](https://github.com/ThibaultJRD/lazyprune) | Find and delete heavy cache dirs + kill processes by port | `lazyprune` |
+| **Worktrees** | [worktrunk](docs/workflow.md) | Worktrees + AI agents: parallel branches, parallel agents | `wt` |
 
 ---
 
@@ -80,12 +83,17 @@ The **prefix** is `Ctrl+s` — all tmux shortcuts start with it. Press `Prefix +
 
 | Key | Action |
 |-----|--------|
-| `Prefix + o` | **Sesh** — fuzzy session picker (tmux sessions, zoxide dirs, configs) |
+| `Prefix + o` | **Sesh** — fuzzy session picker (tmux / zoxide / configs / 🌿 worktrees) |
 | `Prefix + Tab` | Switch to last session |
 | `Prefix + d` | Detach from current session |
 | `Prefix + $` | Rename session |
+| `Prefix + w` | **Worktree** — create a worktree + session, switch into it |
+| `Prefix + W` | **Worktree (background)** — create + run agent in AI window, no switch |
+| `Prefix + g` | **Go to worktree** — native `wt switch` picker with previews |
 
 Sessions are managed by [sesh](https://github.com/joshmedeski/sesh). Connecting to a git repo automatically creates a 3-window layout (lazygit, nvim+terminal, AI terminal). Non-git directories get a simple terminal. The `sesh.toml` config is in `sesh/.config/sesh/`.
+
+**Worktrees get their own sessions too**, with the same 3-window layout. They are named `<repo>/WT/<branch>` so they group visually under the parent repo, and they are filtered out of the default `Prefix + o` view — press `Ctrl+W` (🌿) inside the picker for a worktrees-only view across all repos. See [`docs/workflow.md`](docs/workflow.md) for the full flow.
 
 ### 🪟 Windows and Panes
 
