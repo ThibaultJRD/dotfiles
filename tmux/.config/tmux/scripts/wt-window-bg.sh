@@ -36,10 +36,8 @@ read -r repo_path worktree_path <<<"$(wt list --format=json | jq -r --arg br "$b
   ] | @tsv')"
 repo=$(basename "$repo_path")
 
-~/.config/worktrunk/scripts/wt-ensure-session.sh "$repo" "$branch" "$worktree_path"
-
-branch_sanitized=$(printf '%s' "$branch" | sed 's![/.]!-!g')
-session="$repo/WT/$branch_sanitized"
+# Ensure the session exists and capture its resolved name (handles main vs WT).
+session=$(~/.config/worktrunk/scripts/wt-ensure-session.sh "$repo" "$branch" "$worktree_path")
 
 # Build the agent invocation. With a task: 'agent <quoted-task>'. Without: 'agent'.
 if [[ -n "$task" ]]; then

@@ -25,8 +25,8 @@ read -r repo_path worktree_path <<<"$(wt list --format=json | jq -r --arg br "$b
   ] | @tsv')"
 repo=$(basename "$repo_path")
 
-# Idempotent safety net (covers worktree-exists-but-session-killed case).
-~/.config/worktrunk/scripts/wt-ensure-session.sh "$repo" "$branch" "$worktree_path"
-
-branch_sanitized=$(printf '%s' "$branch" | sed 's![/.]!-!g')
-tmux switch-client -t "=$repo/WT/$branch_sanitized:3"
+# Ensure the session exists (covers worktree-on-disk-but-session-killed). The
+# script also resolves the right name (repo for main, repo/WT/branch otherwise)
+# and prints it on stdout — capture it and switch the client there.
+session=$(~/.config/worktrunk/scripts/wt-ensure-session.sh "$repo" "$branch" "$worktree_path")
+tmux switch-client -t "=$session:3"
