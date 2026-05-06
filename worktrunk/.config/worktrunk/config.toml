@@ -1,12 +1,20 @@
 # worktrunk user-level config — see https://github.com/max-sixty/worktrunk
 #
-# Machine-wide defaults only. Per-project hooks, copy rules, and lifecycle
-# settings belong in each repo's .config/wt.toml (checked in).
-#
-# Uncomment and tune as needed:
-#
-# [list]
-# columns = ["name", "branch", "ci", "summary"]
-#
-# [commit.generation]
-# # defaults for LLM-generated branch summaries
+# These hooks apply to every repo unless overridden in a per-repo
+# .config/wt.toml. Project-specific dev servers, copy includes, etc. live in
+# the repo's .config/wt.toml (checked in there, not here).
+
+# Build a dedicated tmux session for every new worktree.
+# Layout: 󰊢 git / 󰅩 IDE / 󰚩 AI (3 windows). Idempotent.
+[pre-start]
+tmux-session = '~/.config/worktrunk/scripts/wt-ensure-session.sh "{{ repo }}" "{{ branch }}" "{{ worktree_path }}"'
+
+# Eliminate cold starts: copy gitignored files (.env, node_modules, IDE state,
+# caches…) from the main worktree. APFS reflinks make this near-free on macOS.
+# Per-project excludes go in that repo's .config/wt.toml.
+[[post-start]]
+copy-ignored = "wt step copy-ignored"
+
+# Kill the orphan tmux session when removing the worktree.
+[post-remove]
+tmux-session = 'tmux kill-session -t "={{ repo }}/WT/{{ branch | sanitize }}" 2>/dev/null || true'
