@@ -6,27 +6,28 @@
 
 session_name=$(tmux display-message -p '#S')
 case "$session_name" in
-  neovim|tmux|claude) exit 0 ;;
+neovim | tmux | claude) exit 0 ;;
 esac
 
 if git rev-parse --is-inside-work-tree &>/dev/null; then
-  # Window 1: rename to "git" and launch lazygit
-  tmux rename-window "󰊢 git"
+  # Window: rename to "git" and launch lazygit
+  tmux new-window -n "󰊢 git"
   tmux send-keys "lazygit" Enter
 
-  # Window 2: "IDE" — nvim (75%) + terminal (25%) stacked vertically
+  # Window: "IDE" — nvim (75%) + terminal (25%) stacked vertically
   tmux new-window -n "󰅩 IDE"
   tmux send-keys "nvim" Enter
   tmux split-window -v -l 25%
   tmux select-pane -t :.1
 
-  # Window 3: "AI" — show project tree
+  # Window: "AI" — show project tree
   tmux new-window -n "󰚩 AI"
   tmux send-keys "lt" Enter
 
-  # Start on window 3 (AI) to see project tree
-  tmux select-window -t :3
+  # Start on window (AI) to see project tree
+  tmux select-window -t :4
 else
   # Non-git: show project tree
+  tmux new-window
   tmux send-keys "lt" Enter
 fi
