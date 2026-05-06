@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# prefix + W handler.
-# Same session creation as wt-window-w.sh, then sends an agent + task to the
+# prefix + W handler (background variant).
+# Same session creation as wt-window-fg.sh, then sends an agent + task to the
 # AI window (index 3). Does NOT switch the client.
 #
-# Usage: wt-window-W.sh <branch> [<task>]
+# Usage: wt-window-bg.sh <branch> [<task>]
 
 set -euo pipefail
 
@@ -11,7 +11,7 @@ branch="${1:-}"
 task="${2:-}"
 
 if [[ -z "$branch" ]]; then
-  tmux display-message "wt-window-W: branch name required"
+  tmux display-message "wt-window-bg: branch name required"
   exit 2
 fi
 
@@ -23,7 +23,7 @@ elif command -v claude >/dev/null 2>&1; then
 elif command -v opencode >/dev/null 2>&1; then
   agent=opencode
 else
-  tmux display-message "wt-window-W: no AI agent found (set WT_AGENT, install claude/opencode)"
+  tmux display-message "wt-window-bg: no AI agent found (set WT_AGENT, install claude/opencode)"
   exit 1
 fi
 
@@ -49,4 +49,4 @@ else
 fi
 
 tmux send-keys -t "=$session:3" "$cmd" Enter
-tmux display-message "worktree '$branch' running $agent in background session"
+tmux display-message "🌿 worktree '$branch' running $agent in background session"

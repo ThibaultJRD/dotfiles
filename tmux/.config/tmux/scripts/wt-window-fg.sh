@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# prefix + w handler.
+# prefix + w handler (foreground variant).
 # Creates a worktree (if missing), ensures the tmux session exists, then
 # switches the current tmux client to the AI window (index 3) of that session.
 #
-# Usage: wt-window-w.sh <branch>
+# Usage: wt-window-fg.sh <branch>
 
 set -euo pipefail
 
 branch="${1:-}"
 if [[ -z "$branch" ]]; then
-  tmux display-message "wt-window-w: branch name required"
+  tmux display-message "wt-window-fg: branch name required"
   exit 2
 fi
 
