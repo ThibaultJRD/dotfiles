@@ -19,7 +19,7 @@ yet. Press `prefix + o` to open the **sesh picker**:
 
 ```
 ⚡ C-a all  │ 🪟 C-t tmux │ ⚙️ C-g configs │ 📁 C-z zoxide
-🔎 C-f find │ ❌ C-x kill │ 🖱️ C-d/u scroll
+🌿 C-w worktrees │ 🔎 C-f find │ ❌ C-x kill │ 🖱️ C-d/u scroll
 ```
 
 Press `Ctrl-z` to switch to **zoxide** mode. Type a few letters of your
@@ -106,21 +106,15 @@ uppercase `W` = "I want an agent to drive while I do something else".
 ## 10:00 — Reviewing what you (or the agent) did
 
 Back in `feat/signup-2fa`. Whether you typed everything yourself or
-let `claude` do the heavy lifting, you're now at a shell prompt in
-the worktree dir. Time to see what changed.
+let `claude` do the heavy lifting, you want to see what changed.
 
-Type `lg` for **lazygit**. You get a TUI showing the staged/unstaged
-diff. Use `?` for help, `space` to stage hunks, `c` to commit. Or, to
-just eyeball the diff:
+`prefix + 1` jumps to the `󰊢 git` window — lazygit is already running
+there. Stage hunks with `space`, scroll the diff, commit with `c`. `?`
+shows the full keymap.
 
-```sh
-git diff main..HEAD
-```
-
-If something looks off, open Neovim with `v <file>` (alias for `nvim`),
-edit, save. Use `Ctrl-h/j/k/l` to switch between Neovim splits **and**
-tmux panes seamlessly — the keybind works in both. No mental
-context-switch.
+`prefix + 2` is the `󰅩 IDE` window: Neovim on top, a small terminal
+pane below. `Ctrl-h/j/k/l` switches between Neovim splits **and** tmux
+panes seamlessly — same keybind in both, no mental context-switch.
 
 Need a quick scratchpad without leaving the window? `prefix + f` opens
 a **floating terminal** (floax). Run a one-off, hit `prefix + f` again,
@@ -162,13 +156,10 @@ automatically.
 
 ## 11:30 — Pushing the feature
 
-The feature works. From your `feat/signup-2fa` window (still in the
-worktree dir):
-
-```sh
-git push -u origin feat/signup-2fa
-gh pr create --fill
-```
+The feature works. `prefix + 1` to the lazygit window. `P` pushes the
+branch (sets the upstream on first push). Switch to the local-branches
+panel and use lazygit's create-pull-request command — it shells out to
+`gh` and opens the PR in your browser.
 
 Done. The PR is open on GitHub.
 
@@ -191,46 +182,30 @@ on the left, and a preview pane on the right with tabs:
 
 Pick `fix/login-button-align`, Enter. tmux switches into the matching
 WT session, AI window. The agent has finished, sitting at a shell
-prompt. You review with `lg`, run the visual tests, push:
-
-```sh
-git push -u origin fix/login-button-align
-gh pr create --fill
-```
-
-Need a worktrees overview across **all** your repos? `prefix + o`,
-`Ctrl+W` — the 🌿 worktrees mode lists every active WT session you have,
-across projects.
+prompt. `prefix + 1` to lazygit, review the diff, push, open the PR —
+same flow as this morning.
 
 ---
 
 ## 14:00 — Cleaning up after the PRs land
 
 Both PRs got reviewed and merged on GitHub. Time to clean up locally.
-From any window inside the project session:
+
+From inside the worktree session itself, `prefix + X` runs `wt remove`
+on the current worktree. Worktrunk prompts if anything looks unsafe
+(uncommitted changes, unmerged branch). The `post-remove` hook kills
+the matching tmux session, and tmux switches you to another session
+automatically — no orphan sessions, no orphan windows.
+
+For a different worktree: `prefix + g`, switch into it, then
+`prefix + X`. Or skip the picker entirely:
 
 ```sh
-wt list                              # see all worktrees + CI status + diffstats
-wt remove feat/signup-2fa
 wt remove fix/login-button-align
 ```
 
-Worktrunk's `post-remove` hook kills the matching tmux session for you,
-so you don't end up with orphan sessions. The starship `🌿 N` indicator
-drops back to nothing.
-
----
-
-## 17:30 — Detaching for the day
-
-You're done. From any pane:
-
-```
-prefix + d
-```
-
-tmux detaches. The session keeps running in the background. Tomorrow,
-`tmux` reattaches you, all your windows exactly where you left them.
+The starship `🌿 N` indicator drops back to nothing once everything's
+cleaned up.
 
 ---
 
@@ -245,11 +220,10 @@ Things you actually use, daily:
 | tmux | `prefix + w` | new worktree + session, switch into it (lands on AI window) |
 | tmux | `prefix + W` | new worktree + session, agent runs in AI window in background |
 | tmux | `prefix + g` | go-to-worktree picker (native `wt switch` with previews) |
-| tmux | `prefix + o` → `C-w` | 🌿 worktrees-only mode (cross-repo) |
+| tmux | `prefix + X` | remove current worktree (worktrunk prompts; session is killed) |
 | tmux | `prefix + |` / `-` | split pane horizontally / vertically |
 | tmux | `Ctrl-h/j/k/l` | navigate panes AND nvim splits (no prefix) |
 | tmux | `prefix + f` | floating terminal (floax) |
-| tmux | `prefix + d` | detach |
 | tmux | `prefix + Space` | which-key menu (when you forget) |
 | shell | `Ctrl-t` | fzf file picker → insert path |
 | shell | `Ctrl-g` | zoxide directory picker |
@@ -258,7 +232,6 @@ Things you actually use, daily:
 | shell | `y` | yazi file manager |
 | shell | `lg` | lazygit |
 | shell | `v` | nvim |
-| shell | `wt list` | list worktrees of current repo |
 | shell | `wt remove <br>` | remove worktree (after PR is merged on GitHub) |
 
 ---
@@ -301,7 +274,6 @@ Per-repo overrides go in that repo's `.config/wt.toml`.
 | `@`      | Current worktree's branch                |
 | `-`      | Previous worktree                        |
 | `pr:42`  | GitHub PR #42                            |
-| `mr:42`  | GitLab MR !42                            |
 
 Examples:
 
