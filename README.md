@@ -90,6 +90,7 @@ The **prefix** is `Ctrl+s` — all tmux shortcuts start with it. Press `Prefix +
 | `Prefix + w` | **Worktree** — create a worktree + session, switch into it |
 | `Prefix + W` | **Worktree (background)** — create + run agent in AI window, no switch |
 | `Prefix + g` | **Go to worktree** — native `wt switch` picker with previews |
+| `Prefix + X` | **Remove current worktree** — `wt remove` (worktrunk prompts; session is killed) |
 
 Sessions are managed by [sesh](https://github.com/joshmedeski/sesh). Connecting to a git repo automatically creates a 3-window layout (lazygit, nvim+terminal, AI terminal). Non-git directories get a simple terminal. The `sesh.toml` config is in `sesh/.config/sesh/`.
 
