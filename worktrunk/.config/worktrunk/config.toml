@@ -9,6 +9,21 @@
 [switch.picker]
 pager = "delta --paging=never --width=$COLUMNS"
 
+# Show LLM-generated branch summaries in `wt list --full` and the `wt switch`
+# picker's `summary` tab. The summary command is borrowed from
+# [commit.generation] below — same LLM serves commit messages and summaries.
+# Cached per-branch; re-runs only when the diff changes.
+[list]
+summary = true
+
+# LLM commit messages — used by wt merge / wt step commit / wt step squash
+# AND (via [list] summary = true) by branch summaries in the picker.
+# Uses Claude Code with the haiku model: one-shot, no session, no tools,
+# no system prompt, no settings inheritance — minimal context for a fast
+# generation step.
+[commit.generation]
+command = "CLAUDECODE= MAX_THINKING_TOKENS=0 claude -p --no-session-persistence --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
+
 # Build a dedicated tmux session for every new worktree.
 # Layout: 󰊢 git / 󰅩 IDE / 󰚩 AI (3 windows). Idempotent.
 [pre-start]
