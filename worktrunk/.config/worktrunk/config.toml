@@ -21,8 +21,12 @@ summary = true
 # Uses Claude Code with the haiku model: one-shot, no session, no tools,
 # no system prompt, no settings inheritance — minimal context for a fast
 # generation step.
+#
+# Guarded by `command -v claude` so machines without Claude Code installed
+# fall back to worktrunk's default (manual editor for commits, empty
+# summary tab) instead of erroring out on every LLM call.
 [commit.generation]
-command = "CLAUDECODE= MAX_THINKING_TOKENS=0 claude -p --no-session-persistence --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
+command = "command -v claude >/dev/null 2>&1 && CLAUDECODE= MAX_THINKING_TOKENS=0 claude -p --no-session-persistence --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
 
 # Build a dedicated tmux session for every new worktree.
 # Layout: 󰊢 git / 󰅩 IDE / 󰚩 AI (3 windows). Idempotent.
