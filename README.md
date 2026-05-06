@@ -83,12 +83,17 @@ The **prefix** is `Ctrl+s` — all tmux shortcuts start with it. Press `Prefix +
 
 | Key | Action |
 |-----|--------|
-| `Prefix + o` | **Sesh** — fuzzy session picker (tmux sessions, zoxide dirs, configs) |
+| `Prefix + o` | **Sesh** — fuzzy session picker (tmux / zoxide / configs / 🌿 worktrees) |
 | `Prefix + Tab` | Switch to last session |
 | `Prefix + d` | Detach from current session |
 | `Prefix + $` | Rename session |
+| `Prefix + w` | **Worktree** — create a worktree + session, switch into it |
+| `Prefix + W` | **Worktree (background)** — create + run agent in AI window, no switch |
+| `Prefix + g` | **Go to worktree** — native `wt switch` picker with previews |
 
 Sessions are managed by [sesh](https://github.com/joshmedeski/sesh). Connecting to a git repo automatically creates a 3-window layout (lazygit, nvim+terminal, AI terminal). Non-git directories get a simple terminal. The `sesh.toml` config is in `sesh/.config/sesh/`.
+
+**Worktrees get their own sessions too**, with the same 3-window layout. They are named `<repo>/WT/<branch>` so they group visually under the parent repo, and they are filtered out of the default `Prefix + o` view — press `Ctrl+W` (🌿) inside the picker for a worktrees-only view across all repos. See [`docs/workflow.md`](docs/workflow.md) for the full flow.
 
 ### 🪟 Windows and Panes
 
