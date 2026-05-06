@@ -51,17 +51,21 @@ Branch: feat/signup-2fa
 Enter. Behind the scenes:
 
 1. `wt switch --create feat/signup-2fa` creates a new git worktree at
-   `~/Develop/acme-app.feat-signup-2fa`
-2. tmux opens a new window named `feat/signup-2fa`, focused, cwd set
-   to the worktree
+   `~/Develop/acme-app.feat-signup-2fa`.
+2. Worktrunk's `pre-start` hook builds a dedicated tmux session
+   `acme-app/WT/feat-signup-2fa` with the same 3-window layout as the
+   parent project (`󰊢 git` / `󰅩 IDE` / `󰚩 AI`).
+3. `post-start` runs `wt step copy-ignored` in the background — your
+   `.env`, IDE state, `node_modules`, caches… are all reflinked from the
+   main worktree (near-instantaneous on APFS).
+4. tmux switches you into the new session, on the AI window.
 
-You're now in a plain shell sitting inside the new worktree. From
-here, do whatever — open `nvim`, run `lg`, type `claude` to start an
-interactive agent session, or just hack manually. The window is
-yours.
+You're sitting in a fresh shell at the worktree path with `lazygit`,
+`nvim`, and the AI window all ready. Same muscle memory as the parent
+project.
 
-If you re-run `prefix + w feat/signup-2fa` later (typo, habit,
-whatever), it just jumps to the existing window — no duplicate.
+Re-running `prefix + w feat/signup-2fa` later just switches you back —
+the session is reused, no duplicate.
 
 ---
 
@@ -78,18 +82,23 @@ Branch: fix/login-button-align
 Task:   center the login button below 400px in /login
 ```
 
-Enter. A **new window** is created in the **background** (your focus
-stays where it is). An agent is spawned in that window with the task as
-its first prompt. You keep working.
+Enter. A **new session** `acme-app/WT/fix-login-button-align` is created
+in the **background** — your focus stays where it is. The agent runs in
+the AI window of that session with the task as its first prompt.
+
+You can confirm with the toast notification "🌿 worktree
+'fix/login-button-align' running claude in background session". Keep
+working on the feature.
 
 ```
-windows: │ 󰊢 git │ 󰅩 IDE │ 󰚩 AI │ feat/signup-2fa │ fix/login-button-align │
+sessions: │ acme-app │ acme-app/WT/feat-signup-2fa │ acme-app/WT/fix-login-button-align │
 ```
 
-Check on it later via `prefix + 5` (or `prefix + n` for next, `prefix +
-p` for previous).
+`prefix + o` won't show the WT sessions (filtered by default). To see
+them, press `Ctrl+W` inside the picker — that's the 🌿 worktrees-only
+mode.
 
-Mnemonic: lowercase `w` = "I want a worktree window, I'll drive";
+Mnemonic: lowercase `w` = "I want a worktree, I'll drive";
 uppercase `W` = "I want an agent to drive while I do something else".
 
 ---
@@ -169,28 +178,29 @@ Done. The PR is open on GitHub.
 
 Back from lunch. Where did the bug-fix agent end up?
 
-`prefix + Tab` jumps to your last-used window — but you've moved
+`prefix + Tab` jumps to your last-used session — but you've moved
 around since this morning. Better: press `prefix + g` (go to
-worktree). An fzf popup appears with every worktree of the current
-repo:
+worktree). A popup opens with worktrunk's native picker — branch list
+on the left, and a preview pane on the right with tabs:
 
-```
-🌿 worktree ›
-🌿 main                              [main]
-🌿 feat/signup-2fa                   ←
-🌿 fix/login-button-align
-```
+- **HEAD±** — uncommitted changes diff.
+- **log** — recent commits.
+- **main…±** — what's changed since merge-base with the default branch.
+- **remote⇅** — ahead/behind versus upstream.
+- **summary** — LLM-generated branch summary (when enabled).
 
-Type a fragment, Enter — tmux switches to the matching window (or
-creates one in the worktree dir if you'd somehow lost it).
-
-You land in `fix/login-button-align`. The agent is done, sitting at a
-shell prompt. You review with `lg`, run the visual tests, push:
+Pick `fix/login-button-align`, Enter. tmux switches into the matching
+WT session, AI window. The agent has finished, sitting at a shell
+prompt. You review with `lg`, run the visual tests, push:
 
 ```sh
 git push -u origin fix/login-button-align
 gh pr create --fill
 ```
+
+Need a worktrees overview across **all** your repos? `prefix + o`,
+`Ctrl+W` — the 🌿 worktrees mode lists every active WT session you have,
+across projects.
 
 ---
 
@@ -205,8 +215,9 @@ wt remove feat/signup-2fa
 wt remove fix/login-button-align
 ```
 
-The starship `🌿 N` indicator drops back to nothing. Close the
-corresponding tmux windows with `prefix + &` (asks for confirm).
+Worktrunk's `post-remove` hook kills the matching tmux session for you,
+so you don't end up with orphan sessions. The starship `🌿 N` indicator
+drops back to nothing.
 
 ---
 
@@ -231,9 +242,10 @@ Things you actually use, daily:
 |---|---|---|
 | tmux | `prefix + o` | sesh picker (sessions / zoxide / find) |
 | tmux | `prefix + Tab` | last session |
-| tmux | `prefix + w` | new worktree, focus the window |
-| tmux | `prefix + W` | new worktree, leave it in the background |
-| tmux | `prefix + g` | go-to-worktree picker (fzf over `wt list`) |
+| tmux | `prefix + w` | new worktree + session, switch into it (lands on AI window) |
+| tmux | `prefix + W` | new worktree + session, agent runs in AI window in background |
+| tmux | `prefix + g` | go-to-worktree picker (native `wt switch` with previews) |
+| tmux | `prefix + o` → `C-w` | 🌿 worktrees-only mode (cross-repo) |
 | tmux | `prefix + |` / `-` | split pane vertically / horizontally |
 | tmux | `Ctrl-h/j/k/l` | navigate panes AND nvim splits (no prefix) |
 | tmux | `prefix + f` | floating terminal (floax) |
@@ -261,23 +273,40 @@ to `~/.zshrc.local` (not versioned):
 export WT_AGENT=opencode
 ```
 
-**Auto-copy `.env` files into new worktrees** — opt in per-repo. Add
-to the repo's `.config/wt.toml`:
+**Auto-copy of gitignored files is on by default** — every new worktree
+inherits the main worktree's `.env`, IDE state, `node_modules`, caches,
+etc. via `wt step copy-ignored` in `[[post-start]]`. APFS reflinks make
+this near-free on macOS. To **exclude** specific paths globally, add to
+`~/.config/worktrunk/config.toml`:
 
 ```toml
-[[post-start]]
-copy = "wt step copy-ignored"
+[step.copy-ignored]
+exclude = ["coverage/", ".turbo/"]
 ```
 
-And a `.worktreeinclude` at the repo root listing what to copy:
+Per-repo overrides go in that repo's `.config/wt.toml`.
 
-```
-.env
-.env.local
+**Worktrunk shortcuts** that save typing:
+
+| Shortcut | Meaning                                  |
+|----------|------------------------------------------|
+| `^`      | Default branch (`main` / `master`)       |
+| `@`      | Current worktree's branch                |
+| `-`      | Previous worktree                        |
+| `pr:42`  | GitHub PR #42                            |
+| `mr:42`  | GitLab MR !42                            |
+
+Examples:
+
+```sh
+wt switch --create hotfix --base=@      # stack on top of current branch
+wt switch -                             # back to previous worktree
+wt switch pr:42                         # check out PR #42 as a worktree
 ```
 
-Now every `prefix + w` / `prefix + W` automatically copies your env
-files into the new worktree — agents start with full credentials.
+`--base=@` is the canonical way to do **stacked branches** — start a
+new feature on top of an in-flight one without waiting for the parent
+to merge.
 
 ---
 
