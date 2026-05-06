@@ -15,7 +15,7 @@ if [[ -z "$branch" ]]; then
   exit 2
 fi
 
-# Detect agent — same precedence as wt-agent in zsh/nu shell configs.
+# Detect agent. Precedence: $WT_AGENT > claude > opencode > error.
 if [[ -n "${WT_AGENT:-}" ]]; then
   agent="$WT_AGENT"
 elif command -v claude >/dev/null 2>&1; then
