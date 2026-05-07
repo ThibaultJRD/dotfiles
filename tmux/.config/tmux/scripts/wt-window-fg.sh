@@ -15,7 +15,10 @@ fi
 
 # Trigger creation; pre-start hook builds the session.
 # --no-cd is fine here since we drive tmux ourselves.
-wt switch --create "$branch" --no-cd
+# --base=@ stacks new branches on top of the current worktree's branch
+# (matches the "branch off here" mental model of a tmux shortcut). Ignored
+# by wt when the branch already exists.
+wt switch --create "$branch" --no-cd --base=@
 
 # Resolve repo name (from main worktree path) and the new worktree path.
 read -r repo_path worktree_path <<<"$(wt list --format=json | jq -r --arg br "$branch" '

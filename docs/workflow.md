@@ -50,8 +50,11 @@ Branch: feat/signup-2fa
 
 Enter. Behind the scenes:
 
-1. `wt switch --create feat/signup-2fa` creates a new git worktree at
-   `~/Develop/acme-app.feat-signup-2fa`.
+1. `wt switch --create feat/signup-2fa --base=@` creates a new git worktree
+   at `~/Develop/acme-app.feat-signup-2fa`. `--base=@` means the new branch
+   stacks on top of the current worktree's branch (the "branch off here"
+   default for the tmux shortcut). Pass `--base=^` manually via
+   `wt switch --create` if you'd rather start from the trunk.
 2. Worktrunk's `pre-start` hook builds a dedicated tmux session
    `acme-app/WT/feat-signup-2fa` with the same 3-window layout as the
    parent project (`󰊢 git` / `󰅩 IDE` / `󰚩 AI`).
@@ -285,7 +288,10 @@ wt switch pr:42                         # check out PR #42 as a worktree
 
 `--base=@` is the canonical way to do **stacked branches** — start a
 new feature on top of an in-flight one without waiting for the parent
-to merge.
+to merge. The `prefix + w` / `prefix + W` tmux shortcuts already pass
+`--base=@` for you, so worktrees created from a session always stack on
+the branch you're sitting on. Use `wt switch --create … --base=^` from
+the shell when you explicitly want to fork off the trunk instead.
 
 ---
 
