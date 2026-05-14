@@ -72,6 +72,12 @@ backup_and_copy() {
   local target_path=$2
   local backup_file=""
 
+  # If target is already identical to source, skip
+  if [ -f "$target_path" ] && cmp -s "$source_path" "$target_path"; then
+    echo_success "'$target_path' is already up to date. Skipping."
+    return 0
+  fi
+
   # If target exists, back it up
   if [ -e "$target_path" ]; then
     backup_file="$target_path.bak.$BACKUP_DATE"
