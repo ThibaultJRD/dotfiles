@@ -74,9 +74,8 @@ if is_git_repo "$cwd"; then
 
     tmux select-window -t "$session:3"
   else
-    # Sesh-mode: ride the ghost pane. Indexes go 1=ghost, 2=git, 3=IDE, 4=AI;
-    # ghost dies on script exit, renumber-window collapses to 1=git, 2=IDE, 3=AI.
-    tmux new-window -n "󰊢 git"
+    # Reuse window 1 for git, then add IDE and AI.
+    tmux rename-window "󰊢 git"
     tmux send-keys "lazygit" Enter
 
     tmux new-window -n "󰅩 IDE"
@@ -87,14 +86,13 @@ if is_git_repo "$cwd"; then
     tmux new-window -n "󰚩 AI"
     tmux send-keys "lt" Enter
 
-    tmux select-window -t :4
+    tmux select-window -t :3
   fi
 else
   if [[ "$mode" == external ]]; then
     tmux new-session -d -s "$session" -c "$cwd"
     send_keys 1 "lt"
   else
-    tmux new-window
     tmux send-keys "lt" Enter
   fi
 fi
