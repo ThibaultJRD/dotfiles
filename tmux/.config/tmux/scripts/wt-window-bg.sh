@@ -27,10 +27,11 @@ else
   exit 1
 fi
 
-# --base=@ stacks new branches on top of the current worktree's branch
-# (matches the "branch off here" mental model of a tmux shortcut). Ignored
-# by wt when the branch already exists.
-wt switch --create "$branch" --no-cd --base=@
+# New branch: create the worktree. Existing branch: worktrunk errors on
+# --create, so fall back to a plain switch. --base=@ branches off the current
+# worktree (ignored when the branch exists).
+wt switch --create "$branch" --no-cd --base=@ 2>/dev/null \
+  || wt switch "$branch" --no-cd
 
 read -r repo_path worktree_path <<<"$(wt list --format=json | jq -r --arg br "$branch" '
   [
