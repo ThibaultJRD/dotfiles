@@ -224,7 +224,7 @@ Things you actually use, daily:
 | tmux | `prefix + W` | new worktree + session, agent runs in AI window in background |
 | tmux | `prefix + g` | go-to-worktree picker (native `wt switch` with previews) |
 | tmux | `prefix + X` | remove current worktree (worktrunk prompts; session is killed) |
-| tmux | `prefix + |` / `-` | split pane horizontally / vertically |
+| tmux | `prefix + \|` / `-` | split pane horizontally / vertically |
 | tmux | `Ctrl-h/j/k/l` | navigate panes AND nvim splits (no prefix) |
 | tmux | `prefix + f` | floating terminal (floax) |
 | tmux | `prefix + Space` | which-key menu (when you forget) |
