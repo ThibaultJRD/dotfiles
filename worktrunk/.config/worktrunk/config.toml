@@ -31,7 +31,7 @@ command = "command -v claude >/dev/null 2>&1 && CLAUDECODE= MAX_THINKING_TOKENS=
 # Build a dedicated tmux session for every new worktree.
 # Layout: 󰊢 git / 󰅩 IDE / 󰚩 AI (3 windows). Idempotent.
 [pre-start]
-tmux-session = '~/.config/worktrunk/scripts/wt-ensure-session.sh "{{ repo }}" "{{ branch }}" "{{ worktree_path }}"'
+tmux-session = '~/.config/worktrunk/scripts/wt-ensure-session.sh "{{ repo }}" "{{ branch }}" {{ worktree_path }}'
 
 # Eliminate cold starts: copy gitignored files (.env, node_modules, IDE state,
 # caches…) from the main worktree. APFS reflinks make this near-free on macOS.
