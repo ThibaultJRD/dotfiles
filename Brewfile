@@ -8,6 +8,7 @@
 brew "bash"
 brew "bat"
 brew "carapace"
+brew "coreutils"
 brew "btop"
 brew "eza"
 brew "fd"
