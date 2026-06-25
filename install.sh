@@ -185,10 +185,13 @@ else
   echo_success "Rust and Cargo installed."
 fi
 
-# Ensure cargo is available in current session
+# Ensure cargo is available in current session and rust-analyzer is installed
 if [ -f "$HOME/.cargo/env" ]; then
   # shellcheck disable=SC1091
   source "$HOME/.cargo/env"
+  echo_info "Installing rust-analyzer component..."
+  rustup component add rust-analyzer
+  echo_success "rust-analyzer installed."
 fi
 
 # 5. Install Cargo tools
