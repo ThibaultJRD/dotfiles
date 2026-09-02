@@ -85,9 +85,6 @@ $env.config = {
   hooks: {
     display_output: "if (term size).columns >= 100 { table -e } else { table }"
   }
-
-  # Keybindings are added by conf.d/fzf.nu
-  keybindings: []
 }
 
 # --- Theme ---
