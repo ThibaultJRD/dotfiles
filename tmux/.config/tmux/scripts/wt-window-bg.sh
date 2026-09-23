@@ -9,10 +9,23 @@ set -euo pipefail
 
 branch="${1:-}"
 task="${2:-}"
+dir="${3:-}"
 
 if [[ -z "$branch" ]]; then
   tmux display-message "wt-window-bg: branch name required"
   exit 2
+fi
+
+if [[ -n "$dir" ]]; then
+  cd "$dir" || {
+    tmux display-message "wt-window-bg: cannot cd to $dir"
+    exit 2
+  }
+fi
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  tmux display-message "🌿 wt: not a git repo - open a project first"
+  exit 0
 fi
 
 # Detect agent. Precedence: $WT_AGENT > claude > opencode > error.
@@ -35,8 +48,8 @@ wt switch --create "$branch" --no-cd --base=@ 2>/dev/null ||
 
 read -r repo_path worktree_path <<<"$(wt list --format=json | jq -r --arg br "$branch" '
   [
-    (.[] | select(.is_main).path),
-    (.[] | select(.branch == $br).path)
+    (.items[] | select(.worktree.main).worktree.path),
+    (.items[] | select(.branch == $br).worktree.path)
   ] | @tsv')"
 repo=$(basename "$repo_path")
 

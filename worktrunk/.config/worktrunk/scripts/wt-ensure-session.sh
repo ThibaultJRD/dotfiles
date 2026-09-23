@@ -35,9 +35,9 @@ fi
 # Note the explicit pipe before .is_main: with `select().is_main // false`
 # inside the array, non-matching entries contribute a phantom `false` via the
 # alternative operator, which then beats the real match in `first`.
-is_main=$(wt list --format=json 2>/dev/null \
-  | jq -r --arg br "$branch" '[.[] | select(.branch == $br) | .is_main] | first // false' 2>/dev/null \
-  || echo false)
+is_main=$(wt list --format=json 2>/dev/null |
+  jq -r --arg br "$branch" '[.items[] | select(.branch == $br) | .worktree.main] | first // false' 2>/dev/null ||
+  echo false)
 
 if [[ "$is_main" == "true" ]]; then
   session="$repo"

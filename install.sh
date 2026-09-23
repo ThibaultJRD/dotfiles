@@ -292,14 +292,28 @@ for repo_url in "${ZSH_PLUGINS[@]}"; do
 done
 echo_success "Zsh plugins are up to date."
 
-# 9. Install Node.js LTS version
+# 9. Install or Update Tmux Plugins (TPM)
+echo_info "Installing or updating Tmux plugins (TPM)..."
+TPM_DIR="$HOME/.config/tmux/modules/tpm"
+
+if [ -d "$TPM_DIR" ]; then
+  (cd "$TPM_DIR" && git pull)
+else
+  git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+fi
+
+"$TPM_DIR/bin/install_plugins"
+"$TPM_DIR/bin/update_plugins" all
+echo_success "Tmux plugins are up to date."
+
+# 10. Install Node.js LTS version
 echo_info "Installing latest Node.js LTS via 'n'..."
 export N_PREFIX="$HOME/.n"
 export PATH="$N_PREFIX/bin:$PATH"
 n lts
 echo_success "Node.js LTS is installed."
 
-# 10. Install tools
+# 11. Install tools
 echo_info "Installing tools..."
 
 if command -v bun &>/dev/null; then

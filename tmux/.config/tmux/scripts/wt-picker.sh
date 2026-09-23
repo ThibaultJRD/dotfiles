@@ -14,6 +14,12 @@ if ! command -v wt >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "🌿 wt: not a git repo - open a project first" >&2
+  read -rp "Press enter to close... " _
+  exit 0
+fi
+
 result=$(wt switch --no-cd --format json) || exit 0
 branch=$(jq -r '.branch // empty' <<<"$result")
 worktree_path=$(jq -r '.path // empty' <<<"$result")

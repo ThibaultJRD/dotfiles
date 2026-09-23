@@ -8,16 +8,30 @@
 set -euo pipefail
 
 branch="${1:-}"
+dir="${2:-}"
+
 if [[ -z "$branch" ]]; then
   tmux display-message "wt-window-fg: branch name required"
   exit 2
 fi
 
+if [[ -n "$dir" ]]; then
+  cd "$dir" || {
+    tmux display-message "wt-window-fg: cannot cd to $dir"
+    exit 2
+  }
+fi
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  tmux display-message "🌿 wt: not a git repo - open a project first"
+  exit 0
+fi
+
 # New branch: create the worktree. Existing branch: worktrunk errors on
 # --create, so fall back to a plain switch. --no-cd since we drive tmux here;
 # --base=@ branches off the current worktree (ignored when the branch exists).
-wt switch --create "$branch" --no-cd --base=@ 2>/dev/null \
-  || wt switch "$branch" --no-cd
+wt switch --create "$branch" --no-cd --base=@ 2>/dev/null ||
+  wt switch "$branch" --no-cd
 
 # Resolve repo name (from main worktree path) and the new worktree path.
 read -r repo_path worktree_path <<<"$(wt list --format=json | jq -r --arg br "$branch" '
