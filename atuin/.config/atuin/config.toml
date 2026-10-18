@@ -6,7 +6,7 @@
 # -------------------------------------------------------------------
 
 # Search mode: fuzzy allows flexible matching with operators like ^, !, $
-search_mode = "fuzzy"
+search_mode = "daemon-fuzzy"
 
 # Filter mode: global shows all commands from history
 # You can switch modes during search with Ctrl+R
@@ -105,6 +105,7 @@ common_subcommands = [
   "cargo",
   "go",
   "tmux",
+  "yarn"
 ]
 
 # Ignore sudo prefix in stats
@@ -126,3 +127,12 @@ name = "catppuccin-mocha-mauve"
 # List of enabled filter modes, in order of priority for Ctrl+R cycling
 # global: all commands | workspace: git repo | session: tmux session | directory: current folder
 filters = ["global", "workspace", "session", "directory"]
+
+[daemon]
+enabled = true
+autostart = true
+
+[tmux]
+enabled = true
+width = "60%"
+height = "40%"
