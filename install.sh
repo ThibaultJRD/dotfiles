@@ -177,8 +177,16 @@ fi
 # from modifying shell configs (PATH is managed manually in .zshrc and config.nu)
 if command -v rustup &>/dev/null; then
   echo_success "Rust is already installed. Updating..."
+  set +e
   rustup update
-  echo_success "Rust updated."
+  RUSTUP_UPDATE_STATUS=$?
+  set -e
+
+  if [ $RUSTUP_UPDATE_STATUS -ne 0 ]; then
+    echo_warning "Warning: 'rustup update' failed. Continuing with setup..."
+  else
+    echo_success "Rust updated."
+  fi
 else
   echo_info "Installing Rust and Cargo via rustup..."
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
@@ -318,7 +326,16 @@ echo_info "Installing tools..."
 
 if command -v bun &>/dev/null; then
   echo_success "Bun is already installed. Updating..."
+  set +e
   bun upgrade
+  BUN_UPGRADE_STATUS=$?
+  set -e
+
+  if [ $BUN_UPGRADE_STATUS -ne 0 ]; then
+    echo_warning "Warning: 'bun upgrade' failed. Continuing with setup..."
+  else
+    echo_success "Bun updated successfully."
+  fi
 else
   echo_info "Installing Bun..."
   curl -fsSL https://bun.sh/install | bash
@@ -326,7 +343,16 @@ fi
 
 if command -v atuin &>/dev/null; then
   echo_success "Atuin is already installed. Updating..."
+  set +e
   atuin update
+  ATUIN_UPDATE_STATUS=$?
+  set -e
+
+  if [ $ATUIN_UPDATE_STATUS -ne 0 ]; then
+    echo_warning "Warning: 'atuin update' failed. Continuing with setup..."
+  else
+    echo_success "Atuin updated successfully."
+  fi
 else
   echo_info "Installing Atuin..."
   curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | sh
