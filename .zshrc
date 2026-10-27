@@ -28,7 +28,6 @@ ZSH_THEME=""
 
 # List of plugins for Oh My Zsh.
 plugins=(
-  git
   fzf
   sudo
   zsh-completions
